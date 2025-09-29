@@ -1,0 +1,24 @@
+destroy_user_not_confirmed_after_48_hours_job:
+  cron: "0 */6 * * *"
+  class: "DestroyUserNotConfirmedAfter48HoursJob"
+  queue: jobs
+
+destroy_logging_when_they_are_one_year_and_one_day_old_job:
+  cron: "0 0 * * *"
+  class: "DestroyLoggingWhenTheyAreOneYearAndOneDayOldJob"
+  queue: jobs
+
+send_email_to_organization_admins_job:
+  cron: "0 0 * * *"
+  class: "SendEmailToOrganizationAdminJob"
+  queue: jobs
+
+"Notify Schools Admins For New Partnerships":
+  cron: "0 0 * * *"
+  class: "NotifySchoolsAdminsForNewPartnershipsJob"
+  queue: jobs
+
+"Notify Project Owner For New Participations Request":
+  cron: "0 0 * * *"
+  class: "NotifyProjectOwnerForNewParticipationsRequestJob"
+  queue: jobs

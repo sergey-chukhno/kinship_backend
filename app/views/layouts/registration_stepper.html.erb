@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <%= favicon_link_tag "favicon.png" %>
+    <%= render  "shared/meta_tags" %>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= render "shared/css-cdn" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+<body>
+  <%= render "shared/flashes" %>
+  <%= render "shared/navbar" if display_navbar? %>
+  <div class="devise-container">
+    <div class="left-side-container">
+      <%= image_tag("sign-in-sign-up.png") %>
+    </div>
+
+    <div class="right-side-container">
+      <%= yield %>
+    </div>
+  </div>
+  </body>
+</html>

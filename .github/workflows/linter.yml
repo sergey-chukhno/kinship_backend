@@ -1,0 +1,20 @@
+name: Linter
+
+on: [push]
+
+jobs:
+  test:
+    env:
+      RAILS_ENV: test
+      NODE_ENV: test
+      CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Ruby # An action to install Ruby and gems
+        uses: ruby/setup-ruby@v1 # short for https://github.com/ruby/setup-ruby
+        with:
+          bundler-cache: true
+      - name: Run linter
+        run: bundle exec standardrb

@@ -1,0 +1,21 @@
+.badge__wrapper {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(12rem, 1fr));
+}
+
+.badge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  &:hover p {
+    color: $primary !important;
+  }
+
+  &__icon {
+    width: 100%;
+    max-width: 8rem;
+    aspect-ratio: 1;
+  }
+}

@@ -1,0 +1,19 @@
+body {
+  display: flex;
+  align-items: center;
+  background-color: $grey-07;
+}
+.main-container {
+  min-height: 100vh;
+  max-width: 1280px;
+  width: 100%;
+  padding: 16px 16px 16px 16px;
+
+  margin-top: 4rem;
+  margin-bottom: 0;
+
+  @media screen and (max-width: 768px) {
+    margin-top: 0;
+    margin-bottom: 4.625rem;
+  }
+}

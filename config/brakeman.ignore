@@ -1,0 +1,75 @@
+{
+  "ignored_warnings": [
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 105,
+      "fingerprint": "4e31eaf73b8a8b85697ea0a9a5caba2c951f72c661d85b136ea416cc14ecebf2",
+      "check_name": "PermitAttributes",
+      "message": "Potentially dangerous key allowed for mass assignment",
+      "file": "app/controllers/registration_stepper/first_steps_controller.rb",
+      "line": 30,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.require(:registration_stepper_user_role).permit(:role, :role_additional_information, :company_form)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "RegistrationStepper::FirstStepsController",
+        "method": "user_role_params"
+      },
+      "user_input": ":role",
+      "confidence": "Medium",
+      "cwe_id": [
+        915
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 105,
+      "fingerprint": "669012ae43b42e39ba777aae04fa0d3b3081dc1ab7eb0710fa43b953cbeb4770",
+      "check_name": "PermitAttributes",
+      "message": "Potentially dangerous key allowed for mass assignment",
+      "file": "app/controllers/school_admin_panel/school_members_controller.rb",
+      "line": 67,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.require(:user_school).permit(:admin)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "SchoolAdminPanel::SchoolMembersController",
+        "method": "admin_params"
+      },
+      "user_input": ":admin",
+      "confidence": "High",
+      "cwe_id": [
+        915
+      ],
+      "note": ""
+    },
+    {
+      "warning_type": "Mass Assignment",
+      "warning_code": 105,
+      "fingerprint": "6b8f7ffb3f79d9f3fff321571ea8f2830c45d9d46a2092e2d5d1082954796f13",
+      "check_name": "PermitAttributes",
+      "message": "Potentially dangerous key allowed for mass assignment",
+      "file": "app/controllers/company_admin_panel/company_members_controller.rb",
+      "line": 47,
+      "link": "https://brakemanscanner.org/docs/warning_types/mass_assignment/",
+      "code": "params.require(:user_company).permit(:admin)",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "CompanyAdminPanel::CompanyMembersController",
+        "method": "admin_params"
+      },
+      "user_input": ":admin",
+      "confidence": "High",
+      "cwe_id": [
+        915
+      ],
+      "note": ""
+    }
+  ],
+  "updated": "2024-03-05 09:25:02 +0100",
+  "brakeman_version": "6.1.2"
+}

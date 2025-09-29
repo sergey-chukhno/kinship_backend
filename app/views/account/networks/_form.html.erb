@@ -1,0 +1,8 @@
+<%= render "account/networks/partials/form_network", f: f %>
+<p class="paragraph mt-32px">Mon réseau</p>
+<% @user.companies.each do |company| %>
+  <%= render OrganizationGlobalInfoCardComponent.new(company: company, current_user: @user) %>
+<% end %>
+<%= render "account/networks/partials/form_companies", f: f %>
+<p class="xs-paragraph dark-01 mt-16px">Vous ne trouvez pas votre organisation ?<%= link_to " Demander l’ajout d’une nouvelle organisation", new_company_path %></p>
+<%= f.submit t(current_user.role, scope: [:views, :account, :networks, :form, :submit]), class: "btn-primary__full-width" %>

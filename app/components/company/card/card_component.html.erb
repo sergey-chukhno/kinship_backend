@@ -1,0 +1,28 @@
+<turbo_frame id="<%= dom_id(@company) %>" class="company-card">
+  <%= render(Ui::Icon::IconComponent.new(icon: "new/company-avatar", size: "32", color: "color-var-4" )) %>
+
+  <div class="company-card__content">
+    <div class="company-card__header">
+      <div class="participant-card__header--name">
+        <p class="s-paragraph-bold dark-01"><%= @company.name %></p>
+        <%= render(Ui::IconWithText::IconWithTextComponent.new(icon: "new/pin", text: @company.location, color: "grey-03")) %>
+        <%= render(Ui::IconWithText::IconWithTextComponent.new(icon: "new/people", text: @company_members, color: "grey-03")) %>
+      </div>
+      <div class="participant-card__header--actions">
+        <%= render(Ui::Button::ButtonComponent.new(builder: :link, style: :primary, size: :sm, path: new_participants_contact_path(recipient_id: @owner), class: "participant-card__contact-desktop", data: {  turbo_frame: "modal" }).with_content(I18n.t(".actions.contact"))) %>
+      </div>
+    </div>
+
+    <div class="company-card__tags">
+      <%= render(Ui::Badge::BadgeComponent.new(text: @company_type, color: "purple")) %>
+    </div>
+
+    <% if @company_skills.any? %>
+      <div class="company-card__tags">
+        <%= render(Ui::Badge::BadgeComponent.with_collection((@company_skills), color: "grey")) %>
+      </div>
+    <% end %>
+
+    <%= render(Ui::Button::ButtonComponent.new(builder: :link, style: :primary, size: :sm, path: new_participants_contact_path(recipient_id: @owner), class: "participant-card__contact-mobile", data: {  turbo_frame: "modal" }).with_content(I18n.t(".actions.contact"))) %>
+  </div>
+</turbo_frame>

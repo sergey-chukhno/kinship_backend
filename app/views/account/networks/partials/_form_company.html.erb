@@ -1,0 +1,13 @@
+<div class="nested-form-wrapper">
+  <div class="form__wrapper--2col" data-controller="companies-select-search">
+    <%= f.input :company_id,
+        collection: Company.confirmed.first(10).map { |company| [company.full_name, company.id] },
+        label: "Rechercher par nom, code postal ou ville",
+        input_html: {
+          data: {
+            companies_select_search_target: "companyInput",
+          }
+        } %>
+    <button type="button" class="nested-fields--remove-btn" data-action="nested-form#remove"><%= show_svg "trash.svg" %></button>
+    <%= f.hidden_field :_destroy %>
+  </div>

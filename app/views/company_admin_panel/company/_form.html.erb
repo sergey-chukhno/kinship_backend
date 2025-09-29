@@ -1,0 +1,50 @@
+<%= f.input :name,
+            label: t("models.company.name.label"),
+            disabled: true %>
+<%= f.input :description,
+            label: t("models.company.description.label"),
+            as: :text,
+            disabled: true %>
+<%= f.input :company_type_id,
+            as: :select,
+            label: t("models.company.company_type.label"),
+            collection: CompanyType.all.map { |company_type| [company_type.name, company_type.id] },
+            disabled: true %>
+<%= f.input :city,
+            label: t("models.company.city.label"),
+            disabled: true %>
+<%= f.input :zip_code,
+            label: t("models.company.zip_code.label"),
+            disabled: true %>
+<%= f.input :siret_number,
+            label: t("models.company.siret_number.label"),
+            disabled: true %>
+<%= f.input :email,
+            label: t("models.company.email.label"),
+            hint: t("models.company.email.hint") %>
+<%= f.input :website,
+            label: t("models.company.website.label"),
+            disabled: true %>
+<%= f.input :referent_phone_number,
+            label: t("models.company.referent_phone_number.label"),
+            disabled: true %>
+<p class="paragraph dark-01">Informations de réseau</p>
+<%= f.input :job,
+            label: t("models.company.job.label"),
+            hint: t("models.company.job.hint") %>
+<%= f.input :take_trainee,
+            as: :select,
+            include_blank: false,
+            collection: [["Oui", true], ["Non", false]],
+            label: t("models.company.take_trainee.label") %>
+<%= f.input :propose_workshop,
+            as: :select,
+            include_blank: false,
+            collection: [["Oui", true], ["Non", false]],
+            label: t("models.company.propose_workshop.label") %>
+<%= f.input :propose_summer_job,
+            as: :select,
+            include_blank: false,
+            collection: [["Oui", true], ["Non", false]],
+            label: t("models.company.propose_summer_job.label") %>
+<%= f.button :submit, "Enregistrer", class: "btn-primary__full-width" %>

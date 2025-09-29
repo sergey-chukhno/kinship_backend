@@ -1,0 +1,153 @@
+<%= simple_form_for project, url: url, data: { controller: "select-search school-searcher" } do |f| %>
+  <div class="form__wrapper--background form__wrapper--2col project-form--2-input" data-controller="toggle-on-select" data-toggle-on-select-wanted-value="ended">
+    <%= f.input :status,
+                label: "Statut",
+                collection: Project.statuses.keys.map{ |status| [I18n.t("activerecord.attributes.project.status.#{status}"), status] },
+                input_html: {
+                  data: {
+                    "select-search-target": "defaultSelect",
+                    "toggle-on-select-target": "select",
+                    "action": "change->toggle-on-select#toggle",
+                  }
+                }%>
+    <%= f.input :private,
+                label: "Visibilité",
+                include_blank: false,
+                collection: [["Public", false], ["Privé", true]]
+                %>
+    <div class="form__wrapper--2col project-form--2-input <%= "d-none" unless project.ended? %>" data-toggle-on-select-target="toggleable">
+      <%= f.input :time_spent, label: "Nombre d'heures" %>
+      <%= f.input :participants_number, label: "Nombre de participants" %>
+    </div>
+  </div>
+
+  <div class="form__wrapper--background">
+    <% if current_user.teacher? || current_user.admin? %>
+      <div class="form__wrapper--2col project-form--2-input">
+        <%= f.input :schools,
+                  label: "Établissement",
+                  collection: current_user.schools.map{ |school| [school.full_name, school.id] },
+                  selected: project.schools.first&.id,
+                  include_blank: "Selectionner un établissement",
+                  input_html: {
+                    data: {
+                      "school-searcher-target": "projectSchoolInput",
+                      multiple: true
+                    }
+                } %>
+        <%= f.association :school_levels,
+                        label: "Classes concernées",
+                        collection: school_levels_edit_collection(project),
+                        required: true,
+                        input_html: {
+                          data: {
+                            "school-searcher-target": "schoolLevelInput",
+                            multiple: true
+                          }
+                        } %>
+      </div>
+    <% end %>
+
+    <% if current_user.tutor? || current_user.voluntary? || current_user.admin? %>
+     <%= f.association :companies,
+          label: "Organisations",
+          collection: contractualized_companies_collection,
+          input_html: {
+            data: {
+              "select-search-target": "removableSelect",
+              multiple: true
+            }
+          } %>
+    <% end %>
+
+    <%= f.input :title, label: "Titre du projet" %>
+    <%= f.association :tags,
+                      label: "Parcours",
+                      collection: Tag.all,
+                      input_html: {
+                        data: {
+                          "select-search-target": "removableSelect",
+                          multiple: true
+                        }
+                      } %>
+    <%= f.association :skills,
+                      label: "Compétences",
+                      hint: "Ajouter les compétences mises en œuvre par les élèves (techniques, disciplinaires ou soft skills (montage, coopération, communication écrite...))",
+                      collection: Skill.all,
+                      input_html: {
+                        data: {
+                          "select-search-target": "removableSelect",
+                        }
+                      } %>
+    <%= f.input :description, label: "Description du projet" %>
+    <%= f.association :keywords,
+                      label: "Mots clés",
+                      collection: project.keywords,
+                      input_html: {
+                        data: {
+                          "select-search-target": "removableCreatableSelect",
+                        }
+                      } %>
+
+    <%= render "projects/partials/form/main_picture_fields", f: f %>
+    <%= render "projects/partials/form/pictures_fields", f: f %>
+
+    <div class="form__input-wrapper">
+      <label class="xs-paragraph grey-01">Ajouter un lien utile</label>
+      <span class="hint grey-02">Ajouter tous liens utiles permettant de visualiser ou d’apporter des informations complémentaires au projet (vidéos, site internet...)</span>
+    </div>
+
+    <div class="form__wrapper" data-controller='nested-form' data-nested-form-wrapper-selector-value='.nested-fields-container'>
+      <template data-nested-form-target="template">
+        <%= f.simple_fields_for :links, Link.new, child_index: 'NEW_RECORD' do |link_fields| %>
+          <%= render "projects/partials/form/links_fields", f: link_fields %>
+        <% end %>
+      </template>
+      <%= f.simple_fields_for :links do |link_fields| %>
+        <%= render "projects/partials/form/links_fields", f: link_fields %>
+      <% end %>
+
+      <button class="nested-fields--add-link" data-action="nested-form#add" data-nested-form-target="target"><%= show_svg "add.svg" %> Ajouter un lien utile supplémentaire</button>
+    </div>
+
+    <%= render "projects/partials/form/documents_fields", f: f %>
+
+    <div class="form__input-wrapper">
+      <label class="xs-paragraph grey-01">Ajouter une équipe projet</label>
+      <span class="hint grey-02">Créer des équipes pour lister les élèves concernés et recruter des participants</span>
+    </div>
+
+    <div class="form__wrapper" data-controller='nested-form' data-nested-form-wrapper-selector-value='.nested-fields-container'>
+      <template data-nested-form-target="template">
+        <%= f.simple_fields_for :teams, Team.new, child_index: 'NEW_RECORD' do |team_fields| %>
+          <%= render "projects/partials/form/teams_fields", f: team_fields %>
+        <% end %>
+      </template>
+      <%= f.simple_fields_for :teams do |team_fields| %>
+        <%= render "projects/partials/form/teams_fields", f: team_fields %>
+      <% end %>
+
+      <button class="nested-fields--add-link" data-action="nested-form#add" data-nested-form-target="target"><%= show_svg "add.svg" %> Ajouter une équipe supplémentaire</button>
+    </div>
+
+    <div class="form__wrapper--2col project-form--2-input">
+      <%= f.input :start_date,
+                  label: "Date de début du projet estimée",
+                  as: :date,
+                  html5: true,
+                  input_html: {
+                    value: project.start_date&.strftime("%Y-%m-%d")
+                  } %>
+      <%= f.input :end_date,
+                  label: "Date de fin du projet estimée",
+                  as: :date,
+                  html5: true,
+                  input_html: {
+                    value: project.end_date&.strftime("%Y-%m-%d")
+                  } %>
+    </div>
+    <%= f.button :submit,
+                  edit_project? ? "Modifier ce projet" : "Valider le projet",
+                  class: "btn-primary align-self-end" %>
+  </div>
+<% end %>

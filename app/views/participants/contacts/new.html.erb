@@ -1,0 +1,21 @@
+<%= render TurboModalComponent.new(title: "Contacter cet utilisateur") do %>
+  <p class="s-paragraph grey-03">En complétant ce formulaire, une demande de prise de contact sera envoyée par email au destinataire</p>
+  <%= simple_form_for @contact,
+                      url: participants_contacts_path,
+                      method: :post,
+                      data: {
+                        turbo_action: 'update',
+                      } do |f| %>
+    <%= f.input :sender_id, as: :hidden %>
+    <%= f.input :recipient_id, as: :hidden %>
+    <%= f.input :subject,
+                as: :select,
+                collection: Custom::ContactParticipant::SUBJECTS,
+                label: "Pour quel sujet souhaitez vous inviter cette personne ?" %>
+    <%= f.input :message,
+                as: :text,
+                label: "Ajouter un message personnalisé",
+                input_html: { rows: 5 } %>
+    <%= f.submit "Envoyer la demande", class: "btn-primary align-self-end" %>
+  <% end %>
+<% end %>

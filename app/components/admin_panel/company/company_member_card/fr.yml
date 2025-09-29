@@ -1,0 +1,10 @@
+fr:
+  admin_panel:
+    company:
+      company_member_card:
+        company_member_card_component:
+          roles:
+            children: "Adhérent"
+            teacher: "Enseignant"
+            tutor: "Parent"
+            voluntary: "Volontaire"

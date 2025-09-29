@@ -1,0 +1,30 @@
+<div class="nested-fields-container form__wrapper">
+  <%= create_school_level_fields.input :school_id,
+                                        as: :hidden,
+                                        input_html: {
+                                          name: "create_school_level[#{id}][school_id]",
+                                          data: {
+                                            school_registration_form_target: "schoolIds",
+                                          }
+                                        } %>
+  <div class="form__wrapper--2col">
+    <%= create_school_level_fields.input :level,
+                                          collection: SchoolLevel::LEVEL,
+                                          label: t("registration.second_step.schools.create_school_level.level.label"),
+                                          input_html: {
+                                            name: "create_school_level[#{id}][level]",
+                                          } %>
+    <%= create_school_level_fields.input :name,
+                                          collection: SchoolLevel::LEVEL_NAMES,
+                                          label: t("registration.second_step.schools.create_school_level.name.label"),
+                                          input_html: {
+                                            name: "create_school_level[#{id}][name]",
+                                          } %>
+    <button type="button" class="nested-fields--remove-btn" data-action="nested-form#remove"><%= show_svg "trash.svg" %></button>
+    <%= create_school_level_fields.input :_destroy,
+                                          as: :hidden,
+                                          input_html: {
+                                            name: "create_school_level[#{id}][_destroy]",
+                                          } %>
+  </div>
+</div>

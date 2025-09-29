@@ -1,0 +1,34 @@
+<div data-controller="reveal" class="form__wrapper">
+  <label class="check-box xs-paragraph grey-01" data-action="change->reveal#toggle">
+    <input type="checkbox">
+    <span>Le nom de ma classe n'est pas dans les choix</span>
+  </label>
+  <div class="form__wrapper--2col hidden" data-reveal-target="item">
+    <%= create_custom_school_level_fields.input :school_id,
+                                          as: :hidden,
+                                          input_html: {
+                                            name: "create_custom_school_level[NEW_RECORD][school_id]",
+                                            data: {
+                                              school_registration_form_target: "schoolIds customSchoolLevelInput",
+                                            }
+                                          } %>
+    <%= create_custom_school_level_fields.input :level,
+                                        label: t("registration.second_step.schools.create_custom_school_level.level.label"),
+                                        placeholder: t("registration.second_step.schools.create_custom_school_level.level.placeholder"),
+                                        input_html: {
+                                          name: "create_custom_school_level[NEW_RECORD][level]",
+                                          data: {
+                                            school_registration_form_target: "customSchoolLevelInput",
+                                          }
+                                        } %>
+    <%= create_custom_school_level_fields.input :name,
+                                      label: t("registration.second_step.schools.create_custom_school_level.name.label"),
+                                      placeholder: t("registration.second_step.schools.create_custom_school_level.name.placeholder"),
+                                      input_html: {
+                                        name: "create_custom_school_level[NEW_RECORD][name]",
+                                        data: {
+                                          school_registration_form_target: "customSchoolLevelInput",
+                                        }
+                                      } %>
+  </div>
+</div>

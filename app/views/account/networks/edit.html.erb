@@ -1,0 +1,5 @@
+<%= simple_form_for @user, url: account_network_path(@user), method: :patch, data: { controller: "nested-form", nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |f| %>
+  <%= render "form", f: f %>
+<% end %>
+
+<%= turbo_frame_tag "edit_schools", src: edit_account_school_path(@user), class: "mt-32px" %>

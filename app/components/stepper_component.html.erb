@@ -1,0 +1,29 @@
+<div class="stepper-container" data-controller="stepper" data-stepper-current-step-value="<%= @current_step %>">
+  <div class="stepper current">
+    <span class="bubble"><%= helpers.show_svg "check.svg" %></span>
+    <p class="xxs-paragraph dark-01">Détails</p>
+  </div>
+
+  <% unless children? %>
+    <div class="stepper">
+      <span class="bubble"><%= helpers.show_svg "check.svg" %></span>
+      <p class="xxs-paragraph dark-01">Mot de passe</p>
+    </div>
+  <% end %>
+
+  <% unless teacher? || children? %>
+    <div class="stepper">
+      <span class="bubble"><%= helpers.show_svg "check.svg" %></span>
+      <p class="xxs-paragraph dark-01"><%= company_form? ? "Organisation" : "Disponibilités" %></p>
+    </div>
+  <% end %>
+
+  <div class="stepper">
+    <span class="bubble"><%= helpers.show_svg "check.svg" %></span>
+    <% if company_form? %>
+      <p class="xxs-paragraph dark-01">Partenariat</p>
+    <% else %>
+      <p class="xxs-paragraph dark-01">Compétences <%= "& réseau" unless session[:user_role] && session[:user_role]["role"] == "teacher" || @options[:role] == "teacher" %></p>
+    <% end %>
+  </div>
+</div>

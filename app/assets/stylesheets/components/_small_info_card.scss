@@ -1,0 +1,92 @@
+.small-card-info-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  border: 1px solid $grey-04;
+  border-radius: 8px;
+  padding: 14px;
+  background-color: $white;
+  height: fit-content;
+  @include for-tablet-portrait-up {
+    width: 220px;
+  }
+  @include for-phone-only {
+    width: initial;
+  }
+}
+
+.info-owner-card {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  .owner-main-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .owner-avatar {
+      width: 48px;
+      height: 48px;
+
+      svg {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+    }
+    .owner-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+  }
+
+  .separator {
+    display: flex;
+    width: 100%;
+    height: 1px;
+    background-color: $grey-04;
+  }
+
+  .owner-secondary-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .owner-school {
+      display: flex;
+      gap: 8px;
+
+      svg {
+        width: 16px;
+        height: 16px;
+
+        path {
+          fill: $primary;
+        }
+      }
+    }
+
+    .owner-school-level {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      svg {
+        width: 16px;
+        height: 16px;
+      }
+    }
+  }
+}
+
+.team-list {
+  .participants-list div {
+    padding: 6px 0;
+    border-bottom: 1px solid $grey-04;
+    padding-bottom: 12px;
+    margin-bottom: 4px;
+  }
+}

@@ -1,0 +1,10 @@
+<h1 class="title-1 dark-01">Confirmation de suppression de compte</h1>
+<p class="paragraph dark-01"> Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible et toutes vos données associées seront effacées.</p>
+<p class="paragraph dark-01">Veuillez prendre en considération les risques suivants :</p>
+<li class="s-paragraph dark-01">
+  <ul>Toutes les informations liées à votre compte seront définitivement supprimées.</ul>
+  <ul>Vous perdrez l'accès à toutes les fonctionnalités de notre plateforme.</ul>
+  <ul>Vous ne pourrez pas récupérer votre compte une fois qu'il est supprimé. Si vous souhaitez utiliser nos services à nouveau, vous devrez créer un nouveau compte.</ul>
+</li>
+<p class="paragraph dark-01">Si vous comprenez les risques et souhaitez toujours procéder à la suppression de votre compte, veuillez cliquer sur le bouton ci-dessous.</p>
+<%= button_to "Supprimer mon compte", account_delete_account_path(@user, delete_token: params[:delete_token]), method: :delete, class: "btn-primary" %>

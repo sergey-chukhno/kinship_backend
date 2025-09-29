@@ -1,0 +1,13 @@
+<%= render "school_admin_panel/layout" do %>
+  <div class="admin-panel-member__container">
+    <% if @school_members.empty? %>
+      <div class="admin-panel-member__empty">
+        <p class="admin-panel-member__empty--text s-paragraph grey-02"><%= show_svg "clock.svg" %><%= t(params[:status], scope: [:views, :school_admin_panel, :school_members, :members_empty]) %></p>
+      </div>
+    <% end %>
+
+    <% @school_members.each do |school_member| %>
+      <%= render AdminPanel::School::SchoolMemberCard::SchoolMemberCardComponent.new(school_member) %>
+    <% end %>
+  </div>
+<% end %>

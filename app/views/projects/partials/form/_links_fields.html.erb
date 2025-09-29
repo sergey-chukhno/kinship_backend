@@ -1,0 +1,12 @@
+<div class="nested-fields-container form__wrapper--2col project-form--2-input">
+  <%= f.input :name,
+              label: "Nom du lien" %>
+  <%= f.input :url,
+              label: "Url du lien" %>
+  <%= f.input :_destroy,
+              as: :hidden,
+              wrapper_html: {
+                class: "d-none"
+              } %>
+  <button type="button" class="nested-fields--remove-btn" data-action="nested-form#remove"><%= show_svg "trash.svg" %></button>
+</div>

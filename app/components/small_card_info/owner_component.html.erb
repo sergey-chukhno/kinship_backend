@@ -1,0 +1,27 @@
+<div class="info-owner-card">
+  <p class="paragraph grey-01">Responsable projet</p>
+  <div class="owner-main-info">
+    <div class="owner-avatar">
+      <%= show_svg "default_#{which_avatar}_avatar.svg" %>
+    </div>
+    <div class="owner-info">
+      <p class="s-paragraph-bold dark-01"><%= @owner.first_name %> <%= @owner.last_name %></p>
+      <p class="xxs-paragraph grey-03"><%= @owner.job %></p>
+    </div>
+  </div>
+  <span class="separator"></span>
+
+  <div class="owner-secondary-info">
+    <div class="owner-school">
+      <%= show_svg "maps_home_work.svg", class: "primary" %>
+      <p class="xxs-paragraph-light grey-03"><%= @owner.schools.first&.full_name %></p>
+    </div>
+
+    <% unless @owner.teacher?  %>
+      <div class="owner-school-level">
+        <%= show_svg "school_level.svg", class: "primary" %>
+        <p class="xxs-paragraph-light grey-03"><%= @owner.school_levels.first&.full_name %></p>
+      </div>
+    <% end %>
+  </div>
+</div>

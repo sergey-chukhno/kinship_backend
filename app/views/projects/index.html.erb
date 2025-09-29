@@ -1,0 +1,98 @@
+<% content_for :meta_title, "Kinship - Projets" %>
+<% content_for :meta_description, "Découvrir les projets kinship portés par les professeurs et parent d'élèves" %>
+
+<div class="main-container">
+  <h1 class="title2 dark-01 py-32px">Rechercher une idée de projet sur Kinship Édu</h1>
+  <nav class="tab-bar-container">
+    <div class="tab-bar-container__links">
+      <%= link_to "Nouveautés", projects_path, class: "tab-bar-container__links--text s-paragraph #{"active" unless my_projects? || my_administration_projects? || my_schools? || my_organizations? }" %>
+      <%= link_to projects_path( my_projects: 1), class: "tab-bar-container__links--text s-paragraph #{"active" if my_projects?}" do %>
+        Mes projets
+        <%= render Common::Tag::TagComponent.new(color: "grey").with_content(@my_projects_count) %>
+      <% end %>
+      <%= link_to projects_path(my_organizations: 1), class: "tab-bar-container__links--text s-paragraph #{"active" if my_organizations?}" do %>
+        Mes organisations
+        <%= render Common::Tag::TagComponent.new(color: "grey").with_content(@project_by_companies_count) %>
+      <% end %>
+      <%= link_to projects_path(my_schools: 1), class: "tab-bar-container__links--text s-paragraph #{"active" if my_schools?}" do %>
+        Mes établissements
+        <%= render Common::Tag::TagComponent.new(color: "grey").with_content(@project_by_schools_count) %>
+      <% end %>
+      <%= link_to projects_path( my_administration_projects: 1), class: "tab-bar-container__links--text s-paragraph #{"active" if my_administration_projects?}" do %>
+        Gestion de projet
+        <%= render Common::Tag::TagComponent.new(color: "grey").with_content(@project_where_user_is_admin_count) %>
+      <% end %>
+    </div>
+    <%= button_to new_project_path, class: "tab-bar-container__add-button btn-primary tooltip relative", disabled: !current_user.can_create_project?, method: :get, form_class: "button-container" do %>
+      <% unless current_user.can_create_project? %>
+        <span class="xxs-paragraph tooltip--text white">Non disponible pour un compte basique</span>
+      <% end %>
+      <%= show_svg "add.svg" %>
+      Créer un nouveau projet
+    <% end %>
+  </nav>
+  <%= simple_form_for :filter,
+                    url: projects_path,
+                    method: :get,
+                    html: { class: "" },
+                    data: { controller: "submit",
+                    submit_target: "form",
+                    turbo_frame: 'filter_results',
+                    turbo_action: "advance" } do |f| %>
+    
+    <% if params[:my_schools] === "1"  %>
+     <%= render "projects/partials/filters/school_school_level_filter" %>
+    <% elsif params[:my_organizations] === "1"  %>
+      <%= render "projects/partials/filters/company_filter" %>
+    <% else %>
+      <%= render "projects/partials/filters/search_bar_filter" %>
+    <% end %>
+    
+    <div class="projects-main-container" data-controller="toggle">
+
+      <div class="projects-main-container__filter-btn">
+        <%= link_to "Supprimer les filtres", projects_path(search: "no"), class: "projects-main-container--clear-filter-mobile s-paragraph" %>
+        <p class="projects-main-container--more-filter s-paragraph primary" data-action="click->toggle#toggle_more_filter">+ de filtres</p>
+      </div>
+
+      <div class="projects-main-container__tags-filter" data-toggle-target="more_filter">
+        <%= link_to "Supprimer les filtres", projects_path, class: "projects-main-container--clear-filter-desktop xs-paragraph" %>
+        <%= f.input :my_projects,
+            as: :boolean,
+            wrapper_html: { class: 'd-none' },
+            input_html: { checked: my_projects?,
+                          name: "my_projects" } %>
+        <%= f.input :my_schools,
+            as: :boolean,
+            wrapper_html: { class: 'd-none' },
+            input_html: { checked: my_schools?,
+                          name: "my_schools" } %>
+        <%= f.input :my_organizations,
+            as: :boolean,
+            wrapper_html: { class: 'd-none' },
+            input_html: { checked: my_organizations?,
+                          name: "my_organizations" } %>
+        <%= f.input :my_administration_projects,
+            as: :boolean,
+            wrapper_html: { class: 'd-none' },
+            input_html: { checked: my_administration_projects?,
+                          name: "my_administration_projects" } %>
+        <%= render "projects/partials/filters/tags_filter", f: f %>
+      </div>
+
+      <%= turbo_frame_tag "filter_results", style: "flex-grow: 1;" do %>
+        <% if @projects.empty? %>
+          <div class="info-message warning">
+            <%= show_svg "warning.svg", class: "icon-24x24" %>
+            <p class="s-paragraph">Aucun projet ne correspond à votre recherche</p>
+          </div>
+        <% else %>
+          <div class="project-card__wrapper">
+            <%= render(Project::Card::CardComponent.with_collection(@projects)) %>
+          </div>
+        <% end %>
+        <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,11 @@
+<% if @user_role.role == "tutor" %>
+  <%= render "parent_scenario" %>
+<% elsif @user_role.role == "voluntary" && @user_role.company_form != "true" %>
+  <%= render "voluntary_scenario" %>
+<% elsif @user_role.role == "teacher" %>
+  <%= render "teacher_scenario" %>
+<% elsif @user_role.role == "voluntary" && @user_role.company_form == "true" %>
+  <%= render "company_scenario" %>
+<% end %>
+<%= render "links" %>
+<%= render "rgpd_content" %>

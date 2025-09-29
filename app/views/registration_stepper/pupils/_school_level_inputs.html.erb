@@ -1,0 +1,12 @@
+<%= simple_fields_for :user_school_levels do |o| %>
+  <%= o.input :school_level_id,
+      label: "Sélectionnez la classe",
+      required: false,
+      collection: current_user.schools.first.school_levels.map { |school_level| [school_level.full_name, school_level.id] },
+      selected: current_user&.school_levels&.first&.id&.present? ? current_user.school_levels.first.id : "",
+      input_html: {
+        class:"mb-12px mw-438px",
+        data: {"school-fetcher-target": "schoolLevelInput"}
+      }
+  %>
+<% end %>

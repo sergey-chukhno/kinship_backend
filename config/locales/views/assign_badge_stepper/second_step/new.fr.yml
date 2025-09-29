@@ -1,0 +1,9 @@
+fr:
+  assign_badge_stepper:
+    second_step:
+      new:
+        title: "Attribuer un badge"
+        description: "Projet associé"
+        actions:
+          back: "Retour"
+          submit: "Continuer"

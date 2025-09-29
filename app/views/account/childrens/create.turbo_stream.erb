@@ -1,0 +1,16 @@
+<% if @total_childrens > 1 %>
+  <%= turbo_stream.append 'childrens' do %>
+    <%= render(Children::Card::CardComponent.new(children: @children)) %>
+  <% end %>
+<% else %>
+  <%= turbo_stream.update 'childrens' do %>
+    <%= render(Children::Card::CardComponent.new(children: @children)) %>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.update "new_children" do %>
+  <%= render(Ui::Link::LinkComponent.new(builder: :link, path: new_account_children_path, class: "ml-auto")) do %>
+    <%= show_svg "new/add.svg" %>
+    <%= t(current_user.role, scope: [:account, :childrens, :index, :actions, :new]) %>
+  <% end if policy([:account, :childrens]).new? %>
+<% end %>

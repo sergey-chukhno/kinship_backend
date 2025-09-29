@@ -1,0 +1,75 @@
+html:has(.new-modal.open) {
+  overflow: hidden;
+}
+
+.new-modal {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+
+  z-index: -1000;
+  pointer-events: none;
+
+  transition: opacity 150ms ease-in-out, z-index 0ms linear 150ms;
+
+  &.open {
+    opacity: 1;
+    pointer-events: all;
+    z-index: 1000;
+
+    transition: opacity 150ms ease-in-out;
+
+    .new-modal__content {
+      transform: translate(0);
+
+      transition: all 150ms ease-in-out;
+
+      @media screen and (min-width: 48rem) {
+        transform: translate(-50%, -50%);
+        opacity: 1;
+      }
+    }
+  }
+
+  &__content {
+    position: fixed;
+    z-index: 1001;
+    width: 100%;
+    bottom: 0;
+
+    padding: 1rem;
+    border: 1px solid $grey-04;
+    border-radius: 0.5rem 0.5rem 0 0;
+    background-color: white;
+    transform: translate(0, 100%);
+
+    pointer-events: all;
+
+    @media screen and (min-width: 48rem) {
+      padding: 1.5rem;
+      max-width: 48rem;
+      top: 50%;
+      left: 50%;
+      bottom: auto;
+      opacity: 0;
+      transform: translate(-50%, -25%);
+      border-radius: 0.5rem;
+    }
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+
+    &__left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+  }
+}

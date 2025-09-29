@@ -1,0 +1,15 @@
+<%= render TurboModalComponent.new(title: "Ajouter des participants à l'équipe #{@team.title}") do %>
+  <%= simple_form_for @team, url: project_team_member_path(project_id: @project, id: @team), method: :patch, data: { controller: "select-search" } do |f| %>
+    <%= f.association :users,
+                label: "Participants",
+                collection: @users.map{ |user| [user.full_name_with_role_and_school_level, user.id] },
+                input_html: {
+                  selected: @team.team_members.map{ |team_member| [team_member.user.full_name_with_role_and_school_level, team_member.user.id] },
+                  multiple: true,
+                  data: {
+                    "select-search-target": "removableSelect"
+                  }
+                } %>
+    <%= f.submit "Modifier les participants", class: "btn btn-primary" %>
+  <% end %>
+<% end %>

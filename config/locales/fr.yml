@@ -1,0 +1,503 @@
+fr:
+  models:
+    user:
+      roles:
+        teacher: "Enseignant"
+        tutor: "Parent"
+        voluntary: "Volontaire"
+        children: "Enfant"
+    company:
+      company_type:
+        label: "Type d'organisation"
+      zip_code:
+        label: "Code postal de l'organisation"
+      city:
+        label: "Ville de l'organisation"
+      name:
+        label: "Nom de l'organisation"
+      siret_number:
+        label: "Numéro de SIRET"
+      email:
+        label: "Adresse email de l'organisation"
+        hint: "Cet email permettra d’échanger avec les partenaires de votre organisation"
+      website:
+        label: "Site internet de l'organisation"
+      referent_phone_number:
+        label: "Numéro de téléphone du référent"
+      description:
+        label: "Courte description de vos activités"
+      company_name:
+        label: "Nom de l'entreprise"  
+      job:
+        label: "Professions"
+        hint: "Indiquer les métiers à découvrir dans votre entreprise ou association"
+      take_trainee:
+        label: "Est ce que vous souhaitez prendre des jeunes en stage"
+      propose_workshop:
+        label: "Est ce que vous souhaitez proposer des ateliers de découverte professionnelle ?"
+      propose_summer_job:
+        label: "Est ce que vous souhaitez proposer des jobs d'été ?"
+  views:
+    participants:
+      title: Rechercher des partenaires dans votre réseau Kinship
+      tab_bar:
+        all: Mon réseau Kinship
+        schools: Par établissement
+        companies: Par organisation
+        other_companies: Réseaux partenaires
+    account:
+      tutor: "Modifier mon profil Parent"
+      teacher:  "Modifier mon profil Enseignant"
+      voluntary:  "Modifier mon profil Volontaire"
+      tabs:
+        profile:
+          tutor: "Mon profil"
+          teacher: "Mon profil"
+          voluntary: "Mon profil"
+        skills:
+          tutor: "Mes compétences"
+          teacher: "Mes compétences"
+          voluntary: "Mes compétences"
+        availability:
+          tutor: "Mes disponibilités"
+          teacher: "Mes disponibilités"
+          voluntary: "Mes disponibilités"
+        networks:
+          tutor: "Mon réseau"
+          teacher: "Mon réseau"
+          voluntary: "Mon réseau"
+        children: 
+          tutor: "Mon (mes) enfant(s)"
+          teacher: "Mon (mes) élève(s)"
+          voluntary: "Mon (mes) adhérent(s)"
+        schools:
+          tutor: "Mon (mes) enfant(s)"
+          teacher: "Mes établissements"
+          voluntary: "Mes établissements"
+      profile:
+        text:
+          global_info:
+            tutor: "Mes informations générales"
+            teacher: "Mes informations générales"
+            voluntary: "Mes informations générales"
+        form:
+          first_name:
+            tutor: "Prénom"
+            teacher: "Prénom"
+            voluntary: "Prénom"
+          last_name:
+            tutor: "Nom"
+            teacher: "Nom"
+            voluntary: "Nom"
+          email:
+            tutor: "Adresse email"
+            teacher: "Adresse email"
+            voluntary: "Adresse email"
+          contact_email:
+            label:
+              tutor: "Adresse email de correspondance"
+              teacher: "Adresse email de correspondance"
+              voluntary: "Adresse email de correspondance"
+            hint:
+              tutor: "Facultatif - si vous ne souhaitez pas recevoir les discussions Kinship sur votre adresse email académique"
+              teacher: "Facultatif - si vous ne souhaitez pas recevoir les discussions Kinship sur votre adresse email académique"
+              voluntary: "Facultatif - si vous ne souhaitez pas recevoir les discussions Kinship sur votre adresse email académique"
+          accept_marketing:
+            tutor: "J’accepte de recevoir des informations ou la newsletter de Kinship Edu (6 par an maximum)"
+            teacher: "J’accepte de recevoir des informations ou la newsletter de Kinship Edu (6 par an maximum)"
+            voluntary: "J’accepte de recevoir des informations ou la newsletter de Kinship Edu (6 par an maximum)"
+          accept_privacy_policy:
+            tutor: "J’accepte %{link} de Kinship"
+            teacher: "J’accepte %{link} de Kinship"
+            voluntary: "J’accepte %{link} de Kinship"
+          submit:
+            tutor: "Enregistrer"
+            teacher: "Enregistrer"
+            voluntary: "Enregistrer"
+      skills:
+        text:
+          global_info:
+            tutor: "Je souhaite partager mes compétences et apparaître dans mon réseau de partenaires (pour participer ou aider un projet, réaliser des ateliers...)"
+            teacher: "Je souhaite partager mes compétences et apparaître dans mon réseau de partenaires (pour participer ou aider un projet, réaliser des ateliers...)"
+            voluntary: "Je souhaite partager mes compétences et apparaître dans mon réseau de partenaires (pour participer ou aider un projet, réaliser des ateliers...)"
+          select_skills:
+            tutor: "Sélectionnez vos compétences"
+            teacher: "Sélectionnez vos compétences"
+            voluntary: "Sélectionnez vos compétences"
+        form:
+          skill_additional_information:
+            label:
+              tutor: "Ajouter des précisions générales"
+              teacher: "Ajouter des précisions générales"
+              voluntary: "Ajouter des précisions générales"
+            placeholder:
+              tutor: "Je suis professeur de chant lyrique "
+              teacher: "Je suis professeur de chant lyrique "
+              voluntary: "Je suis professeur de chant lyrique "
+          expend_skill_to_school:
+            tutor: "Je souhaite proposer mes compétences à l'ensemble de l'établissement scolaire de mes enfants"
+            teacher: "Je souhaite proposer mes compétences à l'ensemble de l'établissement scolaire de mes enfants"
+            voluntary: "Je souhaite proposer mes compétences à l'ensemble de l'établissement scolaire de mes enfants"
+          submit:
+            tutor: "Enregistrer"
+            teacher: "Enregistrer"
+            voluntary: "Enregistrer"
+            sucess:
+              tutor: "Vos informations de compétences ont bien été enregistrées"
+              teacher: "Vos informations de compétences ont bien été enregistrées"
+              voluntary: "Vos informations de compétences ont bien été enregistrées"
+      availabilities:
+        text:
+          available?:
+            tutor: "Je suis disponible pour accompagner une sortie scolaire avec la classe de mon(mes) enfant(s)"
+            teacher: "Je suis disponible pour partager mon temps ?"
+            voluntary: "Je suis disponible pour réaliser un atelier, aider un projet, accompagner une sortie"
+          when?:
+            tutor: "Quand êtes vous disponible ?"
+            teacher: "Quand êtes vous disponible ?"
+            voluntary: "Quand êtes vous disponible ?"
+          every_week: "Toutes les semaines les jours suivants :"
+          other: "Autres : je participe selon mes disponibilités et mes envies"
+        form:
+          monday: "Lundi"
+          tuesday: "Mardi"
+          wednesday: "Mercredi"
+          thursday: "Jeudi"
+          friday: "Vendredi"
+          other: "Au cas par cas"
+          submit:
+            tutor: "Enregistrer"
+            teacher: "Enregistrer"
+            voluntary: "Enregistrer"
+            sucess:
+              tutor: "Vos informations de disponibilités ont bien été enregistrées"
+              teacher: "Vos informations de disponibilités ont bien été enregistrées"
+              voluntary: "Vos informations de disponibilités ont bien été enregistrées"
+      networks:
+        text:
+          global_info:
+            tutor: "Mes informations de réseau"
+            teacher: "Mes informations de réseau"
+            voluntary: "Mes informations de réseau"
+        form:
+          company_name:
+            tutor: "Nom de votre entreprise"
+            teacher: "Nom de votre entreprise"
+            voluntary: "Nom de votre entreprise"
+          job:
+            tutor: "Profession"
+            teacher: "Profession"
+            voluntary: "Profession"
+          take_trainee:
+            tutor: "Est-ce que mon entreprise peut prendre des jeunes en stage ?"
+            teacher: "Est-ce que mon entreprise peut prendre des jeunes en stage ?"
+            voluntary: "Est-ce que mon entreprise peut prendre des jeunes en stage ?"
+          propose_workshop:
+            tutor: "Est-ce que je souhaite proposer des ateliers de découverte professionnelle ?"
+            teacher: "Est-ce que je souhaite proposer des ateliers de découverte professionnelle ?"
+            voluntary: "Est-ce que je souhaite proposer des ateliers de découverte professionnelle ?"
+          submit:
+            tutor: "Enregistrer"
+            teacher: "Enregistrer"
+            voluntary: "Enregistrer"
+            sucess:
+              tutor: "Vos informations de réseau ont bien été enregistrées"
+              teacher: "Vos informations de réseau ont bien été enregistrées"
+              voluntary: "Vos informations de réseau ont bien été enregistrées"
+      schools:
+        form:
+          school_id:
+            tutor: "Établissement scolaire"
+            teacher: "Établissement scolaire"
+            voluntary: "Établissement scolaire"
+          add_school:
+            tutor: "Ajouter un nouvel établissement"
+            teacher: "Ajouter un nouvel établissement"
+            voluntary: "Ajouter un nouvel établissement"
+          submit:
+            tutor: "Enregistrer"
+            teacher: "Enregistrer"
+            voluntary: "Enregistrer"
+    school_admin_panel:
+      school_members:
+        members_empty:
+          pending: "Aucune demande de rattachement en attente"
+          confirmed: "Aucun utilisateur rattaché"
+    company:
+      new:
+        title: "Demande d'ajout d'une organisation"
+        subtitle-1: "Quelles sont les informations de votre organisation ?"
+        subtitle-2: "Quelles sont les compétences de votre organisation ?"
+        subtitle-3: "Quelles sont les informations de réseau de votre organisation ?"
+  components:
+    organization_global_info_card:
+      status:
+        pending: "En attente"
+        confirmed: "Rattaché"
+        refused: "Refusé"
+      edit:
+        update:
+          school: "Modifier mes classes"
+        delete:
+          school: "Supprimer"
+          company: "Supprimer"
+  layouts:
+    navbar:
+      desktop:
+        projects: "Découvrir les projets"
+        participants: "Découvrir les partenaires"
+        menu:
+          profile: "Mon compte"
+          admin: "Panel Administateur"
+          logout: "Déconnexion"
+      mobile:
+        projects: "Projets"
+        participants: "Participants"
+        account: "Mon compte"
+    school_admin_panel:
+      sub_infos_1: "Affichage administrateur"
+      sub_infos_2: "Modifier la page établissement"
+      nav:
+        users_pending: "Demande de rattachement"
+        users_confirmed: "Tous les utilisateurs rattachés"
+        school: "Informations générales"
+        school_levels: "Classes de l'établissement"
+        companies: "Mes partenaires"
+      school:
+        title: "Informations générales"
+        form:
+          name: "Nom de l'établissement"
+          zip_code: "Code postal de l'établissement"
+          city: "Ville de l'établissement"
+          school_type: "Type d'établissement"
+          school_types:
+            primaire: "Primaire"
+            college: "Collège"
+            lycee: "Lycée"
+            universite: "Université"
+            erea: "EREA"
+            medico_social: "Médico-social"
+            service_administratif: "Service administratif"
+            information_et_orientation: "Information et orientation"
+            autre: "Autre"
+          referent_phone_number: "Numéro de téléphone du référent"
+      school_level:
+        title: "Liste des classes de l'établissement"
+        title2: "Demander l'ajout d'une classe spécifique"
+        edit_form:
+          level: "Choisir un niveau"
+          levels:
+            petite_section: "Petite section"
+            moyenne_section: "Moyenne section"
+            grande_section: "Grande section"
+            cp: "CP"
+            ce1: "CE1"
+            ce2: "CE2"
+            cm1: "CM1"
+            cm2: "CM2"
+            sixieme: "6e"
+            cinquieme: "5e"
+            quatrieme: "4e"
+            troisieme: "3e"
+            seconde: "2nde"
+            premiere: "1ère"
+            terminale: "Terminale"
+            cap: "CAP"
+            bts: "BTS"
+            other: "Autre"
+          name: "Choisir une lettre ou un chiffre"
+          submit: "Enregistrer"
+        create_form:
+          level: "Préciser le niveau"
+          name: "Préciser la spécialité de la classe"
+          submit: "Valider la demande"
+
+  week_day:
+    monday: "Lundi"
+    tuesday: "Mardi"
+    wednesday: "Mercredi"
+    thursday: "Jeudi"
+    friday: "Vendredi"
+    saturday: "Samedi"
+    sunday: "Dimanche"
+    other: "Au cas par cas"
+  activemodel:
+    errors:
+      models:
+        user_schools:
+          blank: "L'école ne peut pas être vide"
+          invalid: "L'école doit être rempli"
+          attributes:
+            school:
+              blank: "L'école ne peut pas être vide"
+            school_level:
+              blank: "La classe ne peut pas être vide"
+        registration_stepper/user_profile:
+          attributes:
+            email:
+              blank: "L'email ne peut pas être vide"
+              invalid: "L'email n'est pas valide"
+            role:
+              blank: "Le rôle ne peut pas être vide"
+          blank: "Doit être rempli"
+      messages:
+        blank: "ne peut pas être vide"
+    attributes:
+      role:
+        blank: "Le rôle ne peut pas être vide"
+    messages:
+      blank: "ne peut pas être vide"
+  activerecord:
+    models:
+      user: "utilisateur"
+      user_school: "Ecole"
+      user_school_level: "Classe"
+      project: "projet"
+      keyword: "mot-clé"
+      school_level: "classe"
+      school: "école"
+      project_tag: "tag"
+      project_keyword: "mot-clé"
+      project_school_level: "classe"
+      project_skill: "compétence"
+      team: "équipe"
+      team_member: "Participants"
+      link: "lien"
+      skill: "compétence"
+      sub_skill: "sous-compétence"
+      user_skill: "compétence"
+      user_sub_skill: "sous-compétence"
+    attributes:
+      user_profile:
+        birthday: "Date de naissance"
+        first_name: "Prénom"
+        role_additional_information: "Informations complémentaires"
+        last_name: "Nom"
+        email: "Adresse email"
+        password: "Mot de passe"
+        password_confirmation: "Confirmation du mot de passe"
+      user:
+        roles:
+          one: "Professeur"
+          other: "Professeurs"
+          teacher: "Enseignant"
+          tutor: "Parent"
+          voluntary: "Volontaire"
+          admin: "Administrateur"
+          grand_parent: "Grand-parent"
+          parent: "Parent"
+          voluntary_15_years_or_more: "Elève de + 15 ans"
+          apprentice: "Apprenti"
+          voluntary: "Volontaire"
+          management_member: "Membre de la direction"
+          cpe: "CPE"
+          other: "Autre"
+        first_name: "Prénom"
+        last_name: "Nom"
+        accept_marketing: "Recevoir mail marketing"
+        accept_privacy_policy: "Politique de confidentialité"
+        contact_email: "Email de correspondance"
+        role_additional_information: "Role - Informations complémentaires"
+        is_banned: "Banni ?"
+        confirmed?: "Adresse email confirmée ?"
+        certify?: "Certifié ?"
+        is_banned? : "Banni ?"
+        school: "École"
+        birthday: "Date de naissance"
+        email: "Adresse email"
+        password: "Mot de passe"
+        password_confirmation: "Confirmation du mot de passe"
+        job: "Profession"
+        company_name: "Nom de l'entreprise"
+        take_trainee: "Prend un stagiaire ?"
+        expend_skill_to_school: "Étend ses compétences à l'école ?"
+        skill_additional_information: "Compétences - Informations complémentaires"
+      skill:
+        name: "Nom"
+        official: "Doit apparaitre dans la liste par défaut?"
+      project:
+        title: "Titre"
+        description: "Description"
+        links: "Liens"
+        start_date: "Date de début"
+        end_date: "Date de fin"
+        owner: "Gérant"
+        school_levels: "Classes"
+        skills: "Compétences"
+        keywords: "Mots-clés"
+        tags: "Tags"
+        teams: "Équipes"
+        status:
+          coming: "À venir"
+          in_progress: "En cours"
+          ended: "Cloturé"
+      sub_skill:
+        name: "Nom"
+        skill: "Compétence"
+      keyword:
+        name: "Nom"
+      tag:
+        name: "Nom"
+      school_level:
+        levels:
+          petite_section: "Petite section"
+          moyenne_section: "Moyenne section"
+          grande_section: "Grande section"
+          cp: "CP"
+          ce1: "CE1"
+          ce2: "CE2"
+          cm1: "CM1"
+          cm2: "CM2"
+          sixieme: "6e"
+          cinquieme: "5e"
+          quatrieme: "4e"
+          troisieme: "3e"
+          seconde: "2nde"
+          premiere: "1ère"
+          terminale: "Terminale"
+          bts: "BTS"
+          other: "Autre"
+          iut: "IUT"
+          licence: "Licence"
+          master: "Master"
+          doctorat: "Doctorat"
+          autre: "Autre"
+          cap: "CAP"
+          bts: "BTS"
+        name: "Nom"
+        school: "École"
+        level: "Niveau"
+      school:
+        name: "Nom"
+        zip_code: "Code postal"
+        school_type: "Type d'école"
+        city: "Ville"
+        school_types:
+          primaire: "Primaire"
+          college: "Collège"
+          lycee: "Lycée"
+          universite: "Université"
+          erea: "EREA"
+          medico_social: "Médico-social"
+          service_administratif: "Service administratif"
+          information_et_orientation: "Information et orientation"
+          autre: "Autre"
+      availability:
+        days:
+          monday: "Lundi"
+          tuesday: "Mardi"
+          wednesday: "Mercredi"
+          thursday: "Jeudi"
+          friday: "Vendredi"
+          saturday: "Samedi"
+          sunday: "Dimanche"
+          other: "Au cas par cas"
+        short-days:
+          monday: "Lun"
+          tuesday: "Mar"
+          wednesday: "Mer"
+          thursday: "Jeu"
+          friday: "Ven"
+          saturday: "Sam"
+          sunday: "Dim"
+          other: "Autre"

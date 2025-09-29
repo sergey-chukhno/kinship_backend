@@ -1,0 +1,36 @@
+<div class="flex-col gap-15px">
+  <%= simple_fields_for :user_schools do |o| %>
+    <%= o.input :zip_code,
+                label: "Code postal de l'établissement",
+                required: false,
+                input_html: {
+                  value: current_user.schools&.first&.zip_code,
+                  data: { "school-fetcher-target": "zipCode", action: "blur->school-fetcher#fetchSchools" }
+                } %>
+    <%= o.input :school_type,
+                label: "Type d'établissement",
+                required: false,
+                collection: School.school_types.keys.map { |type| [I18n.t("activerecord.attributes.school.school_types.#{type}"), type] },
+                selected: current_user.schools.first.school_type,
+                input_html: {
+                  value: current_user.schools.first.school_type,
+                  class:"mw-438px",
+                  data: { "school-fetcher-target": "schoolType", action: "change->school-fetcher#fetchSchools" }
+                  } %>
+    <%= o.input :school_id,
+                label: "Nom de l'étalissement",
+                required: true,
+                collection: current_user.schools.map { |school| [school.full_name, school.id] },
+                hint: "Renseignez un code postal et/ou un type d'établissement pour afficher la liste des écoles",
+                selected: current_user.schools&.first&.id,
+                input_html: {
+                  required: true,
+                  class:"mw-438px",
+                  data: {
+                    "school-fetcher-target": "schoolList",
+                    action: "change->school-fetcher#fetchSchoolLevels"
+                  }
+                }
+    %>
+  <% end %>
+</div>

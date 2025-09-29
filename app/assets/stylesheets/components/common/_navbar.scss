@@ -1,0 +1,344 @@
+.navbar__wrapper {
+  z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+
+  background-color: $white;
+  border-bottom: 0.0625rem solid $grey-04;
+
+  @media screen and (max-width: 768px) {
+    top: unset;
+    bottom: 0;
+    border-bottom: none;
+    border-top: 0.0625rem solid $grey-04;
+  }
+}
+
+.navbar {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 80rem;
+  height: 4rem;
+  padding-inline: 1.5rem;
+  margin-inline: auto;
+
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
+
+  &__brand {
+    font-size: 2rem;
+    color: $primary;
+  }
+
+  &__main-links {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    align-items: center;
+    height: 100%;
+
+    &__link {
+      display: flex;
+      align-items: center;
+      width: max-content;
+      height: 100%;
+      padding-inline: 1rem;
+
+      color: $dark-01;
+
+      transition: color 100ms, background-color 100ms;
+
+      &:hover {
+        color: $primary;
+        background-color: $primary-light-3;
+      }
+
+      &[current="true"] {
+        color: $primary;
+        background-color: $primary-light-3;
+      }
+    }
+  }
+
+  &__menu {
+    position: relative;
+    height: 100%;
+    background: none;
+    border: none;
+
+    &__link {
+      $icon-size: 1.5rem;
+
+      display: grid;
+      grid-template-columns: $icon-size 1fr $icon-size;
+      align-items: center;
+      height: 100%;
+      gap: 0.5rem;
+      padding-inline: 1.5rem;
+
+      color: $dark-01;
+
+      transition: color 100ms, background-color 100ms;
+      cursor: pointer;
+
+      svg {
+        font-size: $icon-size;
+        color: $primary;
+      }
+
+      &:hover {
+        color: $primary;
+        background-color: $primary-light-3;
+      }
+    }
+
+    &__list {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      width: max-content;
+
+      background-color: $white;
+      border: 0.0625rem solid $grey-04;
+      border-radius: 0.25rem;
+      padding: 0.5rem;
+
+      transition: all 100ms;
+    }
+
+    &__item {
+      $icon-size: 1rem;
+
+      display: grid;
+      grid-template-columns: $icon-size 1fr;
+      align-items: center;
+      gap: 0.5rem;
+      text-align: left;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      color: $dark-01;
+
+      transition: color 100ms, background-color 100ms;
+
+      svg {
+        font-size: $icon-size;
+      }
+
+      &:hover {
+        color: $primary;
+        background-color: $primary-light-3;
+      }
+    }
+  }
+
+  &__submenu {
+    $icon-size: 1rem;
+
+    position: relative;
+
+    display: grid;
+    grid-template-columns: $icon-size 1fr;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: left;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+
+    transition: color 100ms, background-color 100ms;
+
+    svg {
+      font-size: $icon-size;
+    }
+
+    &:hover {
+      color: $primary;
+      background-color: $primary-light-3;
+
+      .navbar__submenu__list {
+        visibility: visible;
+        opacity: 1;
+
+        transition: all 100ms;
+      }
+    }
+
+    &__list {
+      visibility: hidden;
+      opacity: 0;
+
+      position: absolute;
+      right: calc(100% + 1rem);
+      top: -0.5rem;
+      display: grid;
+
+      width: max-content;
+      max-height: 50vh;
+
+      overflow-y: auto;
+
+      background-color: $white;
+      border: 0.0625rem solid $grey-04;
+      border-radius: 0.25rem;
+      padding: 0.5rem;
+
+      transition: all 100ms 100ms;
+    }
+
+    &__item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-align: left;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      color: $dark-01;
+
+      transition: color 100ms, background-color 100ms;
+
+      &:hover {
+        color: $primary;
+        background-color: $primary-light-3;
+      }
+    }
+  }
+}
+
+.navbar-mobile {
+  position: relative;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.75rem;
+
+  @media screen and (min-width: 768px) {
+    display: none;
+  }
+
+  &__link {
+    display: flex;
+    width: 100%;
+    max-width: 4rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    border: none;
+    background: none;
+
+    &[current="true"] {
+      .navbar-mobile__link__icon {
+        color: $primary;
+        background-color: $primary-light-3;
+      }
+    }
+
+    &__icon {
+      display: flex;
+      padding-block: 0.25rem;
+      width: 100%;
+      border-radius: 50vh;
+
+      svg {
+        margin-inline: auto;
+        font-size: 1.25rem;
+      }
+    }
+  }
+
+  &__menu {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    right: 0.5rem;
+
+    background-color: $white;
+    border: 0.0625rem solid $grey-04;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+
+    &__item {
+      $icon-size: 1rem;
+
+      display: grid;
+      grid-template-columns: $icon-size 1fr;
+      align-items: center;
+      gap: 0.5rem;
+      text-align: left;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      color: $dark-01;
+
+      transition: color 100ms, background-color 100ms;
+
+      svg {
+        font-size: $icon-size;
+      }
+
+      &:hover {
+        color: $primary;
+        background-color: $primary-light-3;
+      }
+    }
+  }
+
+  &__submenu {
+    $icon-size: 1rem;
+
+    display: grid;
+    grid-template-columns: $icon-size 1fr;
+    align-items: center;
+    gap: 0.5rem;
+    text-align: left;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+
+    transition: color 100ms, background-color 100ms;
+
+    svg {
+      font-size: $icon-size;
+    }
+
+    &:hover {
+      color: $primary;
+      background-color: $primary-light-3;
+    }
+
+    &__list {
+      position: absolute;
+      bottom: calc(100% + 0.5rem);
+      right: 0.5rem;
+      display: grid;
+      max-height: 150px;
+      overflow-y: auto;
+
+      width: max-content;
+
+      background-color: $white;
+      border: 0.0625rem solid $grey-04;
+      border-radius: 0.25rem;
+      padding: 0.5rem;
+    }
+
+    &__item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      text-align: left;
+      padding: 0.5rem;
+      border-radius: 0.25rem;
+      color: $dark-01;
+
+      transition: color 100ms, background-color 100ms;
+
+      &:hover {
+        color: $primary;
+        background-color: $primary-light-3;
+      }
+    }
+  }
+}

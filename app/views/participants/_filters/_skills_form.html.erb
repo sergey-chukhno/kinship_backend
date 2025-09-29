@@ -1,0 +1,37 @@
+<% if active_filter %>
+  <div class="filter" data-controller="reveal">
+  <% else %>
+    <div class="filter disabled">
+    <% end %>
+    <div class="filter__title" data-action="click->reveal#toggle">
+      <p class="s-paragraph-bold dark-01">Compétences</p>
+      <%= show_svg "expand_more.svg", class: "primary-acc-1 icon-24x24" %>
+    </div>
+    <div class="filter__content hidden" data-reveal-target="item">
+      <% skills.each do |skill| %>
+        <div data-controller="reveal">
+          <%= f.input :skills,
+                  as: :check_boxes,
+                  label: false,
+                  disabled: active_filter == false,
+                  collection: [[skill.name, skill.id]],
+                  item_label_class: "check-box fs-12",
+                  input_html: { data: { action: "click->reveal#toggle change->submit#submit" } }
+                  %>
+          <% if skill.sub_skills.any? %>
+            <div class="hidden" data-reveal-target="item">
+              <% skill.sub_skills.each do |sub_skill| %>
+                <%= f.input :sub_skills,
+                        as: :check_boxes,
+                        label: false,
+                        disabled: active_filter == false,
+                        collection: [[sub_skill.name, sub_skill.id]],
+                        item_label_class: "check-box fs-12 ml-12px",
+                        input_html: { data: { action: "change->submit#submit" } } %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>

@@ -1,0 +1,9 @@
+fr:
+  account:
+    childrens:
+      create:
+        actions:
+          new:
+            tutor: "Ajouter un profil enfant"
+            teacher: "Ajouter un profil élève"
+            voluntary: "Ajouter un profil adhérent"

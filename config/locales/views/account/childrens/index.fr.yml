@@ -1,0 +1,21 @@
+fr:
+  account:
+    childrens:
+      index:
+        title:
+          tutor: Mon (mes) enfant(s)
+          teacher: Mon (mes) élève(s)
+          voluntary: Mon (mes) adhérent(s)
+        description:
+          tutor: "L’inscription de vos enfants va permettre aux enseignants de valoriser les soft skills acquises par vos enfants dans les différents projets scolaires"
+          teacher: "L'inscription des élèves permet aux enseignants de valoriser les soft skills qu'ils développent à travers les différents projets scolaires et recevoir des badges de compétences (dans l’attente d’une inscription parentale ou personnelle sur la plateforme)"
+          voluntary: "L’inscription de vos adhérents va vous permettre de valoriser les soft skills qu’ils ont acquises dans les différents projets associatifs et recevoir des badges de compétences (dans l’attente d’une inscription personnelle sur la plateforme)"
+        empty_childrens:
+          tutor: "Vous n'avez pas encore ajouté d'enfant"
+          teacher: "Vous n'avez pas encore ajouté d'élève"
+          voluntary: "Vous n'avez pas encore ajouté d'adhérent"
+        actions:
+          new:
+            tutor: "Ajouter un profil enfant"
+            teacher: "Ajouter un profil élève"
+            voluntary: "Ajouter un profil adhérent"

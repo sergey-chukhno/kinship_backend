@@ -1,0 +1,10 @@
+fr:
+  activerecord:
+    models:
+      expertise:
+        one: Compétence
+        other: Compétences
+    attributes:
+      expertise:
+        name: Nom
+        category: Catégorie

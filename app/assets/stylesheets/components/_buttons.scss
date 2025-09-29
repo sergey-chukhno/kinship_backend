@@ -1,0 +1,205 @@
+@mixin btn-default {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  cursor: pointer;
+  svg,
+  i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 16px;
+    width: 16px;
+  }
+}
+
+@mixin btn {
+  @include btn-default;
+  border: 1px solid transparent;
+  gap: 8px;
+  width: fit-content;
+  height: fit-content;
+  color: $dark-01;
+  border-radius: 6px;
+  padding: 7px 11px;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.btn-primary,
+.btn-primary__larger,
+.btn-primary__full-width {
+  @include btn;
+  background-color: $primary;
+  &:hover {
+    background-color: $primary-acc-1;
+    box-shadow: 0 2px 12px 0 #584e4e40;
+  }
+
+  &:disabled {
+    background-color: $grey-04;
+    color: $grey-01;
+    box-shadow: none;
+  }
+}
+.btn-primary__larger {
+  padding: 7px 36px;
+}
+.btn-primary__full-width {
+  width: 100%;
+}
+.btn-secondary {
+  @include btn;
+  border-color: $dark-01;
+  background-color: transparent;
+  white-space: nowrap;
+
+  &:hover {
+    background-color: $grey-04;
+  }
+}
+.btn-danger {
+  @include btn;
+  background-color: $color-var-3;
+  &:hover {
+    box-shadow: 0 2px 12px 0 #584e4e40;
+  }
+}
+.btn-success {
+  @include btn;
+  background-color: #6ade84;
+  &:hover {
+    box-shadow: 0 2px 12px 0 #584e4e40;
+  }
+}
+.btn-square {
+  @include btn-default;
+  background-color: $primary;
+  color: $dark-01;
+  border: none;
+  border-radius: 6px;
+  padding: 0;
+  margin: 0;
+  aspect-ratio: 1;
+  width: 45px;
+  svg {
+    height: 24px;
+    width: 24px;
+  }
+  &:hover {
+    background-color: $primary-acc-1;
+    box-shadow: 0 2px 12px 0 #584e4e40;
+  }
+}
+.btn-edit {
+  @include btn-default;
+  background-color: $primary-light-2;
+  color: $primary-acc-2;
+
+  height: 32px;
+  width: 32px;
+  border-radius: 50%;
+
+  &:hover {
+    color: $dark-01;
+    background-color: $primary-acc-1;
+    box-shadow: 0 2px 12px 0 #584e4e40;
+  }
+}
+
+.btn-toggle {
+  position: relative;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 15px;
+  width: 26px;
+  background-color: transparent;
+  border-radius: 50px;
+  border: 2px solid $grey-02;
+  cursor: pointer;
+  outline: none;
+  transition: 0.15s;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+.btn-toggle-position {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.btn-toggle:before {
+  content: "";
+  position: absolute;
+  height: 7px;
+  width: 7px;
+  background-color: $grey-02;
+  border-radius: 50%;
+  left: 2px;
+  top: 2px;
+  transition: 0.15s;
+}
+.btn-toggle:checked {
+  border-color: $color-var-2;
+  background-color: $color-var-2-light;
+}
+.btn-toggle:checked:before {
+  background-color: $color-var-2;
+  left: 13px;
+}
+.btn-trash {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 16px;
+  width: 16px;
+
+  margin: 0;
+  padding: 0;
+
+  background-color: transparent;
+  border: none;
+  outline: none;
+
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.btn-slider {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  outline: none;
+  background-color: $primary-light-1;
+  color: $primary-acc-2;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+
+  svg {
+    width: 100%;
+  }
+
+  &--next {
+    rotate: -90deg;
+    right: 0;
+  }
+
+  &--prev {
+    rotate: 90deg;
+    left: 0;
+  }
+}

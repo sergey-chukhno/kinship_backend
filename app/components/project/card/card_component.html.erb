@@ -1,0 +1,48 @@
+<%= link_to project_path(@project), class: "project-card", data: { turbo: false } do %>
+  <% if custom_image? %>
+    <%= image_tag(@project.main_picture, class: "project-card__picture") %>
+  <% else %>
+    <%= image_tag("https://cache.magicmaman.com/data/photo/w1000_ci/59/enfantecolelecture.jpg", class: "project-card__picture") %>
+  <% end %>
+
+  <div class="project-card__banner">
+    <p class="project-card__banner__item xxs-paragraph-light grey-03"><%= show_svg "users.svg" %><%= @project.participants_number ? @project.participants_number : "--" %></p>
+    <p class="project-card__banner__item xxs-paragraph-light grey-03"><%= show_svg "clock.svg" %><%= @project.time_spent ? "#{@project.time_spent} h" : "--" %></p>
+    <% if @project.coming? || @project.in_progress? %>
+      <p class="project-card__banner__item xxs-paragraph-light primary"><%= show_svg "clock_counter_clockwise.svg" %><%= @project.coming? ? "À venir" : "En cours" %></p>
+    <% else %>
+      <p class="project-card__banner__item xxs-paragraph-light color-var-2"><%= show_svg "check_circle.svg" %>Terminé</p>
+    <% end %>
+  </div>
+
+  <div class="project-card__content">
+
+    <h3 class="s-paragraph-bold dark-01"><%= @project.title %></h3>
+
+    <div class="tag__wrapper mb-xs">
+      <% @project.tags.each do |tag| %>
+        <%= render Common::Tag::TagComponent.new(color: helpers.color_for_project_tag(tag.name)) do %>
+          <%= tag.name %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <p class="xxs-paragraph-light grey-03 mb-xs"><%= @project.description.truncate(150) %></p>
+
+    <div class="project-card__content__footer">
+      <% if school_project? %>
+      <div class="flex space-between gap-8px">
+        <p class="project-card__content__footer__item xxs-paragraph grey-03"><%= show_svg "maps_home_work.svg", class: "primary" %><span><%= @project.schools.first.full_name %></span></p>
+        <p class="project-card__content__footer__item xxs-paragraph grey-03"><%= show_svg "school_level.svg", class: "primary" %><span><%= school_levels %></span></p>
+      </div>
+      <% end %>
+      <% if @project.have_companies %>
+        <p class="project-card__content__footer__item xxs-paragraph grey-03"><%= show_svg "maps_home_work.svg", class: "color-var-1" %><span>  <%= @project.companies_full_name_joined %></span></p>
+      <% end %>
+      <% if !school_project? && !@project.have_companies %>
+        <p class="project-card__content__footer__item xxs-paragraph grey-03"><%= show_svg "icon-kinship.svg", class: "primary" %><span>Projet Kinship</span></p>
+      <% end %>
+    </div>
+
+  </div>
+<% end %>

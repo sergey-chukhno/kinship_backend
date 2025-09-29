@@ -1,0 +1,39 @@
+<div class="form__wrapper" data-controller="reveal">
+  <p class="paragraph dark-01"><%= t("registration.second_step.schools.title.#{@user_profile.role}") %></p>
+  <div class="form__wrapper--2col gap-12px">
+    <label class="radio-button-check fs-12">
+      <input type="radio" name="show-school" data-action="click->reveal#show">
+      Oui
+    </label>
+    <label class="radio-button-check fs-12">
+      <input type="radio" name="show-school"  data-action="click->reveal#hide">
+      Non
+    </label>
+  </div>
+  <div class="form__wrapper hidden" data-controller="nested-form" data-nested-form-wrapper-selector-value='.nested-fields-container' data-reveal-target="item">
+    <template data-nested-form-target="template">
+      <div class="nested-fields-container form__wrapper">
+        <div class="form__wrapper--2col">
+          <p class="paragraph dark-01 w-100"><%= t("registration.second_step.schools.new.title.#{@user_profile.role}") %></p>
+          <button type="button" class="nested-fields--remove-btn unset" data-action="nested-form#remove"><%= show_svg "trash.svg" %></button>
+        </div>
+        <%= f.simple_fields_for :user_schools_attributes, child_index: 'NEW_RECORD' do |school_fields| %>
+          <%= render "registration_stepper/second_steps/schools_inputs/school_inputs", f: f, school_fields: school_fields, id: "NEW_RECORD" %>
+          <%= school_fields.input :_destroy,
+                                as: :hidden,
+                                input_html: {
+                                  name: "registration_stepper_user_profile[user_schools_attributes][NEW_RECORD][_destroy]",
+                                } %>
+        <% end %>
+      </div>
+    </template>
+
+    <%= f.simple_fields_for :user_schools_attributes do |school_fields| %>
+      <div class="nested-fields-container form__wrapper">
+        <%= render "registration_stepper/second_steps/schools_inputs/school_inputs", f: f, school_fields: school_fields, id: "0" %>
+      </div>
+    <% end %>
+
+    <button class="nested-fields--add-link" data-action="nested-form#add" data-nested-form-target="target"><%= show_svg "add.svg" %><%= t("registration.second_step.schools.new.button.#{@user_profile.role}") %></button>
+  </div>
+</div>

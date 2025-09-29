@@ -1,0 +1,23 @@
+<% if active_filter %>
+  <div class="filter" data-controller="reveal">
+  <% else %>
+    <div class="filter disabled">
+    <% end %>
+    <div class="filter__title" data-action="click->reveal#toggle">
+      <p class="s-paragraph-bold dark-01">Disponibilités</p>
+      <%= show_svg "expand_more.svg", class: "primary-acc-1 icon-24x24" %>
+    </div>
+    <div class="filter__content hidden" data-reveal-target="item">
+      <% availabilities.each do |availability| %>
+        <%= f.input availability[0],
+                  as: :boolean,
+                  value: availability[1],
+                  label_html: { class: "check-box fs-12" },
+                  input_html: {
+                    name: "filters[availabilities][#{availability[1]}]",
+                    disabled: active_filter == false,
+                    data: { action: "change->submit#submit" }
+                  } %>
+      <% end %>
+    </div>
+  </div>

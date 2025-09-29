@@ -1,0 +1,59 @@
+.project-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  @include for-laptop {
+    flex-direction: row;
+  }
+}
+
+.project-form--2-input {
+  flex-direction: column !important;
+  @include for-laptop {
+    flex-direction: row !important;
+  }
+}
+
+.stepper-card__container {
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  width: 100%;
+  gap: 24px;
+  padding: 24px;
+  border: 1px solid $grey-04;
+  border-radius: 8px;
+  background-color: $white;
+
+  @include for-laptop {
+    max-width: 200px;
+  }
+}
+.stepper-card__stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &--step {
+    display: flex;
+    flex-direction: row;
+    gap: 16px;
+
+    &--number {
+      display: flex;
+      flex-direction: column;
+      width: 24px;
+      align-items: center;
+      gap: 8px;
+
+      &::after {
+        content: "";
+        display: block;
+        height: 100%;
+        width: 1px;
+        background-color: $color-var-3;
+      }
+    }
+  }
+}

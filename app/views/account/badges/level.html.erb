@@ -1,0 +1,28 @@
+<%= turbo_frame_tag "new-modal" do %>
+  <%= render(Ui::Modal::Header::HeaderComponent.new(title: "Détails des badges")) %>
+  <div class="badge-cards-container">
+    <% @user_badges.each do |user_badge| %>
+      <div class="badge-card">
+        <div class="badge-card__header">
+          <%= image_tag user_badge.badge.icon, alt: user_badge.badge.name, class: "badge-card__header-icon" %>
+          <div class="flex flex-col">
+            <div class="badge-card__header-title"><%= user_badge.badge.name %></div>
+            <div class="badge-card__header-subtitle"><%= t("activerecord.attributes.badge.levels.#{user_badge.badge.level}") %></div>
+          </div>
+        </div>
+        <div class="badge-card__body">
+          <p class="badge-card__body__element"><span class="badge-card__body__element-name">Date :</span> <span class="badge-card__body__element-value"><%= user_badge.created_at.strftime("%d/%m/%Y") %></span></p>
+          <p class="badge-card__body__element"><span class="badge-card__body__element-name">Délivré par :</span> <span class="badge-card__body__element-value"><%= user_badge.sender.first_name %> <%= user_badge.sender&.last_name %> (<%= user_badge&.organization&.name %>)</span></p>
+          <p class="badge-card__body__element"><span class="badge-card__body__element-name">Domaine(s) :</span> <span class="badge-card__body__element-value"><%= user_badge.domains.pluck(:name).join("; ") %></span></p>
+          <p class="badge-card__body__element"><span class="badge-card__body__element-name">Savoir faire :</span> <span class="badge-card__body__element-value"><%= user_badge.expertises.pluck(:name).join("; ") %></span></p>
+          <p class="badge-card__body__element"><span class="badge-card__body__element-name">Projet :</span> <span class="badge-card__body__element-value"><%= user_badge.project_title %></span></p>
+          <p class="badge-card__body__element"><span class="badge-card__body__element-name">Description :</span> <span class="badge-card__body__element-value"><%= user_badge.project_description %></span></p>
+          <p class="badge-card__body__element"><span class="badge-card__body__element-name">Commentaires :</span> <span class="badge-card__body__element-value"><%= user_badge.comment %></span></p>
+          <% user_badge.documents.each_with_index do |document, index| %>
+            <%= link_to "Voir la preuve n°#{index + 1}", document, target: "_blank", rel: "noopener noreferrer", class: "badge-card__body__element-name fw-600 text-underlined mr-xs" %>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>

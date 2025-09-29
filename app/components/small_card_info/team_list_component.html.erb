@@ -1,0 +1,18 @@
+<div class="team-list">
+  <h2 class="s-paragraph mb-12px"><%= @team.title %></h2>
+  <p class="xxs-paragraph-light mb-12px">
+    <%= @team.description.truncate(70) %>
+  </p>
+  <div class="participants-list mb-12px">
+    <% @team.members.each do |member| %>
+      <div class="xs-paragraph grey-03">
+        <%= member.short_name.truncate(30) %>
+      </div>
+    <% end %>
+  </div>
+  <% if @team.project.owner == helpers.current_user %>
+    <%= link_to edit_project_team_member_path(project_id: params[:id], id: @team), class: "s-paragraph-link margin-center", data: { turbo_frame: "modal" } do %>
+      <i class="fa-solid fa-plus"></i> Ajouter un participant
+    <% end %>
+  <% end %>
+</div>

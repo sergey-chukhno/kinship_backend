@@ -1,0 +1,3 @@
+<%= turbo_stream.update :user_school_level_ids do %>
+  <%= options_for_select([["", nil]] + @school_levels.map { |school_level| [school_level.full_name_without_school, school_level.id] }) %>
+<% end %>

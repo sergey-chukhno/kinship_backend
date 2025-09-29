@@ -1,0 +1,542 @@
+@mixin checkbox-default {
+  display: grid;
+  grid-template-columns: 2em 1fr;
+  grid-template-areas: "checkbox label";
+  gap: 4px;
+  align-items: center;
+  cursor: pointer;
+
+  input {
+    display: none;
+  }
+}
+
+@mixin input-default {
+  &:before {
+    content: "";
+    grid-area: checkbox;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    display: block;
+    border: 2px solid;
+  }
+  &:after {
+    content: "";
+    grid-area: checkbox;
+    position: relative;
+    opacity: 0;
+  }
+  &:has(> input:checked) {
+    &:after {
+      opacity: 1;
+    }
+  }
+}
+
+@mixin checkbox-icon {
+  @include input-default;
+  &:before {
+    height: 16px;
+    width: 16px;
+    margin: 6px;
+    border-radius: 3px;
+  }
+  &:after {
+    left: 57%;
+    top: -2px;
+    -webkit-transform: translateX(-50%) rotate(45deg);
+    -ms-transform: translateX(-50%) rotate(45deg);
+    transform: translateX(-50%) rotate(45deg);
+    width: 5px;
+    height: 9px;
+    border: solid;
+    border-width: 0 2px 2px 0;
+  }
+}
+
+@mixin radio-icon {
+  @include input-default;
+  &:before {
+    height: 18px;
+    width: 18px;
+    margin: 4px;
+    border-radius: 50%;
+  }
+  &:after {
+    top: 0;
+    left: 9px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+}
+
+.check-box {
+  @include checkbox-default;
+  @include checkbox-icon;
+  color: $grey-01;
+  &:before {
+    border-color: $grey-01;
+  }
+  &:after {
+    border-color: $white;
+  }
+  &:has(> input:checked) {
+    &:before {
+      background: $primary-acc-1;
+      border: $primary-acc-1;
+    }
+  }
+}
+.check-box-black {
+  @include checkbox-default;
+  @include checkbox-icon;
+  color: $grey-01;
+  &:before {
+    border-color: $grey-01;
+  }
+  &:after {
+    border-color: $white;
+  }
+  &:has(> input:checked) {
+    &:before {
+      background: $grey-01;
+      border: $grey-01;
+    }
+  }
+}
+
+.check-box-radio {
+  @include checkbox-default;
+  @include radio-icon;
+  color: $grey-01;
+  &:before {
+    border-color: $grey-01;
+  }
+  &:after {
+    background: $primary-acc-1;
+  }
+}
+.check-box-radio-black {
+  @include checkbox-default;
+  @include radio-icon;
+  color: $grey-01;
+  &:before {
+    border-color: $grey-01;
+  }
+  &:after {
+    background: $grey-01;
+  }
+}
+
+// Button checkbox and radio button styles
+@mixin button-check-default {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  width: fit-content;
+  border: 1px solid $grey-04;
+  border-radius: 4px;
+  padding: 6px 8px 6px 4px;
+  color: $grey-02;
+  background-color: $white;
+
+  &:before {
+    border-color: $grey-02;
+  }
+
+  &:has(> input:checked) {
+    background-color: $primary-light-2;
+    color: $grey-01;
+
+    &:before {
+      border-color: $grey-01;
+    }
+  }
+}
+
+.button-check {
+  @include checkbox-default;
+  @include checkbox-icon;
+  @include button-check-default;
+  &:after {
+    border-color: $primary-light-2;
+  }
+  &:has(> input:checked) {
+    &:before {
+      background: $grey-01;
+    }
+  }
+}
+.thin-button-check {
+  @include checkbox-default;
+  @include checkbox-icon;
+  @include button-check-default;
+  &:after {
+    border-color: $primary-light-2;
+    left: 70%;
+  }
+  &:has(> input:checked) {
+    &:before {
+      background: $grey-01;
+    }
+  }
+
+  font-size: 10px;
+  font-weight: 500;
+  gap: 8px;
+  padding: 2px 8px 2px 8px;
+}
+
+.radio-button-wrapper {
+  flex-direction: row;
+}
+
+.radio-button-check {
+  @include checkbox-default;
+  @include radio-icon;
+  @include button-check-default;
+  &:after {
+    background: $grey-01;
+  }
+}
+
+.role-wrapper-col {
+  gap: 24px !important;
+}
+
+.role-wrapper {
+  display: flex !important;
+  flex-direction: row !important;
+  gap: 66px !important;
+
+  .error {
+    position: absolute;
+    top: 0;
+    left: 90px;
+  }
+  @include for-phone-only {
+    flex-direction: column !important;
+    gap: 16px !important;
+  }
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100%;
+}
+.form__wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.form__wrapper--background {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background-color: $white;
+  border: 1px solid $grey-04;
+  border-radius: 8px;
+  padding: 24px;
+}
+.form__wrapper--2col {
+  display: flex;
+  flex-direction: row !important;
+  gap: 24px;
+  width: 100%;
+}
+.form__input-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+.form__links-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.form__input-wrapper--input {
+  background-color: $white;
+  border: 1px solid $grey-04;
+  border-radius: 6px;
+  padding: 10px 14px;
+
+  font-size: 14px;
+  line-height: 21px;
+  color: $grey-02;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+
+  &:focus {
+    outline: none;
+    border: 1px solid $primary-acc-1;
+  }
+
+  &::placeholder {
+    color: $grey-03;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+select.form__input-wrapper--input {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  appearance: none;
+  background: $white url(icons/expand_more_orange.svg) no-repeat right center;
+  background-size: 24px;
+
+  &.mini-select {
+    padding: 0 32px 0 14px;
+    border-radius: 12px;
+    font-size: 10px;
+    width: fit-content;
+    background-size: 20px;
+  }
+}
+.ts-wrapper.form__input-wrapper--input {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  &::after {
+    content: "";
+    display: block;
+    position: absolute;
+    z-index: 2;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    background-color: $primary;
+    -webkit-mask-image: url(icons/expand_more.svg);
+    mask-image: url(icons/expand_more.svg);
+    mask-position: 50% 50%;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+    pointer-events: none;
+  }
+
+  &.mini-select {
+    padding: 0 32px;
+    border-radius: 12px;
+    font-size: 10px;
+    width: fit-content;
+    max-width: 150px;
+
+    &::before {
+      content: "";
+      display: block;
+      position: absolute;
+      left: 8px;
+      width: 20px;
+      height: 20px;
+      background-size: 20px;
+      background-color: $primary;
+      -webkit-mask-image: url(icons/school_level.svg);
+      mask-image: url(icons/school_level.svg);
+      mask-position: 50% 50%;
+      mask-repeat: no-repeat;
+    }
+
+    &::after {
+      right: 0;
+      width: 21px;
+      height: 21px;
+      background-size: 21px;
+      border-radius: 50%;
+    }
+
+    .ts-control {
+      margin-right: 0;
+      height: 21px;
+      min-width: 21px;
+      flex-wrap: nowrap;
+      gap: 4px;
+
+      input {
+        font-size: 0;
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        cursor: pointer;
+      }
+
+      .item {
+        background-color: transparent;
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        color: $grey-02;
+        font-size: 10px;
+        white-space: nowrap;
+        &::after {
+          content: ",";
+        }
+      }
+    }
+  }
+  .ts-dropdown .option {
+    padding: 4px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+}
+select.form__input-wrapper--input.hide-after::after,
+.ts-wrapper.form__input-wrapper--input.hide-after::after {
+  display: none;
+}
+
+textarea.form__input-wrapper--input {
+  resize: none;
+  min-height: 150px;
+}
+
+.school-and-school-level-filter-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  @include for-tablet-portrait {
+    flex-direction: row;
+    width: 100%;
+    gap: 32px;
+  }
+}
+.school-and-school-level-filter-container__school {
+  width: 100%;
+  @include for-tablet-portrait {
+    flex-grow: 1;
+  }
+}
+.school-and-school-level-filter-container__school-level {
+  width: 100%;
+  @include for-tablet-portrait {
+    width: 40%;
+  }
+}
+.form__input--company-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &::before {
+    content: "";
+    display: block;
+    width: 24px;
+    height: 24px;
+    background-color: $color-var-1;
+    -webkit-mask-image: url(icons/maps_home_work);
+    mask-image: url(icons/maps_home_work);
+    mask-position: 50% 50%;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+  }
+}
+.form__input--project-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &::before {
+    content: "";
+    display: block;
+    width: 24px;
+    height: 24px;
+    background-color: $color-var-4;
+    -webkit-mask-image: url(icons/maps_home_work);
+    mask-image: url(icons/maps_home_work);
+    mask-position: 50% 50%;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+  }
+}
+.form__input--school-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &::before {
+    content: "";
+    display: block;
+    width: 24px;
+    height: 24px;
+    background-color: $primary;
+    -webkit-mask-image: url(icons/maps_home_work);
+    mask-image: url(icons/maps_home_work);
+    mask-position: 50% 50%;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+  }
+}
+.form__input--school-level-select {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &::before {
+    content: "";
+    display: block;
+    width: 24px;
+    height: 24px;
+    background-color: $primary;
+    -webkit-mask-image: url(icons/school_level);
+    mask-image: url(icons/school_level);
+    mask-position: 50% 50%;
+    mask-repeat: no-repeat;
+    mask-size: contain;
+  }
+}
+
+.nested-fields--remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  color: $primary;
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  min-width: 24px;
+  align-self: end;
+  position: relative;
+  bottom: 12px;
+
+  svg {
+    height: 20px;
+    width: 20px;
+  }
+}
+
+.nested-fields--add-link {
+  display: flex;
+  align-items: center;
+  align-self: end;
+  width: fit-content;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  margin: 0;
+  padding: 0;
+  color: $primary;
+  cursor: pointer;
+  gap: 8px;
+
+  svg {
+    width: 24px;
+    height: 24px;
+    min-height: 24px;
+    min-width: 24px;
+  }
+}

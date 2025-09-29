@@ -1,0 +1,79 @@
+.project-card {
+  display: flex;
+  flex-direction: column;
+
+  border: 0.0625rem solid $grey-04;
+  border-radius: 0.5rem;
+  background-color: $white;
+
+  &__picture {
+    border-radius: 0.5rem 0.5rem 0 0;
+    object-fit: cover;
+    width: 100%;
+    height: 10.25rem;
+  }
+
+  &__banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: $grey-06;
+
+    &__item {
+      $icon-size: 0.875rem;
+
+      display: grid;
+      grid-template-columns: $icon-size 1fr;
+      align-items: center;
+      gap: 0.5rem;
+
+      svg {
+        font-size: $icon-size;
+      }
+    }
+  }
+
+  &__content {
+    height: 100%;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    &__footer {
+      display: grid;
+      margin-top: auto;
+      gap: 0.5rem;
+
+      &__item {
+        $icon-size: 1rem;
+
+        display: grid;
+        grid-template-columns: $icon-size 1fr;
+        align-items: center;
+        gap: 0.5rem;
+
+        svg {
+          font-size: $icon-size;
+        }
+
+        &:has(+ &) {
+          max-width: 50%;
+        }
+
+        span {
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+
+  &__wrapper {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+}

@@ -1,0 +1,8 @@
+fr:
+  account:
+    childrens:
+      destroy:
+        empty_childrens:
+          tutor: "Vous n'avez pas encore ajouté d'enfant"
+          teacher: "Vous n'avez pas encore ajouté d'élève"
+          voluntary: "Vous n'avez pas encore ajouté d'adhérent"

@@ -1,0 +1,47 @@
+<div class="admin-panel-member__card" id="<%= @member.id %>">
+  <div class="admin-panel-member__card--content">
+    <p class="s-paragraph-bold dark-01"><%= @member.full_name %></p>
+    <%= render Common::Tag::TagComponent.new(color: role_tag_color).with_content(role) %>
+    <% if @partnership %>
+      <div class="admin-panel-member__stats">
+        <%= show_svg "users.svg", class: "grey-03" %>
+        <p class="xxs-paragraph-light grey-03"><%= pluralize(@member.users.count, "membre", plural: "membres") %></p>
+      </div>
+    <% end %>
+    <% unless @partnership %>
+      <%= simple_form_for member_school_or_member_company, url: update_admin_path, method: :put, data: { controller: "submit", submit_target: "form" }, html: { class: "" } do |member_school_or_member_company_fields| %>
+        <%= member_school_or_member_company_fields.input :admin,
+        as: :select,
+        label: false,
+        include_blank: false,
+        collection: [["Administrateur", true], ["Utilisateur rattaché", false]],
+        input_html: {
+          class: "mini-select",
+          disabled: member_school_or_member_company.owner?,
+          data: {
+            action: "change->submit#submit"
+            }
+          } %>
+      <% end %>
+    <% end %>
+    <% if @school %>
+      <%= render "school_level_form", member: @member, school: @school %>
+    <% end %>
+  </div>
+  <div class="admin-panel-member__card--inputs">
+    <% unless @partnership %>
+      <%= simple_form_for member_school_or_member_company, url: update_can_access_badges_path, method: :put, html: { class: "admin-panel-member__card--inputs" }, data: { controller: "submit", submit_target: "form" } do |member_school_or_member_company_fields| %>
+        <span class="xxs-paragraph">Badge</span>
+        <input type="checkbox" class="btn-toggle" <%= "checked" if member_can_access_badges? %> <%= "disabled" unless member_confirmed? %> data-action="change->submit#submit">
+      <% end %>
+    <% end %>
+
+    <%= simple_form_for member_school_or_member_company, url: update_confirmation_path, method: :put, html: { class: "admin-panel-member__card--inputs" }, data: { controller: "submit update-admin-panel-member-status-text", submit_target: "form" } do |member_school_or_member_company_fields| %>
+      <span class="xxs-paragraph <%= member_confirmed? ? "color-var-2" : "grey-03" %>" data-update-admin-panel-member-status-text-target="text"><%= member_confirmed? ? "Rattaché" : "En attente" %></span>
+      <input type="checkbox" class="btn-toggle" <%= "checked" if member_confirmed? %> data-action="change->submit#submit change->update-admin-panel-member-status-text#update" <%= "disabled" if owner? %>>
+    <% end %>
+    <%= button_to destroy_path, method: :delete, class: "btn-trash grey-02", disabled: owner? do %>
+      <%= show_svg "trash.svg" %>
+    <% end %>
+  </div>
+</div>

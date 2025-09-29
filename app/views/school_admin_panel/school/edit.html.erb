@@ -1,0 +1,9 @@
+<%= render "school_admin_panel/layout" do %>
+  <div class="admin-panel__form">
+    <p class="paragraph dark-01"><%= t(:title, scope: [:layouts, :school_admin_panel, :school]) %></p>
+    <%= simple_form_for @school, url: "", method: :put do |f| %>
+      <%= render "form", f: f %>
+    <% end %>
+    <p class="xs-paragraph grey-03">Si vous souhaitez changer les informations de l'établissement veuillez contacter <a href="mailto:support@kinshipedu.fr">Kinship</a></p>
+  </div>
+<% end %>

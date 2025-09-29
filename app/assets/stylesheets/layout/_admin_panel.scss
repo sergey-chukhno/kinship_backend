@@ -1,0 +1,28 @@
+.admin-panel__container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.admin-panel__title {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &--sub-infos {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
+  }
+}
+.admin-panel__content {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+}
+.admin-panel__form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 750px;
+}

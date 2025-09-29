@@ -1,0 +1,49 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset='utf-8' />
+    <style>
+      body {
+        font-family: sans-serif;
+      }
+    </style>
+  </head>
+  <body onload='number_pages'>
+    <div style="padding-bottom: 64px; display: grid;">
+      <%= image_tag wicked_pdf_asset_base64('brand.png'), height: 48 %>
+      <p style="font-size: 12px; font-weight: 400; color: #414D55;">Document daté du <%= Time.now.strftime("%d/%m/%Y") %></p>
+    </div>
+    <div style="padding-bottom: 64px;">
+      <h1 style="text-align: center; color: #181528; font-size: 32px; font-weight: 700;">Badges et compétences</h1>
+      <h3 style="text-align: center; color: #181528; font-size: 24px; font-weight: 500;"><%= @user.first_name %> <%= @user.last_name %></h3>
+    </div>
+    <div>
+      <h2 style="color: #EE962F; font-size: 22px; font-weight: bold;">Details des badges</h2>
+      <% @parsed_badges.each do |category| %>
+        <h3 style="background-color: #F8F7FF; border-radius: 10px; padding: 16px; font-size: 16px; font-weight: bold; color: #414D55;" ><%= category[:category] %></h3>
+        <% category[:badges].each_with_index do |badge, index| %>
+          <% if index == 0 %>
+            <p style="font-size: 16px; font-weight: 400; color: #414D55; padding: 0 16px 8px 16px;">Description : <%= badge[:description] %></p>
+          <% end %>
+          <div style="padding: 0 16px 8px 16px;">
+            <h4 style="color: #414D55; font-size: 16px; font-weight: 400; text-decoration: underline;">Niveau <%= badge[:level].to_s.last %></h4>
+            <p style="font-size: 16px; font-weight: 400; color: #414D55; line-height: 1.5;">Projet : <%= badge[:project_title] %></p>
+            <p style="font-size: 16px; font-weight: 400; color: #414D55; line-height: 1.5;">Description du projet : <%= badge[:project_description] %></p>
+            <p style="font-size: 16px; font-weight: 400; color: #414D55; line-height: 1.5;">Domaine(s): <%= badge[:domains].join(", ") %></p>
+            <p style="font-size: 16px; font-weight: 400; color: #414D55; line-height: 1.5;">Savoir-faire(s): <%= badge[:expertises].join(", ") %></p>
+            <p style="padding-bottom: 4px;"></p>
+            <% if badge[:comments].present? %>
+              <p style="font-size: 16px; font-weight: 400; color: #414D55; line-height: 1.5;">Commentaires : <%= badge[:comments] %></p>
+            <% end %>
+            <% if badge[:documents].any? %>
+              <p style="font-size: 16px; font-weight: 400; color: #414D55; line-height: 1.5;">Preuve(s) :</p>
+              <% badge[:documents].each do |document| %>
+                <a href="<%= document[:url] %>" style="font-size: 16px; font-weight: 400; color: #414D55; line-height: 1.5;"><%= document[:name] %></a>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </body>
+</html>

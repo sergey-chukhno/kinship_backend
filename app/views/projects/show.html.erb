@@ -1,0 +1,158 @@
+<% content_for :meta_title, "Kinship - #{@project.title}" %>
+<% content_for :meta_description, "#{@project.description}" %>
+<div class="main-container">
+  <div class="flex space-between mb-32px">
+    <%= link_to projects_path, class:"flex gap-15px align-center" do %>
+      <i class="fa-solid fa-chevron-left fa-beat"></i> <span class="s-paragraph dark-01">Fiche détaillée du projet</span>
+    <% end %>
+    <div class="flex align-center gap-10px">
+      <%= show_svg "copy.svg" %>
+      <span class="s-paragraph primary text-underlined"
+        data-controller="copy"
+        data-action="click->copy#copyToClipboard"
+        data-copy-content-to-copy-value="<%= request.url %>">
+        Copier le lien du projet
+      </span>
+    </div>
+  </div>
+
+  <div class="project-show__wrapper">
+    <div class="project-show">
+      <div class="project-show__header">
+        <div class="project-show__header__title">
+          <h1 class="title2 dark-01"><%= @project.title %></h1>
+          <% if @project.can_edit?(current_user) %>
+            <%= link_to  edit_project_admin_panel_project_path(@project) do %>
+              <%= show_svg "edit.svg" %>
+            <% end %>
+          <% end %>
+        </div>
+        <p class="xxs-paragraph grey-03"><%= @project.short_start_date %> <i class="fa-solid fa-chevron-right"></i> <%= @project.short_end_date %></p>
+      </div>
+
+      <div class="project-show__tags">
+        <div class="tag__wrapper">
+          <% @project.tags.each do |tag| %>
+            <%= render Common::Tag::TagComponent.new(color: color_for_project_tag(tag.name)).with_content(tag.name) %>
+          <% end %>
+        </div>
+        <div class="tag__wrapper">
+          <% @project.skills.each do |skill| %>
+            <%= render Common::Tag::TagComponent.new(color: "grey").with_content(skill.name) %>
+          <% end %>
+        </div>
+        <div class="tag__wrapper">
+          <% @project.keywords.each do |keyword| %>
+            <span class="xxs-paragraph grey-02">#<%= keyword.name %></span>
+          <% end %>
+        </div>
+        <% if @project.schools.any? %>
+          <div class="tag__wrapper">
+            <p class="project-card__content__footer__item xxs-paragraph grey-03"><%= show_svg "maps_home_work.svg", class: "primary" %><span><%= @project.schools.first.full_name %></span></p>
+        <p class="project-card__content__footer__item xxs-paragraph grey-03"><%= show_svg "school_level.svg", class: "primary" %><span><%= @project.school_levels.map { |school_level| school_level.full_name_without_school }.join(", ") %></span></p>
+          </div>
+        <% end %>
+        <% if @project.have_companies %>
+          <div class="tag__wrapper">
+              <p class="project-card__content__footer__item xxs-paragraph grey-03"><%= show_svg "maps_home_work.svg", class: "color-var-1" %><span>  <%= @project.companies_full_name_joined %></span></p>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="project-show__stats">
+        <div class="project-show__stats__item grey-03 ">
+          <%= show_svg "users.svg" %>
+          <p class="s-paragraph"><%= @project.participants_number ? @project.participants_number : "---" %> <%= "participant".pluralize(@project.participants_number) %></p>
+        </div>
+        <div class="project-show__stats__item grey-03 ">
+          <%= show_svg "clock.svg" %>
+          <p class="s-paragraph"><%= @project.time_spent ? "#{@project.time_spent} h" : "---" %></p>
+        </div>
+        <div class="project-show__stats__item <%= define_project_status_color(@project) %>">
+          <%= @project.ended? ? show_svg("check_circle.svg") : show_svg("clock_counter_clockwise.svg") %>
+          <p class="s-paragraph"><%= I18n.t("activerecord.attributes.project.status.#{@project.status}") %></p>
+        </div>
+      </div>
+
+      <div class="project-show__content">
+        <p class="s-paragraph-bold dark-01">Description</p>
+        <p class="s-paragraph grey-02"><%= @project.description %></p>
+      </div>
+
+      <section class="splide" aria-label="Splide Basic HTML Example" data-controller="carousel">
+        <div class="splide__track">
+          <ul class="splide__list">
+            <% if @project.main_picture.attached? %>
+              <li class="splide__slide"><%= image_tag @project.main_picture, class: "project-show__picture" %> </li>
+              <% @project.pictures.each do |more_picture| %>
+                <li class="splide__slide"><%= image_tag more_picture, class: "project-show__picture" %> </li>
+              <% end %>
+            <% else %>
+              <li class="splide__slide"><img src="https://cache.magicmaman.com/data/photo/w1000_ci/59/enfantecolelecture.jpg" class="project-show__picture" alt=""> </li>
+            <% end %>
+          </ul>
+          <div class="splide__arrows splide__arrows--ltr form__wrapper--2col gap-15px">
+            <button class="splide__arrow splide__arrow--prev btn-slider  btn-slider--prev" type="button" aria-label="Previous slide" aria-controls="splide01-track">
+              <%= show_svg "expand_more.svg" %>
+            </button>
+            <button class="splide__arrow splide__arrow--next btn-slider btn-slider--next" type="button" aria-label="Next slide" aria-controls="splide01-track">
+              <%= show_svg "expand_more.svg" %>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <hr class="grey-04-line">
+
+      <div class="project-show__other-info">
+        <div class="project-show__other-info__items">
+          <h2 class="s-paragraph-bold">Liens</h2>
+          <div class="project-show__other-info__items__item">
+            <% @project.links.each do |link| %>
+              <%= link_to link.name,
+                        ERB::Util.html_escape(link.url),
+                        allow_external: true,
+                        target: "_blank",
+                        class: "s-paragraph text-underlined" %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="project-show__other-info__items">
+          <h2 class="s-paragraph-bold">Documents</h2>
+          <div class="project-show__other-info__items__item">
+            <% @project.documents.each do |document| %>
+              <%= link_to document.blob.filename,
+                        url_for(document),
+                        method: :get,
+                        target: "_blank",
+                        class: "s-paragraph text-underlined" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="project-informations">
+      <%= render(SmallCardInfo::BaseComponent.new()) do %>
+        <%= render SmallCardInfo::OwnerComponent.new(owner: @project.owner) %>
+      <% end %>
+      
+      <% if @project.owner != current_user && !@project.project_members.where(user: current_user).any? %>
+        <%= render(SmallCardInfo::BaseComponent.new())  do %>
+          <%= render SmallCardInfo::ProjectParticipationRequestComponent.new() %>
+        <% end %>
+      <% end %>
+      <% if @project.owner == current_user %>
+        <%= render(SmallCardInfo::BaseComponent.new()) do %>
+          <%= render SmallCardInfo::AddParticipantsComponent.new(owner: current_user, project_id: @project.id) %>
+        <% end %>
+      <% end %>
+      <% @project.teams.each do |team| %>
+        <%= render(SmallCardInfo::BaseComponent.new()) do %>
+          <%= render SmallCardInfo::TeamListComponent.new(team:) %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

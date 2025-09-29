@@ -1,0 +1,33 @@
+<h1 class="title2 dark-01"><%= title_sign_up_stepper(session[:user_role]["role"]) %></h1>
+<%= render StepperComponent.new(current_step: 2, role: session[:user_role]["role"], company_form: @user_profile.company_form) %>
+<%= simple_form_for @user_password, url: registration_stepper_third_steps_path, data: { turbo: :false, controller:"password-validator" }  do |f| %>
+  <%= f.input :password,
+              label: t("registration.third_step.password.label"),
+              required: true,
+              autofocus: true,
+              input_html: {
+                data: { "password-validator-target": "password", action: "input->password-validator#checkInput" },
+                autocomplete: "new-password"
+              } %>
+  <%= f.input :password_confirmation,
+              label: t("registration.third_step.password_confirmation.label"),
+              required: true,
+              input_html: {
+                data: {
+                    "password-validator-target": "passwordConfirmation",
+                    action: "input->password-validator#checkInput"
+                  },
+                autocomplete: "new-password",
+              } %>
+  <div id="password-message-container" class="mb-12px">
+    <p class="invalid xxs-paragraph" data-password-validator-target="matchMessage">Les mots de passe doivent correspondre</p>
+    <p class="invalid xxs-paragraph" data-password-validator-target="lowerCaseLetter" >Contient une minuscule</p>
+    <p class="invalid xxs-paragraph" data-password-validator-target="upperCaseLetter">Contient une majuscule</p>
+    <p class="invalid xxs-paragraph" data-password-validator-target="minimumLength">Au minimum 8 caractères</p>
+    <p class="invalid xxs-paragraph" data-password-validator-target="specialCharacter">Au moins un caractère spécial (@, !, ...)</p>
+  </div>
+  <div class="form__wrapper--2col gap-15px">
+    <%= link_to "Retour", new_registration_stepper_second_step_path(), class:"btn-secondary" %>
+    <%= f.submit "Enregistrer", class:"btn-primary__full-width", data: {"password-validator-target": "submit"} %>
+  </div>
+<% end %>

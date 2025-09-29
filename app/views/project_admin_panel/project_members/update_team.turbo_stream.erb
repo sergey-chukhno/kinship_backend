@@ -1,0 +1,4 @@
+<%= turbo_stream.replace dom_id(@user) %>
+<%= turbo_stream.update "flash" do %>
+  <%= render "shared/flashes" %>
+<% end %>

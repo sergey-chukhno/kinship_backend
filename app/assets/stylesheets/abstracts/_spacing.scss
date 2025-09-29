@@ -1,0 +1,205 @@
+$spacing: (
+  xxs: 0.25rem,
+  // 4px
+  xs: 0.5rem,
+  // 8px
+  s: 0.75rem,
+  // 12px
+  m: 1rem,
+  // 16px
+  l: 1.25rem,
+  // 20px
+  xl: 1.5rem,
+  // 24px
+  2xl: 2rem,
+  // 32px
+  3xl: 2.25rem,
+  // 36px
+  4xl: 2.5rem,
+  // 40px
+);
+
+@each $key, $value in $spacing {
+  .m-#{$key} {
+    margin: $value;
+  }
+
+  .mt-#{$key} {
+    margin-top: $value;
+  }
+
+  .mr-#{$key} {
+    margin-right: $value;
+  }
+
+  .mb-#{$key} {
+    margin-bottom: $value;
+  }
+
+  .ml-#{$key} {
+    margin-left: $value;
+  }
+
+  .mx-#{$key} {
+    margin-left: $value;
+    margin-right: $value;
+  }
+
+  .my-#{$key} {
+    margin-top: $value;
+    margin-bottom: $value;
+  }
+
+  .p-#{$key} {
+    padding: $value;
+  }
+
+  .pt-#{$key} {
+    padding-top: $value;
+  }
+
+  .pr-#{$key} {
+    padding-right: $value;
+  }
+
+  .pb-#{$key} {
+    padding-bottom: $value;
+  }
+
+  .pl-#{$key} {
+    padding-left: $value;
+  }
+
+  .px-#{$key} {
+    padding-left: $value;
+    padding-right: $value;
+  }
+
+  .py-#{$key} {
+    padding-top: $value;
+    padding-bottom: $value;
+  }
+}
+
+.p-8px {
+  padding: 8px;
+}
+
+.p-16px {
+  padding: 16px !important;
+}
+
+.p-32px {
+  padding: 32px;
+}
+.pt-32px {
+  padding-top: 32px;
+}
+.pt-16px {
+  padding-top: 16px !important;
+}
+.pb-8px {
+  padding-bottom: 8px;
+}
+.pb-16px {
+  padding-bottom: 16px;
+}
+.pb-24px {
+  padding-bottom: 24px;
+}
+.pb-32px {
+  padding-bottom: 32px;
+}
+.pb-64px {
+  padding-bottom: 64px !important;
+}
+.pb-100px {
+  padding-bottom: 100px;
+}
+
+// Y
+.py-8px {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.py-12px {
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.py-16px {
+  padding-top: 16px;
+  padding-bottom: 16px;
+}
+
+.py-32px {
+  padding-top: 32px;
+  padding-bottom: 32px;
+}
+
+// X
+
+.px-14px {
+  padding-left: 14px;
+  padding-right: 14px;
+}
+
+// width && height
+.w-fit-content {
+  width: fit-content;
+}
+
+.w-auto {
+  width: auto !important;
+}
+
+.w-100percent {
+  width: 100%;
+}
+
+.mw-340px {
+  max-width: 340px;
+}
+.w-340px {
+  max-width: 340px;
+}
+
+.h-100percent {
+  height: 100%;
+}
+
+.h-100vh {
+  height: 100vh;
+}
+
+.min-h-400px {
+  min-height: 400px;
+}
+
+.h-80vh {
+  height: 80vh;
+}
+
+.w-150px {
+  width: 150px;
+}
+.w-100vw {
+  width: 100vw;
+}
+
+.w-80percent {
+  width: 80%;
+}
+
+.w-auto {
+  width: auto;
+}
+
+.mw-438px {
+  max-width: 438px;
+}
+
+.h-auto {
+  height: auto;
+}

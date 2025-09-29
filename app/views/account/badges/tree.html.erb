@@ -1,0 +1,71 @@
+<div class="main-container main-container--responsive" style="<%= "min-height: 0vh;" if params[:public_access] %>">
+  <div class="badges-container">
+    <div class="flex flex-row gap-16px align-self-end">
+      <% if @user == current_user || @user.parent == current_user %>
+        <% if @user.badges_received.any? %>
+          <%= link_to "Télécharger mon profil (PDf)", account_profile_download_path(@user, format: :pdf), download: true, class: "s-paragraph primary text-underlined" %>
+        <% else %>
+          <span class="s-paragraph grey-02 text-underlined">
+            Téléchargement non disponible car aucun badge n'a été reçu
+          </span>
+        <% end %>
+      <% end %>
+      <% if (@user == current_user || @user.parent == current_user) && !params[:public_access] %>
+        <div class="badges-container__copy-link">
+          <%= show_svg "copy.svg" %>
+          <span class="s-paragraph primary text-underlined"
+          data-controller="copy"
+          data-action="click->copy#copyToClipboard"
+            data-copy-content-to-copy-value="<%= request.original_url %>?public_access=true&token=<%= @user.badges_token %>">
+            Copier le lien du profil public
+          </span>
+        </div>
+      <% end %>
+    </div>
+
+    <div class="badges-container__banner">
+      <div class="badges-container__banner-avatar">
+        <div class="badges-container__banner-avatar--image">
+          <%= show_svg "default_#{@user.teacher? ? 'teacher' : 'user'}_avatar.svg" %>
+        </div>
+      </div>
+    </div>
+    <div class="badges-container__content">
+      <span class="fs-14 mb-16px"><%= @user.full_name %></span>
+      <h3 class="fw-600 fs-14 text-center">Badges et compétences</h3>
+      <div class="badges-container__tree">
+        <div class="badges-container__tree-header-column">
+          <% @percentage_per_category.each do |category, percentage| %>
+            <div class="badges-container__tree-header-column--row">
+              <span class="badges-container__tree-column-title"><%= category %></span>
+              <span class="badges-container__tree-column-progress <%= "color-var-1" if percentage.positive? %>">
+                <%= percentage %>%
+              </span>
+            </div>
+          <% end %>
+        </div>
+        <div class="badges-container__tree-columns">
+          <% Badge.levels.each_with_index do |level, level_index| %>
+            <div class="badges-container__tree-column">
+              <span class="badges-container__tree-column-title">
+                <%= t("activerecord.attributes.badge.levels.level_#{level_index + 1}") %>
+              </span>
+              <% @percentage_per_category.each do |category, _| %>
+                <% user_badges_count = @user_badges_per_level[[category, "level_#{level_index + 1}"]] || 0 %>
+                <div class="badges-container__tree-row">
+                  <% if user_badges_count.positive? %>
+                    <%= link_to account_profile_badges_level_path(level: level, category: category), data: { turbo_frame: "new-modal" }, class: "badges-container__tree-row--blue-square", style: { "height:": "#{((user_badges_count.to_f / 20) * 100).ceil}%" } do %>
+                      <%= user_badges_count %>
+                    <% end %>
+                  <% else %>
+                    <div class="badges-container__tree-row--empty-square"></div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

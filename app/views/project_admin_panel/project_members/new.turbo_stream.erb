@@ -1,0 +1,74 @@
+<%= turbo_stream.update "network_content" do %>
+  <div data-controller="add-project-member-selects">
+    <div id="availableUsers" data-available-users="<%= @available_users.map { |user| { id: user.id, full_name: user.full_name, role:  I18n.t("activerecord.attributes.user.roles.#{user.role}"), school: "#{user.schools.first&.name} (#{user.schools.first&.zip_code})" } }.to_json %>"></div>
+    <%= simple_form_for :filter, url: new_project_admin_panel_project_member_path, 
+                  method: :get, 
+                  html: { class: nil },
+                  data: { controller: "submit", turbo_frame: "network_content", turbo_stream: true } do |f| %>
+      <%= f.hidden_field :project_id, value: @project_id %>
+      <%= f.hidden_field :network_type, value: @network_type %>
+      <% if @network_type == "schools" %>
+        <div class="mb-16px">
+          <span class="fs-12 grey-01 fw-400">Mes établissements</span>
+          <%= f.input :school,
+              collection: current_user.schools.confirmed.map {|school| [school.full_name, school.id]},
+            include_blank: "Tous mes établissements",
+            selected: @selected_school,
+            label: false,
+            input_html: { 
+              data: {
+                action: "change->submit#submit",
+                add_project_member_selects_target: "select"
+              }
+            } %>
+        </div>
+        <% if @selected_school.present? %>
+          <div class="mb-16px">
+            <span class="fs-12 grey-01 fw-400">Classes</span>
+            <%= f.input :school_level,
+                collection: School.find(@selected_school).school_levels.map {|school_level| [school_level.full_name_without_school, school_level.id]},
+              include_blank: "Toutes mes classes",
+              selected: @selected_school_level,
+              label: false,
+              input_html: { 
+                data: {
+                  action: "change->submit#submit",
+                  add_project_member_selects_target: "select"
+                }
+              } %>
+          </div>
+        <% end %>
+      <% elsif @network_type == "organizations" %>
+        <div class="mb-16px">
+          <span class="fs-12 grey-01 fw-400">Mes entreprises</span>
+          <%= f.input :company,
+              collection: current_user.companies.confirmed.map {|company| [company.name, company.id]},
+            include_blank: "Toutes mes entreprises",
+            selected: @selected_company,
+            label: false,
+            input_html: { 
+              data: {
+                action: "change->submit#submit",
+                add_project_member_selects_target: "select"
+              }
+            } %>
+        </div>
+      <% elsif @network_type == "projects" %>
+        <div class="mb-16px">
+          <span class="fs-12 grey-01 fw-400">Mes projets</span>
+          <%= f.input :project,
+            collection: (current_user.projects + current_user.project_members.select(&:confirmed?).map(&:project)).sort_by { |project| -project.id }.uniq.map {|project| [project.title, project.id]},
+            include_blank: "Tous mes projets",
+            selected: @selected_project,
+            label: false,
+            input_html: { 
+              data: {
+                action: "change->submit#submit",
+                add_project_member_selects_target: "select"
+              }
+            } %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>

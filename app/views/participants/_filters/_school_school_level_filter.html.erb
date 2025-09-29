@@ -1,0 +1,25 @@
+<%= f.input :school,
+            label: false,
+            collection: school_collection,
+            include_blank: "Tous mes établissements",
+            input_html: {
+              disabled: active_filter == false,
+              class: "form__input--school-select",
+              data: {
+                action: "change->submit#submit",
+                "school-searcher-target": "participantSchoolInput"
+              }
+            } %>
+<%= f.input :school_level,
+            label: false,
+            collection: [],
+            include_blank: "Toutes mes classes",
+            placeholder: "Toutes mes classes",
+            input_html: {
+              disabled: active_filter == false,
+              class: "form__input--school-level-select",
+              data: {
+                action: "change->submit#submit",
+                "school-searcher-target": "schoolLevelInput"
+              }
+            } %>

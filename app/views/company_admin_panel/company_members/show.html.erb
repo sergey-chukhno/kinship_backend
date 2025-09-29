@@ -1,0 +1,13 @@
+<%= render "company_admin_panel/layout" do %>
+  <div class="admin-panel-member__container">
+    <% if @company_members.empty? %>
+      <div class="admin-panel-member__empty">
+        <p class="admin-panel-member__empty--text s-paragraph grey-02"><%= show_svg "clock.svg" %><%= t(params[:status], scope: [:views, :school_admin_panel, :school_members, :members_empty]) %></p>
+      </div>
+    <% end %>
+
+    <% @company_members.each do |company_member| %>
+      <%= render(AdminPanel::Company::CompanyMemberCard::CompanyMemberCardComponent.new(company_member)) %>
+    <% end %>
+  </div>
+<% end %>

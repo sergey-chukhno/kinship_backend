@@ -1,0 +1,8 @@
+fr:
+  assign_badge_stepper:
+    first_step:
+      new:
+        title: "Attribuer un badge"
+        description: "Pour attester une compétence, un savoir-faire ou un savoir-être, reconnaître un engagement ou une contribution, baliser un parcours de formation et valoriser les apprentissages de vos jeunes, étudiants, apprentis, salariés ou élèves. <br><br>Remplir le formulaire qui sera lié au badge comme preuve et traçabilité de l’organisation qui le délivre."
+        actions:
+          submit: "Commencer le formulaire"

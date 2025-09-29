@@ -1,0 +1,8 @@
+<div class="nested-fields-container form__wrapper--2col admin-panel__form-2-col">
+  <%= f.input :level,
+      label: t(:level, scope: [:layouts, :school_admin_panel, :school_level, :edit_form]),
+      collection: @school_level_levels_collection %>
+  <%= f.input :name,
+      label: t(:name, scope: [:layouts, :school_admin_panel, :school_level, :edit_form]),
+      collection: @school_level_names_collection %>
+</div>

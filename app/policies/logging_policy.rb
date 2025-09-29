@@ -1,0 +1,2 @@
+class LoggingPolicy < ApplicationPolicy
+end

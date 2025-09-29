@@ -1,0 +1,65 @@
+.participant-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+
+  padding: 1rem;
+
+  background-color: $white;
+  border: 1px solid $grey-04;
+  border-radius: 0.5rem;
+
+  &__content {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    &--name {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    &--actions {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  &__tags {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  &__footer {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 1.5rem;
+    row-gap: 0.5rem;
+  }
+
+  &__contact-desktop {
+    display: none !important;
+
+    @include for-tablet-portrait {
+      display: inline-flex !important;
+    }
+  }
+
+  &__contact-mobile {
+    display: inline-flex !important;
+
+    @include for-tablet-portrait {
+      display: none !important;
+    }
+  }
+}

@@ -1,0 +1,23 @@
+<% if active_filter %>
+  <div class="filter" data-controller="reveal">
+  <% else %>
+    <div class="filter disabled">
+    <% end %>
+    <div class="filter__title" data-action="click->reveal#toggle">
+      <p class="s-paragraph-bold dark-01">Recherche un atelier Pro</p>
+      <%= show_svg "expand_more.svg", class: "primary-acc-1 icon-24x24" %>
+    </div>
+    <%= f.input :propose_workshop,
+                  as: :check_boxes,
+                  label: false,
+                  collection: [["Oui", true], ["Non", false]],
+                  item_label_class: "check-box fs-12",
+                  wrapper_html: {
+                    class: "filter__content hidden",
+                    data: { reveal_target: "item" }
+                  },
+                  input_html: {
+                    disabled: active_filter == false,
+                    data: { action: "change->submit#submit"}
+                  } %>
+  </div>

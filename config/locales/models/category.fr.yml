@@ -1,0 +1,11 @@
+fr:
+  activerecord:
+    models:
+      category:
+        one: Catégorie
+        other: Catégories
+    attributes:
+      category:
+        name: Nom
+        expertises: Compétences
+        badge: Badge

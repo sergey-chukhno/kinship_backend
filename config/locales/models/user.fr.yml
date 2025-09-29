@@ -1,0 +1,13 @@
+fr:
+  activerecord:
+    models:
+      user:
+        one: Utilisateur
+        other: Utilisateurs
+    attributes:
+      user:
+        roles:
+          teacher: Enseignant
+          tutor: Parent
+          voluntary: Volontaire
+          children: Enfant

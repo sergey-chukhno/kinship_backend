@@ -1,0 +1,17 @@
+fr:
+  activerecord:
+    models:
+      badge:
+        one: Badge
+        other: Badges
+    attributes:
+      badge:
+        name: Nom
+        description: Description
+        level: Niveau
+        levels:
+          level_1: Niveau 1
+          level_2: Niveau 2
+          level_3: Niveau 3
+          level_4: Niveau 4
+        icon: Icône

@@ -1,0 +1,10 @@
+fr:
+  admin_panel:
+    school:
+      school_member_card:
+        school_member_card_component:
+          roles:
+            children: "Élève"
+            teacher: "Enseignant"
+            tutor: "Parent"
+            voluntary: "Volontaire"

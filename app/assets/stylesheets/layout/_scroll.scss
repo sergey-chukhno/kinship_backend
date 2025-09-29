@@ -1,0 +1,26 @@
+.overflow-x-scroll {
+  overflow-x: scroll;
+}
+
+.scrollbar-visible {
+  scrollbar-width: thin;
+  scrollbar-color: $grey-01 $white;
+}
+
+.scrollbar-visible::-webkit-scrollbar {
+  width: 3px;
+  height: 5px;
+}
+
+.scrollbar-visible::-webkit-scrollbar-track {
+  background-color: $white;
+}
+
+.scrollbar-visible::-webkit-scrollbar-thumb {
+  background-color: $grey-01;
+  border-radius: 4px;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}

@@ -1,0 +1,13 @@
+fr:
+  activerecord:
+    models:
+      badge_skill:
+        one: Compétence de badge
+        other: Compétences de badge
+    attributes:
+      badge_skill:
+        name: Nom
+        category: Catégorie
+        categories:
+          domain: Domaine
+          expertise: Savoir-faire

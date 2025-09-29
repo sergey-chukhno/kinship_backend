@@ -1,0 +1,18 @@
+{
+  "apps": [
+    {
+      "app_id": "app_994654e0-e3fc-48c7-8ad3-fd549d7c9058",
+      "org_id": "orga_bb5ffbd7-122c-4753-ae92-145aa1f81c5f",
+      "deploy_url": "https://push-n2-par-clevercloud-customers.services.clever-cloud.com/app_994654e0-e3fc-48c7-8ad3-fd549d7c9058.git",
+      "name": "kinship",
+      "alias": "production"
+    },
+    {
+      "app_id": "app_5f0e85d4-06e8-4a4f-b114-fec244233cc8",
+      "org_id": "orga_bb5ffbd7-122c-4753-ae92-145aa1f81c5f",
+      "deploy_url": "https://github.com/drakkr-team/kinship.git",
+      "name": "kinship_staging",
+      "alias": "staging"
+    }
+  ]
+}

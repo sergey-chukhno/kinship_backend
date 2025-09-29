@@ -1,0 +1,11 @@
+fr:
+  assign_badge_stepper:
+    success_step:
+      show:
+        title: "Attribuer un badge"
+        subtitle:
+          pending: "Badge en attente de validation"
+          approved: "Badge envoyé"
+        description:
+          pending: "En attente de confirmation de l’attribution de la part de l’équipe Kinship pour le badge de niveau %{badge_level} %{badge_name} à destination de %{user_name}"
+          approved: "Le badge de niveau %{badge_level} %{badge_name} est directement attribué à %{user_name}"

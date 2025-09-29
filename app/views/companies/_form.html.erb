@@ -1,0 +1,27 @@
+<p class="paragraph dark-01"><%= t("views.company.new.subtitle-1") %></p>
+<%= f.input :company_type_id,
+            label: t("models.company.company_type.label"),
+            collection: CompanyType.all,
+            input_html: {
+              data: {
+                select_search_target: "defaultSelect"
+              }
+            } %>
+<%= f.input :zip_code,
+            label: t("models.company.zip_code.label") %>
+<%= f.input :city,
+            label: t("models.company.city.label") %>
+<%= f.input :name,
+            label: t("models.company.name.label") %>
+<%= f.input :siret_number,
+            label: t("models.company.siret_number.label") %>
+<%= f.input :email,
+            label: t("models.company.email.label"),
+            hint: t("models.company.email.hint") %>
+<%= f.input :website,
+            label: t("models.company.website.label") %>
+<%= f.input :referent_phone_number,
+            label: t("models.company.referent_phone_number.label") %>
+<%= f.input :description,
+            label: t("models.company.description.label"),
+            as: :text %>

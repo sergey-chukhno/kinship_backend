@@ -1,0 +1,27 @@
+<%= turbo_frame_tag "edit_schools" do %>
+
+  <%= simple_form_for @user, url: account_school_path(@user), method: :patch do |f| %>
+    <p class="paragraph dark-01">Liste les établissements scolaires avec lesquelles vous souhaitez partager vos compétences </p>
+    <div class="organization-global-info__container">
+      <% @user_schools.each do |school| %>
+        <%= render OrganizationGlobalInfoCardComponent.new(school: school, current_user: @user) %>
+      <% end %>
+    </div>
+
+    <div class="form__wrapper" data-controller="nested-form" data-nested-form-wrapper-selector-value='.nested-fields-container'>
+      <template data-nested-form-target="template">
+        <%= f.simple_fields_for :user_schools, UserSchool.new, child_index: 'NEW_RECORD' do |school_fields| %>
+          <%= render "form", f: f, school_fields: school_fields %>
+        <% end %>
+      </template>
+      <button class="nested-fields--add-link" data-action="nested-form#add" data-nested-form-target="target"><%= show_svg "add.svg" %><%=t(current_user.role, scope: [:views, :account, :schools, :form, :add_school])%></button>
+    </div>
+
+    <% if current_user.teacher? %>
+      <p class="xs-paragraph dark-01 mt-16px">Vous ne trouvez pas votre établissement ?<%= link_to " Demander l'ajout d'un nouvel établissement", new_school_path %></p>
+    <% end %>
+
+    <%= f.submit t(current_user.role, scope: [:views, :account, :schools, :form, :submit]), class: "btn-primary__full-width" %>
+  <% end %>
+
+<% end %>

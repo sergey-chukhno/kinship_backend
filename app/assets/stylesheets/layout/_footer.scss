@@ -1,0 +1,40 @@
+.footer-container {
+  width: 100vw;
+  height: 32px;
+  background-color: $white;
+  border-top: 1px solid $grey-04;
+
+  .footer {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-inline: 16px;
+    gap: 16px;
+
+    a {
+      color: gray;
+    }
+
+    .separator {
+      width: 1px;
+      height: 50%;
+      background-color: gray;
+    }
+  }
+}
+
+.footer--link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+@include for-phone-only {
+  .footer-container {
+    display: none;
+  }
+}

@@ -1,0 +1,8 @@
+fr:
+  account:
+    childrens:
+      new:
+        title:
+          tutor: "Ajout d'un nouvel enfant"
+          teacher: "Ajout d'un nouvel élève"
+          voluntary: "Ajout d'un nouvel adhérent"

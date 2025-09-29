@@ -1,0 +1,62 @@
+.form__switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .checkbox input {
+    display: none;
+  }
+
+  &:has(.checkbox input:disabled) {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+
+    label {
+      cursor: not-allowed !important;
+    }
+  }
+
+  &:has(.checkbox input:checked) {
+    label {
+      color: $color-var-2 !important;
+    }
+  }
+
+  .checkbox {
+    position: relative;
+
+    width: 1.5rem;
+    height: 0.875rem;
+
+    border: 0.125rem solid $grey-02;
+    border-radius: 50vh;
+
+    cursor: pointer;
+    transition: 0.15s;
+
+    &:has(input:checked) {
+      border-color: $color-var-2;
+      background-color: $color-var-2-light;
+    }
+
+    &::before {
+      content: "";
+      position: absolute;
+
+      height: 0.4375rem;
+      width: 0.4375rem;
+
+      top: 50%;
+      transform: translateX(0.125rem) translateY(-50%);
+
+      background-color: $grey-02;
+      border-radius: 50%;
+      transition: 0.15s;
+    }
+
+    &:has(input:checked)::before {
+      background-color: $color-var-2;
+      transform: translateX(calc(0.875rem - 0.125rem)) translateY(-50%);
+    }
+  }
+}

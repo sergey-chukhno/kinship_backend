@@ -1,0 +1,37 @@
+<div class="school-and-school-level-filter-container"
+      data-controller="school-searcher">
+
+  <%= simple_fields_for :by_school do |school| %>
+    <%= school.input :school_id,
+          as: :select,
+          label: false,
+          collection: @schools_collection,
+          include_blank: "Tous mes établissements",
+          placeholder: "Tous mes établissements",
+          input_html: { data: {
+                          action: "change->submit#submit",
+                          "school-searcher-target": "schoolInput"
+                        },
+                        class: "form__input--school-select"
+                      },
+          wrapper_html: { class: "school-and-school-level-filter-container__school" }%>
+
+  <% end %>
+  <%= simple_fields_for :by_school_level do |school_level| %>
+    <%= school_level.input :school_level_id,
+        as: :select,
+        label: false,
+        collection: @school_levels_collection,
+        selected: @school_level_selected_id,
+        placeholder: "Toutes les classes",
+        include_blank: "Toutes les classes",
+        input_html: {
+                      data: {
+                        action: "change->submit#submit",
+                        "school-searcher-target": "schoolLevelInput",
+                      },
+                      class: "form__input--school-level-select"
+                    },
+        wrapper_html: { class: "school-and-school-level-filter-container__school-level" } %>
+  <% end %>
+</div>

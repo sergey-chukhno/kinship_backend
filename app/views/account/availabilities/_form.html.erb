@@ -1,0 +1,74 @@
+<p class="paragraph dark-01"><%= t(current_user.role, scope: [:views, :account, :availabilities, :text, :available?]) %><% if current_user.voluntary? %><br/><span class="s-paragraph">*uniquement pour les organisations et écoles de mon réseau</span><% end %></p>
+<div class="form__wrapper--2col gap-12px">
+  <label class="radio-button-check fs-12">
+    <input type="radio" name="skills-show" <%= "checked" if @user.availabilities? %> data-action="click->reveal#show">
+    Oui
+  </label>
+  <label class="radio-button-check fs-12">
+    <input type="radio" name="skills-show" <%= "checked" unless @user.availabilities? %> data-action="click->uncheck-all#uncheckAll click->reveal#hide">
+    Non
+  </label>
+</div>
+<div class="form__wrapper <%= "hidden" unless @user.availabilities? %>" data-reveal-target="item">
+  <%= f.simple_fields_for :availability do |ff| %>
+    <p class="paragraph dark-01"><%= t(current_user.role, scope: [:views, :account, :availabilities, :text, :when?]) %></p>
+    <label class="xs-paragraph grey-01"><%= t(:every_week, scope: [:views, :account, :availabilities, :text]) %></label>
+    <div class="form__wrapper--2col flex-wrap">
+      <%= ff.input :monday,
+            as: :boolean,
+            label: t(:monday, scope: [:views, :account, :availabilities, :form]),
+            input_html: {
+              checked:  @user.availability.monday?,
+              data: { "uncheck-all-target": "checkbox" }
+            },
+            wrapper_html: { class: 'w-auto' },
+            label_html: { class: 'button-check fs-12' } %>
+      <%= ff.input :tuesday,
+            as: :boolean,
+            label: t(:tuesday, scope: [:views, :account, :availabilities, :form]),
+            input_html: {
+              checked:  @user.availability.tuesday?,
+              data: { "uncheck-all-target": "checkbox" }
+            },
+            wrapper_html: { class: 'w-auto' },
+            label_html: { class: 'button-check fs-12' } %>
+      <%= ff.input :wednesday,
+            as: :boolean,
+            label: t(:wednesday, scope: [:views, :account, :availabilities, :form]),
+            input_html: {
+              checked:  @user.availability.wednesday?,
+              data: { "uncheck-all-target": "checkbox" }
+            },
+            wrapper_html: { class: 'w-auto' },
+            label_html: { class: 'button-check fs-12' } %>
+      <%= ff.input :thursday,
+            as: :boolean,
+            label: t(:thursday, scope: [:views, :account, :availabilities, :form]),
+            input_html: {
+              checked:  @user.availability.thursday?,
+              data: { "uncheck-all-target": "checkbox" }
+            },
+            wrapper_html: { class: 'w-auto' },
+            label_html: { class: 'button-check fs-12' } %>
+      <%= ff.input :friday,
+            as: :boolean,
+            label: t(:friday, scope: [:views, :account, :availabilities, :form]),
+            input_html: {
+              checked:  @user.availability.friday?,
+              data: { "uncheck-all-target": "checkbox" }
+            },
+            wrapper_html: { class: 'w-auto' },
+            label_html: { class: 'button-check fs-12' } %>
+    </div>
+    <label class="xs-paragraph grey-01"><%= t(:other, scope: [:views, :account, :availabilities, :text]) %></label>
+    <%= ff.input :other,
+          as: :boolean,
+          label: t(:other, scope: [:views, :account, :availabilities, :form]),
+          input_html: {
+            checked:  @user.availability.other?,
+            data: { "uncheck-all-target": "checkbox" }
+          },
+          label_html: { class: 'button-check fs-12' } %>
+  <% end %>
+</div>
+<%= f.submit t(current_user.role, scope: [:views, :account, :networks, :form, :submit]), class: "btn-primary__full-width" %>

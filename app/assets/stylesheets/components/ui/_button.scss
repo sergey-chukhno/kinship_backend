@@ -1,0 +1,110 @@
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  border: 1px solid transparent;
+  border-radius: 0.375rem;
+  background-color: transparent;
+
+  line-height: 1.5;
+  font-weight: 400;
+
+  cursor: pointer;
+  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
+    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+  &--primary {
+    color: $dark-01;
+    background-color: $primary;
+
+    &:hover {
+      background-color: $primary-acc-1;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+
+      &:hover {
+        background-color: $primary;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid $primary;
+      outline-offset: 2px;
+    }
+  }
+
+  &--secondary {
+    color: $dark-01;
+    border-color: $dark-01;
+
+    &:hover {
+      background-color: $grey-05;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid $dark-01;
+      outline-offset: 2px;
+    }
+  }
+
+  &--ghost {
+    color: $dark-01;
+
+    &:hover {
+      background-color: $grey-05;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+
+      &:hover {
+        background-color: transparent;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid $grey-04;
+    }
+  }
+
+  &--sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+
+    &.button--square {
+      padding: 0.3125rem;
+    }
+  }
+
+  &--md {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+
+    &.button--square {
+      padding: 0.75rem;
+    }
+  }
+
+  &--full {
+    width: 100%;
+  }
+
+  &--rounded {
+    border-radius: 50vh;
+  }
+}

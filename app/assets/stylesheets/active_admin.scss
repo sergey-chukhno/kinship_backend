@@ -1,0 +1,142 @@
+@import "activeadmin_addons/all";
+// Sass variable overrides must be declared before loading up Active Admin's styles.
+//
+// To view the variables that Active Admin provides, take a look at
+// `app/assets/stylesheets/active_admin/mixins/_variables.scss` in the
+// Active Admin source.
+//
+// For example, to change the sidebar width:
+// $sidebar-width: 242px;
+
+// Active Admin's got SASS!
+$skinMainFirstColor: #9b96c1 !default;
+$skinMainSecondColor: #ffb932 !default;
+$skinBorderWindowColor: #e9e7fa !default;
+
+@import "active_admin/mixins";
+@import "active_admin/base";
+@import "active_admin_datetimepicker";
+@import "wigu/active_admin_theme";
+
+// Overriding any non-variable Sass must be done after the fact.
+// For example, to change the default status-tag color:
+//
+//   .status_tag { background: #6090DB; }
+$dark-01: #181528;
+$grey-01: #3c385b;
+$grey-04: #d5d1f4;
+$color-var-3: #eb5160;
+
+.active_admin {
+  form fieldset > ol > li.boolean label {
+    padding-left: 0px !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  form fieldset > ol > li.boolean label:last-child {
+    margin-bottom: 6px !important;
+  }
+  #header {
+    background-color: $grey-01 !important;
+    ul.tabs li.has_nested ul {
+      background-color: $grey-01 !important;
+    }
+    .current > a {
+      background-color: $grey-01 !important;
+    }
+  }
+  // Hover on header menu, color for menu labels
+  #wrapper #header ul.tabs li.has_nested:hover a {
+    background-color: $grey-01 !important;
+    border-bottom: 7px solid $grey-01;
+  }
+
+  #wrapper #header ul.tabs li.menu_item:hover a {
+    background-color: $grey-01 !important;
+  }
+
+  // color fo the right side action button "Creer model"
+  #wrapper #title_bar #titlebar_right .action_item a {
+    color: $dark-01;
+  }
+
+  #title_bar #titlebar_right .action_item a {
+    color: $dark-01;
+  }
+  #active_admin_content {
+    .panel h3 {
+      color: $dark-01 !important;
+      background-color: #e9e7fa;
+      font-size: 1em;
+      border-right: 1px solid #d6d2f6;
+      border-bottom: 3px solid #d6d2f6;
+      font-weight: bold;
+    }
+    .scope {
+      a,
+      .count {
+        color: $dark-01 !important;
+      }
+    }
+
+    input[type="submit"] {
+      color: $dark-01 !important;
+    }
+
+    legend span {
+      color: $dark-01 !important;
+      background-color: #e9e7fa;
+      font-size: 1em;
+      border-right: 1px solid #d6d2f6;
+      border-bottom: 3px solid #d6d2f6;
+      font-weight: bold;
+    }
+    // title of filters "Filtres"
+    .sidebar_section.panel > h3 {
+      color: $dark-01 !important;
+      background-color: #e9e7fa;
+      font-size: 1em;
+      border-right: 1px solid #d6d2f6;
+      border-bottom: 3px solid #d6d2f6;
+      font-weight: bold;
+    }
+
+    // bouton formulaire nesté
+    a.button.has_many_add,
+    a.button.has_many_remove {
+      background-color: white !important;
+      border: 1px solid $dark-01 !important;
+      color: $dark-01 !important;
+      padding: 7px 11px !important;
+      font-size: 10px;
+      font-weight: 400;
+
+      &:hover {
+        background-color: $grey-04 !important;
+      }
+    }
+
+    a.button.has_many_remove {
+      &:hover {
+        background-color: $color-var-3 !important;
+      }
+    }
+  }
+}
+
+$pending-color: #ff9900;
+$rejected-color: #ff0000;
+$approved-color: #08a510;
+
+.status_tag {
+  &.pending {
+    background: $pending-color;
+  }
+  &.refused {
+    background: $rejected-color;
+  }
+  &.confirmed {
+    background: $approved-color;
+  }
+}

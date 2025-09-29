@@ -1,0 +1,13 @@
+<template data-nested-form-target="template">
+  <%= f.simple_fields_for :school_levels, SchoolLevel.new, child_index: "NEW_RECORD" do |school_level_fields| %>
+    <%= render "school_level_form", f: school_level_fields %>
+  <% end %>
+</template>
+
+<%= f.simple_fields_for :school_levels do |school_level_fields| %>
+  <%= render "school_level_form", f: school_level_fields %>
+<% end %>
+
+<button class="nested-fields--add-link" data-action="nested-form#add" data-nested-form-target="target"><%= show_svg "add.svg" %> Ajouter une classe</button>
+
+<%= f.submit t(:submit, scope: [:layouts, :school_admin_panel, :school_level, :edit_form]), class: "btn btn-primary__full-width" %>

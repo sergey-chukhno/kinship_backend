@@ -1,0 +1,4 @@
+<%= turbo_frame_tag 'new_children' do %>
+  <h2 class="paragraph dark-01 mb-12px"><%= t(current_user.role, scope: [:account, :childrens, :new, :title]) %></h2>
+  <%= render 'form' %>
+<% end %>

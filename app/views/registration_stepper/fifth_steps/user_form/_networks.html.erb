@@ -1,0 +1,16 @@
+<p class="paragraph dark-01">Mes informations de réseau</p>
+
+<%= f.input :job,
+    label: t(current_user.role, scope: [:views, :account, :networks, :form, :job]) %>
+<%= f.input :company_name,
+    label: t(current_user.role, scope: [:views, :account, :networks, :form, :company_name]) %>
+<%= f.input :take_trainee,
+    as: :select,
+    collection: [["Oui", true], ["Non", false]],
+    include_blank: false,
+    label: t(current_user.role, scope: [:views, :account, :networks, :form, :take_trainee]) %>
+<%= f.input :propose_workshop,
+    as: :select,
+    collection: [["Oui", true], ["Non", false]],
+    include_blank: false,
+    label: t(current_user.role, scope: [:views, :account, :networks, :form, :propose_workshop]) %>

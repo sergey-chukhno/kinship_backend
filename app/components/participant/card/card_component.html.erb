@@ -1,0 +1,63 @@
+<turbo_frame id="<%= dom_id(@participant) %>" class="participant-card">
+  <%= render(Ui::Icon::IconComponent.new(icon: "new/participant-avatar", size: "32", color: helpers.user_avatar_color(@participant))) %>
+  <div class="participant-card__content">
+
+    <div class="participant-card__header">
+      <div class="participant-card__header--name">
+        <p class="s-paragraph-bold dark-01"><%= @participant.short_name %> <%= tag.span("(#{@participant.parent.full_name})", class: "xxs-paragraph grey-02") if @participant.children? %></p>
+        <%= render(Ui::Icon::IconComponent.new(icon: "new/shield-check", size: "16", color: "dark-01")) if @participant.certify? %>
+      </div>
+      <div class="participant-card__header--actions">
+        <%= render(Ui::Button::ButtonComponent.new(builder: :link, style: :primary, size: :sm, path: new_participants_contact_path(recipient_id: @participant), class: "participant-card__contact-desktop", data: {  turbo_frame: "modal" }).with_content(I18n.t(".actions.contact"))) if contact? %>
+        <%= render(Ui::Tooltip::TooltipComponent.new(message: "Attribuer un badge")) do %>
+          <%= render(Ui::Button::ButtonComponent.new(builder: :link, style: :primary, size: :sm, square: true, path: new_assign_badge_stepper_first_step_path(receiver_id: @participant.id), data: {  turbo_frame: "new-modal" })) do %>
+            <%= render(Ui::Icon::IconComponent.new(icon: "new/badge", size: "16", color: "dark-01")) %>
+          <% end %>
+        <% end if render_badge_action?%>
+
+        <%= render(Ui::Dropdown::DropdownComponent.new) do |dropdown| %>
+          <%= dropdown.with_button do %>
+            <%= render(Ui::Button::ButtonComponent.new(builder: :button, type: :button, style: :ghost, size: :sm, square: true, data: { action: "ui--dropdown#toggle click@window->ui--dropdown#hide" })) do %>
+              <%= render(Ui::Icon::IconComponent.new(icon: "new/more", size: "16", color: "dark-01")) %>
+            <% end %>
+          <% end %>
+
+          <%= dropdown.with_list do %>
+            <%= link_to participants_certificate_path(@participant),
+                        method: :put,
+                        data: {
+                          turbo: true,
+                          turbo_method: :put
+                        },
+                        class: "flex align-center gap-48px",
+                        id: "#{dom_id(@participant)}_certify" do %>
+              <div class="flex align-center gap-48px">
+                <label for="<%= dom_id(@participant) %>_certify-toggle" class="xs-paragraph dark-01">Certifier le profil</label>
+                <input type="checkbox" 
+                       class="btn-toggle" 
+                       <%= "checked" if @participant.certify? %> 
+                       id="<%= dom_id(@participant) %>_certify-toggle">
+              </div>
+            <% end %>
+          <% end %>
+        <% end if can_certify? %>
+      </div>
+    </div>
+
+    <div class="participant-card__tags">
+      <%= render(Ui::Badge::BadgeComponent.new(text: @participant_availabilities, color: "green")) if @participant_availabilities %>
+      <%= render(Ui::Badge::BadgeComponent.with_collection((@participant_skills), color: "grey")) %>
+    </div>
+
+    <div class="participant-card__footer">
+      <%= render(Ui::IconWithText::IconWithTextComponent.new(icon: "new/people", text: I18n.t("activerecord.attributes.user.roles.#{@participant.role}"), color: "grey-03")) if @participant.role != "children" %>
+      <%= render(Ui::IconWithText::IconWithTextComponent.new(icon: "new/people", text: children_role , color: "grey-03")) if @participant.role == "children" %>
+      <%= render(Ui::IconWithText::IconWithTextComponent.new(icon: "new/company-small", text: @participant.company_name, color: "grey-03")) unless @participant.company_name.blank? %>
+      <%= render(Ui::IconWithText::IconWithTextComponent.new(icon: "new/job", text: @participant.job, color: "grey-03")) if @participant.job %>
+      <%= render(Ui::IconWithText::IconWithTextComponent.new(icon: "new/check-circle", text: I18n.t(".trainee"), color: "grey-03")) if @participant.take_trainee %>
+      <%= render(Ui::IconWithText::IconWithTextComponent.new(icon: "new/check-circle", text: I18n.t(".workshop"), color: "grey-03")) if @participant.propose_workshop %>
+    </div>
+
+    <%= render(Ui::Button::ButtonComponent.new(builder: :link, style: :primary, size: :sm, full: true, path: new_participants_contact_path(recipient_id: @participant), class: "participant-card__contact-mobile", data: { turbo_frame: "modal" }).with_content(I18n.t(".actions.contact"))) if contact? %>
+  </div>
+</turbo_frame>

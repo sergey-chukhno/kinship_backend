@@ -1,0 +1,72 @@
+<%= simple_form_for @children, url: controller.action_name == 'edit' ? account_children_path(@children) : account_childrens_path, data: { controller: "select-search" } do |f| %>
+  <%= f.input :first_name,
+              label: t(current_user.role, scope: [:account, :childrens, :form, :first_name]) %>
+  <%= f.input :last_name,
+              label: t(current_user.role, scope: [:account, :childrens, :form, :last_name]) %>
+
+  <% unless current_user.voluntary? %>
+    <div class="grid gap-20px"
+          data-controller="dynamic-fields"
+          data-dynamic-fields-url-value="<%= school_levels_account_childrens_url %>"
+          data-dynamic-fields-param-value="school_id">
+      <%= f.association :schools,
+                      label: t(current_user.role, scope: [:account, :childrens, :form, :schools]),
+                      hint: "Pour sélectionner l’établissement de votre enfant, vous devez avoir rajouté cet établissement dans l’onglet “mon réseau”",
+                      collection: @schools_collection,
+                      label_method: :full_name,
+                      value_method: :id,
+                      input_html: { 
+                        multiple: false,
+                        data: {
+                          action: "change->dynamic-fields#change",
+                        },
+                      } %>
+      <%= f.association :school_levels,
+                      label: t(current_user.role, scope: [:account, :childrens, :form, :school_levels]),
+                      label_method: :full_name_without_school,
+                      value_method: :id,
+                      collection: @school_levels_collection,
+                      input_html: { 
+                        multiple: false,
+                        data: {
+                          dynamic_fields_target: "select"
+                        },
+                      } %>
+    </div>
+  <% end %>
+
+  <% if current_user.voluntary? %>
+    <%= f.association :companies,
+                      label: t(current_user.role, scope: [:account, :childrens, :form, :companies]),
+                      collection: current_user.companies,
+                      label_method: :full_name,
+                      value_method: :id,
+                      input_html: {
+                        multiple: false,
+                        data: {
+                          "select-search-target": "defaultSelect",
+                          "toggle-on-select-target": "select",
+                          "action": "change->toggle-on-select#toggle",
+                        }
+                      } %>
+  <% end %>
+  
+  
+  <% if current_user.tutor? %>
+    <%= f.input :show_my_skills,
+                  label: t(current_user.role, scope: [:account, :childrens, :form, :show_my_skills]),
+                  hint: "Vos enfants apparaissent dans la liste des organisations auxquelles vous êtes rattachés. Ils pourront intégrer les projets de ces organisations et recevoir <a class='grey-02 text-underlined' href='https://www.toukouleur4lab.org/lesbadges' target='_blank'>des badges de compétences</a>".html_safe,
+                  label_html: {
+                    class: 'check-box fs-12'
+                              } %>
+  <% end %>
+
+  <div class="flex align-center gap-8px">
+    <%= render(Ui::Button::ButtonComponent.new(builder: :link, style: :secondary, path: account_childrens_path)) do %>
+      Annuler
+    <% end %>
+    <%= render(Ui::Button::ButtonComponent.new(builder: :button, style: :primary, full: true)) do %>
+      Enregistrer
+    <% end %>
+  </div>
+<% end %>

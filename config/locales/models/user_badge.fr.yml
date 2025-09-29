@@ -1,0 +1,20 @@
+fr:
+  activerecord:
+    models:
+      user_badge:
+        one: Badge Utilisateur
+        other: Badges Utilisateurs
+    attributes:
+      user_badge:
+        sender: Donateur
+        receiver: Receveur
+        badge: Badge
+        project: Projet
+        project_title: Titre du projet
+        project_description: Description du projet
+        status: Statut
+        statuses:
+          pending: En attente
+          approved: Approuvé
+          rejected: Rejeté
+        documents: Documents

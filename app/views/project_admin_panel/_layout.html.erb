@@ -1,0 +1,18 @@
+<main class="main-container">
+  <div class="admin-panel__container">
+    <div class="admin-panel__title">
+      <h1 class="title2 dark-01"><%= @project.title %></h1>
+    </div>
+    <% unless params[:public_access] %>
+      <nav class="tab-bar">
+        <%= link_to "Informations générales", edit_project_admin_panel_project_path(@project), class: "xs-paragraph tab-bar--link #{"current" if edit_project_admin_panel_project_path(@project) == request.fullpath }" %>
+        <%= link_to "Demandes de participation", project_admin_panel_project_member_path(@project, status: :pending), class: "xs-paragraph tab-bar--link #{"current" if project_admin_panel_project_member_path(@project, status: :pending) == request.fullpath }" %>
+        <%= link_to "Participants", project_admin_panel_project_member_path(@project, status: :confirmed), class: "xs-paragraph tab-bar--link #{"current" if project_admin_panel_project_member_path(@project, status: :confirmed) == request.fullpath }" %>
+        <%= link_to "Cartographie des badges", project_admin_panel_project_badges_tree_path(@project), class: "xs-paragraph tab-bar--link #{"current" if project_admin_panel_project_badges_tree_path(@project) == request.fullpath }" %>
+      </nav>
+    <% end %>
+    <div class="admin-panel__content">
+      <%= yield %>
+    </div>
+  </div>
+</main>

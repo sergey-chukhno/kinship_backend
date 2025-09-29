@@ -1,0 +1,13 @@
+<%= simple_fields_for :by_search do |search| %>
+  <%= search.input :query,
+    as: :search,
+    label: false,
+    placeholder: "Rechercher un projet",
+    input_html: {
+      value: params.dig(:by_search, :query),
+      data: {
+        action: "change->submit#submit",
+      }
+    } 
+  %>
+<% end %>

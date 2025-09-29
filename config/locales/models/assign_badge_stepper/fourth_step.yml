@@ -1,0 +1,6 @@
+fr:
+  activemodel:
+    attributes:
+      assign_badge_stepper/fourth_step:
+        domains: "Le domaine d'engagement pour cette expérience précise. Vous pouvez cocher plusieurs domaines"
+        expertises: "Cochez les savoir-faire observés au cours de cette expérience"

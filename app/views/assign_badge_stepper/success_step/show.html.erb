@@ -1,0 +1,6 @@
+<%= turbo_frame_tag "new-modal" do %>
+  <%= render(Ui::Modal::Header::HeaderComponent.new(title: t(".title"))) %>
+  <div class="w-150px lottie__check m-auto" data-controller="lottie"> </div>
+  <h1 class="paragraph dark-01 text-center"><%= t(".subtitle.#{@assign_badge.status}") %></h1>
+  <p class="xs-paragraph grey-01 text-center"><%= t(".description.#{@assign_badge.status}", badge_level: @assign_badge.badge.level.last, badge_name: @assign_badge.badge.name, user_name: @assign_badge.receiver.full_name) %></p>
+<% end %>

@@ -1,0 +1,32 @@
+<h1 class="title2 dark-01">Inscription d'une organisation</h1>
+<%= render StepperComponent.new(current_step: 3, role: current_user.role, company_form: "true") %>
+<%= simple_form_for @company, url: registration_stepper_fourth_steps_path(id: @user), method: :post do |f| %>
+  <p class="paragraph dark-01">Informations générales de l'organisation</p>
+  <%= f.input :name,
+                        label: t("models.company.name.label") %>
+  <%= f.input :description,
+                        label: t("models.company.description.label"),
+                        as: :text %>
+  <%= f.input :company_type_id,
+            label: t("models.company.company_type.label"),
+            collection: CompanyType.all,
+            input_html: {
+              data: {
+                select_search_target: "defaultSelect"
+              }
+            } %>
+  <%= f.input :zip_code,
+            label: t("models.company.zip_code.label") %>
+  <%= f.input :city,
+            label: t("models.company.city.label") %>
+  <%= f.input :siret_number,
+            label: t("models.company.siret_number.label") %>
+  <%= f.input :email,
+            label: t("models.company.email.label"),
+            hint: t("models.company.email.hint") %>
+  <%= f.input :website,
+            label: t("models.company.website.label") %>
+  <%= f.input :referent_phone_number,
+            label: t("models.company.referent_phone_number.label") %>
+  <%= f.submit "Continuer", class: "btn-primary__full-width" %>
+<% end %>

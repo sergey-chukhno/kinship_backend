@@ -1,0 +1,14 @@
+<%= turbo_frame_tag "modal" do %>
+  <%= tag.div data: { controller: "turbo-modal",
+                      turbo_modal_target: "modal",
+                      action: "click@window->turbo-modal#closeBackground keyup@window->turbo-modal#closeWithKeyboard click@window->turbo-modal#closeBackground turbo:submit-end->turbo-modal#submitEnd" },
+                      class: "modal" do %>
+    <div class="modal-content">
+      <%= link_to "#", data: { action: "turbo-modal#hideModal" } do %>
+        <i class="fa-solid fa-xmark"></i>
+      <% end %>
+      <%= @title %>
+      <%= content %>
+    </div>
+  <% end %>
+<% end %>

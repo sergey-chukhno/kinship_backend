@@ -1,0 +1,101 @@
+.project-show__wrapper {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  width: 100%;
+  @include for-phone-only {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
+.project-show {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background-color: $white;
+  border: 0.0625rem solid $grey-04;
+  border-radius: 0.5rem;
+
+  &__header {
+    display: grid;
+    gap: 0.5rem;
+
+    &__title {
+      $icon-size: 2rem;
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: 1fr $icon-size;
+
+      svg {
+        font-size: $icon-size;
+      }
+    }
+  }
+
+  &__tags {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  &__stats {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.5rem;
+
+    background-color: $grey-06;
+
+    &__item {
+      $icon-size: 1.5rem;
+
+      display: grid;
+      gap: 1rem;
+      grid-template-columns: $icon-size 1fr;
+      align-items: center;
+
+      svg {
+        font-size: $icon-size;
+      }
+    }
+  }
+
+  &__content {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  &__picture {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: contain;
+  }
+
+  &__other-info {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+
+    &__items {
+      flex: 1;
+      display: grid;
+      gap: 0.75rem;
+
+      &__item {
+        display: grid;
+        gap: 0.25rem;
+      }
+    }
+  }
+}
+
+.project-informations {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  @include for-phone-only {
+    width: 100%;
+  }
+}

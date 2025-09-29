@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <%= favicon_link_tag "favicon.png" %>
+    <%= render  "shared/meta_tags" %>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= render "shared/css-cdn" %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body>
+    <%= render "shared/flashes" %>
+    <%= render(Common::Navbar::NavbarComponent.new(current_user)) %>
+    <%= turbo_frame_tag "modal" %>
+    <main class="account__container">
+      <h1 class="title2 dark-01"><%= t(current_user.role, scope: [:views, :account]) %></h1>
+      <div class="tab-bar">
+        <%= link_to t(current_user.role, scope: [:views, :account, :tabs, :profile]),  edit_account_profile_path(current_user), class: "s-paragraph tab-bar--link #{ "current" if edit_account_profile_path(current_user).match?(request.path) }" %>
+        <%= link_to t(current_user.role, scope: [:views, :account, :tabs, :skills]), edit_account_skill_path(current_user), class: "s-paragraph tab-bar--link #{ "current" if edit_account_skill_path(current_user).match?(request.path) }" %>
+        <% unless current_user.teacher? %>
+          <%= link_to t(current_user.role, scope: [:views, :account, :tabs, :availability]), edit_account_availability_path(current_user), class: "s-paragraph tab-bar--link #{ "current" if edit_account_availability_path(current_user).match?(request.path) }" %>
+        <% end %>
+        <%= link_to t(current_user.role, scope: [:views, :account, :tabs, :networks]), edit_account_network_path(current_user), class: "s-paragraph tab-bar--link #{ "current" if edit_account_network_path(current_user).match?(request.path) }" %>
+        <%= link_to t(current_user.role, scope: [:views, :account, :tabs, :children]), account_childrens_path, class: "s-paragraph tab-bar--link #{ "current" if request.path.start_with?(account_childrens_path) }" %>
+      </div>
+      <div class="account__content">
+        <%= yield %>
+      </div>
+    </main>
+    <%= render "shared/footer" %>
+  </body>
+</html>

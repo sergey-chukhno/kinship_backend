@@ -1,0 +1,39 @@
+<% if @user_profile.company_form == "true" %>
+  <p class="paragraph dark-01">Mes informations personnelles</p>
+  <p class="xs-paragraph grey-02">Pour inscrire votre organisation, vous devez d’abord vous créer un compte sur lequel votre organisation sera rattachée.</p>
+<% else %>
+  <p class="paragraph dark-01"><%= t("registration.second_step.profile.title.#{@user_profile.role}") %></p>
+<% end %>
+<%= f.input :email,
+            label: "#{@user_profile.company_form == "true" ? "Adresse email de l'utilisateur" : t("registration.second_step.profile.email.label.#{@user_profile.role}")}" %>
+<% if @user_profile.role == "teacher" %>
+  <div class="form__input--wrapper">
+    <label class="xs-paragraph grey-01"><%= t("registration.second_step.profile.contact_email.tips") %></label>
+    <div class="form__wrapper--2col gap-12px">
+      <label class="radio-button-check fs-12">
+        <input type="radio" name="contact_email" checked data-action="click->reveal#hide">
+        Oui
+      </label>
+      <label class="radio-button-check fs-12">
+        <input type="radio" name="contact_email" data-action="click->reveal#show">
+        Non
+      </label>
+    </div>
+  </div>
+  <%= f.input :contact_email,
+              wrapper_html: { class: "hidden", data: { reveal_target: "item" } },
+              label: t("registration.second_step.profile.contact_email.label") %>
+<% end %>
+<%= f.input :last_name,
+            required: true,
+            label: t("registration.second_step.profile.last_name.label.#{@user_profile.role}") %>
+<%= f.input :first_name,
+            required: true,
+            label: t("registration.second_step.profile.first_name.label.#{@user_profile.role}") %>
+<% if @user_profile.role == "voluntary" %>
+  <%= f.input :birthday,
+              as: :date,
+              html5: true,
+              hint: "Vous devez avoir plus de 13 ans pour vous inscrire.",
+              label: "Date de naissance" %>
+<% end %>

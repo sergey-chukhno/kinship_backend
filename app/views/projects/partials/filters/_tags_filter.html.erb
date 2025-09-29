@@ -1,0 +1,23 @@
+<div data-controller="toggle">
+  <p class="s-paragraph-bold
+            black-01
+            projects-main-container__tags-filter--filter-category
+            active"
+      data-action="click->toggle#toggle"
+      data-toggle-target="drop_down_arrow">Parcours</p>
+
+  <div class="projects-main-container__tags-filter--tags-checkboxes"
+        data-toggle-target="element">
+    <%= simple_fields_for :by_tags do |t| %>
+      <%= t.input :tag_ids,
+          collection: Tag.all.map { |tag| [tag.name, tag.id] },
+          as: :check_boxes,
+          item_label_class:"check-box fs-12",
+          input_html: {
+            data: { action: "click->submit#submit" },
+          },
+          label: false
+        %>
+    <% end %>
+  </div>
+</div>

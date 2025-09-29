@@ -1,0 +1,10 @@
+fr:
+  assign_badge_stepper:
+    third_step:
+      new:
+        title: "Attribuer un badge"
+        description: Type de badge
+        actions:
+          details: "Détails"
+          back: "Retour"
+          submit: "Continuer"

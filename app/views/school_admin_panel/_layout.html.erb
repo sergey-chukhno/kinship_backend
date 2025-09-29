@@ -1,0 +1,24 @@
+<main class="main-container">
+  <div class="admin-panel__container">
+    <div class="admin-panel__title">
+      <h1 class="title2 dark-01"><%= @school.name %></h1>
+      <div class="admin-panel__title--sub-infos">
+        <%= render Common::Tag::TagComponent.new(color: "purple") do %>
+          <%= t(:sub_infos_1, scope: [:layouts, :school_admin_panel]) %>
+        <% end %>
+      </div>
+    </div>
+    <nav class="tab-bar">
+      <% if UserSchool.find_by(user: current_user, school: @school).admin? %>
+        <%= link_to "Demande de rattachement", school_admin_panel_school_member_path(@school, status: :pending), class: "xs-paragraph tab-bar--link #{"current" if school_admin_panel_school_member_path(@school, status: :pending).include?(request.fullpath) }" %>
+        <%= link_to "Utilisateurs rattachés", school_admin_panel_school_member_path(@school, status: :confirmed), class: "xs-paragraph tab-bar--link #{"current" if school_admin_panel_school_member_path(@school, status: :confirmed).include?(request.fullpath) }" %>
+        <%= link_to "Informations",  edit_school_admin_panel_school_path(@school), class: "xs-paragraph tab-bar--link #{"current" if  edit_school_admin_panel_school_path(@school) == request.fullpath }" %>
+        <%= link_to "Classes", edit_school_admin_panel_school_level_path(@school), class: "xs-paragraph tab-bar--link #{"current" if edit_school_admin_panel_school_level_path(@school) == request.fullpath }" %>
+        <%= link_to "Partenaires", school_admin_panel_partnership_path(@school), class: "xs-paragraph tab-bar--link #{"current" if school_admin_panel_partnership_path(@school) == request.fullpath }" %>
+      <% end %>
+    </nav>
+    <div class="admin-panel__content">
+      <%= yield %>
+    </div>
+  </div>
+</main>

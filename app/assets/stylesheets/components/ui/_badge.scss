@@ -1,0 +1,53 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 0.25rem 0.75rem;
+
+  font-size: 0.625rem;
+  line-height: 1;
+  font-weight: 500;
+
+  border-radius: 50vh;
+
+  &--green {
+    background-color: $color-var-2-light;
+    color: $color-var-2;
+  }
+
+  &--red {
+    background-color: $color-var-3-light;
+    color: $color-var-3;
+  }
+
+  &--cyan {
+    background-color: $color-var-1-light;
+    color: $color-var-1;
+  }
+
+  &--yellow {
+    background-color: $primary-light-2;
+    color: $primary-acc-1;
+  }
+
+  &--purple {
+    background-color: $color-var-4-light;
+    color: $color-var-4;
+  }
+
+  &--grey {
+    background-color: $grey-05;
+    color: $grey-02;
+  }
+
+  &--light-grey {
+    background-color: $grey-06;
+    color: $grey-03;
+  }
+
+  &--pink {
+    background-color: $color-var-5-light;
+    color: $color-var-5;
+  }
+}

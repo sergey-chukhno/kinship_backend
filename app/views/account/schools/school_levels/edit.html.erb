@@ -1,0 +1,35 @@
+<%= turbo_frame_tag @school do %>
+  <%= simple_form_for @current_user,
+                      url: account_schools_school_level_path(@school),
+                      method: :patch do |f| %>
+    <div data-controller="nested-form-multi-select" data-nested-form-multi-select-index-value="NEW_USER_SCHOOL_LEVEL_RECORD">
+      <template data-nested-form-multi-select-target="template">
+        <%= f.simple_fields_for :user_school_levels, UserSchoolLevel.new, child_index: 'NEW_USER_SCHOOL_LEVEL_RECORD' do |ff| %>
+          <%= ff.input :school_level_id, wrapper: false, label: false %>
+        <% end %>
+      </template>
+      <div data-nested-form-multi-select-target="container" class="hidden">
+        <%= f.simple_fields_for :user_school_levels do |ff| %>
+          <div>
+            <%= ff.input :school_level_id, wrapper: false, label: false %>
+            <%= ff.input :_destroy, wrapper: false, label: false, as: :hidden %>
+          </div>
+        <% end %>
+      </div>
+      <div class="form__wrapper--2col gap-8px">
+        <%= f.association :school_levels,
+            collection: @school.school_levels.map { |school_level| [school_level.full_name_without_school, school_level.id] },
+            label: false,
+            autofocus: true,
+            input_html: {
+              data: {
+                "nested-form-multi-select-target": "multiSelect"
+              }
+            } %>
+        <%= f.button :button, class: "btn-square" do %>
+          <%= show_svg "check.svg" %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

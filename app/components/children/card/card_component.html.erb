@@ -1,0 +1,40 @@
+<turbo-frame 
+  class="children-card" 
+  id="<%= dom_id(@children) %>">
+
+  <div class="children-card__wrapper">
+    <%= render(Ui::Icon::IconComponent.new(icon: "new/participant-avatar", size: "32", color: "color-var-5" )) %>
+    <div class="children-card__content">
+      <div class="children-card__header">
+        <p class="s-paragraph-bold dark-01"><%= @children.full_name %></p>
+
+        <%= render(Ui::Dropdown::DropdownComponent.new) do |dropdown| %>
+          <%= dropdown.with_button do %>
+            <%= render(Ui::Button::ButtonComponent.new(builder: :button, type: :button, style: :ghost, size: :sm, square: true, data: { action: "ui--dropdown#toggle click@window->ui--dropdown#hide" })) do %>
+              <%= render(Ui::Icon::IconComponent.new(icon: "new/more", size: "16", color: "dark-01")) %>
+            <% end %>
+          <% end %>
+
+          <%= dropdown.with_list do %>
+            <%= render(Ui::Dropdown::Item::ItemComponent.new(builder: :link, path: edit_account_children_path(@children))) do %>
+              <%= helpers.show_svg('new/edit.svg') %>
+              <%= I18n.t(".actions.edit.#{helpers.current_user.role}") %>
+            <% end %>
+            <%= render(Ui::Dropdown::Item::ItemComponent.new(builder: :button_to, style: :destructive, path: account_children_path(@children), method: :delete)) do %>
+              <%= helpers.show_svg('new/trash.svg') %>
+              <%= I18n.t(".actions.destroy.#{helpers.current_user.role}") %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <div class="children-card__footer">
+        <%= render(Ui::IconWithText::IconWithTextComponent.new(icon: "new/home-work", text: @company.full_name, color: "grey-03")) if @company %>
+        <%= render(Ui::IconWithText::IconWithTextComponent.new(icon: "new/home-work", text: @school.full_name, color: "grey-03")) if @school %>
+        <%= render(Ui::IconWithText::IconWithTextComponent.new(icon: "new/stack", text: @school_level.full_name_without_school, color: "grey-03")) if @school_level %>
+        <%= render(Ui::IconWithText::IconWithTextComponent.new(icon: "new/check-circle", text: I18n.t(".visible"), color: "grey-03")) if @children.show_my_skills %>
+      </div>
+    </div>
+  </div>
+
+</turbo-frame>

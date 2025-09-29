@@ -1,0 +1,95 @@
+.projects-main-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  height: 100%;
+  width: 100%;
+  padding-top: 8px;
+
+  @include for-laptop {
+    flex-direction: row;
+    padding-top: 24px;
+  }
+}
+.projects-main-container__filter-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  @include for-laptop {
+    display: none;
+  }
+}
+.projects-main-container--more-filter,
+.projects-main-container--clear-filter-mobile,
+.projects-main-container--clear-filter-desktop {
+  cursor: pointer;
+}
+
+.projects-main-container--clear-filter-desktop {
+  display: none;
+  @include for-laptop {
+    display: flex;
+  }
+}
+.projects-main-container--more-filter {
+  text-align: end;
+  cursor: pointer;
+
+  @include for-laptop {
+    display: none;
+  }
+}
+.projects-main-container__tags-filter {
+  display: none;
+  flex-direction: column;
+  gap: 20px;
+
+  @include for-mobile-l {
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: wrap;
+  }
+
+  @include for-laptop {
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: column;
+    width: 170px;
+  }
+}
+.projects-main-container__tags-filter--filter-category {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 5px;
+  border-bottom: 2px solid $grey-03;
+  margin-bottom: 10px;
+  min-width: calc(140px + 24px);
+  cursor: pointer;
+
+  @include for-laptop {
+    width: calc(140px + 24px);
+  }
+
+  &::after {
+    content: url(icons/expand_more.svg);
+    height: 24px;
+    width: 24px;
+
+    transition: transform 0.2s ease-in-out;
+  }
+  &.active::after {
+    transform: rotateX(180deg);
+  }
+}
+.projects-main-container__tags-filter--tags-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.projects-main-container__projects-cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(275px, 1fr));
+  gap: 18px;
+}

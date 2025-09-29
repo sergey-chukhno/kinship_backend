@@ -1,0 +1,4 @@
+<%= link_to @badge.url, class: "badge", target: :_blank do %>
+  <%= image_tag @badge.icon, class: "badge__icon" %>
+  <p class="s-paragraph dark-01"><%= @badge.description %></p>
+<% end %>

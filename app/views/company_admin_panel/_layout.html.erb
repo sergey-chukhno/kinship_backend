@@ -1,0 +1,24 @@
+<main class="main-container">
+  <div class="admin-panel__container">
+    <div class="admin-panel__title">
+      <h1 class="title2 dark-01"><%= @company.name %></h1>
+      <div class="admin-panel__title--sub-infos">
+        <%= render Common::Tag::TagComponent.new(color: "purple") do %>
+          <%= t(:sub_infos_1, scope: [:layouts, :school_admin_panel]) %>
+        <% end %>
+      </div>
+    </div>
+    <nav class="tab-bar">
+      <% if UserCompany.find_by(user: current_user, company: @company).admin? %>
+        <%= link_to "Demande de rattachement", company_admin_panel_company_member_path(@company, status: :pending), class: "xs-paragraph tab-bar--link #{"current" if company_admin_panel_company_member_path(@company, status: :pending) == request.fullpath }" %>
+        <%= link_to "Utilisateurs rattachés", company_admin_panel_company_member_path(@company, status: :confirmed), class: "xs-paragraph tab-bar--link #{"current" if company_admin_panel_company_member_path(@company, status: :confirmed) == request.fullpath }" %>
+        <%= link_to "Informations", edit_company_admin_panel_company_path(@company), class: "xs-paragraph tab-bar--link #{"current" if edit_company_admin_panel_company_path(@company) == request.fullpath }" %>
+        <%= link_to "Compétences", edit_company_admin_panel_company_skill_path(@company), class: "xs-paragraph tab-bar--link #{"current" if edit_company_admin_panel_company_skill_path(@company) == request.fullpath }" %>
+        <%= link_to "Partenaires", edit_company_admin_panel_partnership_path(@company), class: "xs-paragraph tab-bar--link #{"current" if edit_company_admin_panel_partnership_path(@company) == request.fullpath }" %>
+      <% end %>
+    </nav>
+    <div class="admin-panel__content">
+      <%= yield %>
+    </div>
+  </div>
+</main>

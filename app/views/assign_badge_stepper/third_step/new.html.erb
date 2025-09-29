@@ -1,0 +1,58 @@
+<%= turbo_frame_tag "new-modal" do %>
+  <%= render(Ui::Modal::Header::HeaderComponent.new(title: t(".title"), back_link: new_assign_badge_stepper_second_step_path)) %>
+  <div class="stepper-container mb-0">
+    <div class="stepper completed">
+      <span class="bubble">
+        <%= render(Ui::Icon::IconComponent.new(icon: "new/check", size: "16", color: "white")) %>
+      </span>
+    </div>
+
+    <div class="stepper current">
+      <span class="bubble">
+        <%= render(Ui::Icon::IconComponent.new(icon: "new/check", size: "16", color: "white")) %>
+      </span>
+    </div>
+
+    <div class="stepper">
+      <span class="bubble">
+        <%= render(Ui::Icon::IconComponent.new(icon: "new/check", size: "16", color: "white")) %>
+      </span>
+    </div>
+
+    <div class="stepper">
+      <span class="bubble">
+        <%= render(Ui::Icon::IconComponent.new(icon: "new/check", size: "16", color: "white")) %>
+      </span>
+    </div>
+  </div>
+
+  <%= simple_form_for @assign_badge, url: assign_badge_stepper_third_step_index_path, method: :post do |f| %>
+    <p class="s-paragraph grey-01 mb-16px"><%= raw t(".description") %></p>
+    <%= f.input :badge_id, as: :hidden %>
+    <div class="badges-listing">
+      <% @badges_collection.each do |badge| %>
+        <label for="assign_badge_stepper_third_step_badge_id_<%= badge.id %>" class="radio-badge" data-controller="toggle">
+          <div class="radio-badge__wrapper">
+            <div class="radio-badge__content">
+              <input class="radio-badge__radio" type="radio" name="assign_badge_stepper_third_step[badge_id]" id="assign_badge_stepper_third_step_badge_id_<%= badge.id %>" value="<%= badge.id %>" <%= "checked" if badge.id == @assign_badge.badge_id.to_i %>>
+              <%= image_tag(badge.icon, class: "radio-badge__icon", size: "48x48", loading: "lazy" ) %>
+              <div class="radio-badge__text">
+                <p class="s-paragraph grey-01"><%= badge.name %></p>
+                <p class="s-paragraph grey-02"><%= t("activerecord.attributes.badge.levels.#{badge.level}") %></p>
+              </div>
+            </div>
+            <button type="button" class="radio-badge__button" data-action="click->toggle#toggle">
+              <p class="xs-paragraph grey-02"><%= t(".actions.details") %></p>
+              <%= render(Ui::Icon::IconComponent.new(icon: "new/arrow-down", size: "16", color: "grey-02")) %>
+            </button>
+          </div>
+          <div class="radio-badge__details__content d-none" data-toggle-target="element">
+            <p class="xs-paragraph grey-03"><%= badge.description %></p>
+          </div>
+        </label>
+      <% end %>
+    </div>
+
+    <%= f.submit t('.actions.submit'), class: "button button--primary button--md button--full" %>
+  <% end %>
+<% end %>

@@ -1,0 +1,11 @@
+fr:
+  visible: Visible
+  actions:
+    edit:
+      tutor: Modifier l'enfant
+      teacher: Modifier l'élève
+      voluntary: Modifier l'adhérent
+    destroy:
+      tutor: Supprimer l'enfant
+      teacher: Supprimer l'élève
+      voluntary: Supprimer l'adhérent

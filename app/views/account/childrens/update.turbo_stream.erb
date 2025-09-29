@@ -1,0 +1,3 @@
+<%= turbo_stream.replace @children do %>
+  <%= render(Children::Card::CardComponent.new(children: @children)) %>
+<% end %>

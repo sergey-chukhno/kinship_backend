@@ -1,0 +1,15 @@
+<div class="form__links-wrapper">
+  <p class="xs-paragraph dark-01">Déja inscrit, <%= link_to "se connecter", new_user_session_path %></p>
+  <p class="xs-paragraph dark-01">
+    <% if  @user_role.role == "tutor" %>
+      S'inscrire en tant que <%= link_to "enseignant", new_registration_stepper_first_step_path(role: "teacher") %>, <%= link_to "volontaire", new_registration_stepper_first_step_path(role: "voluntary") %> ou <%= link_to "organisation", new_registration_stepper_first_step_path(role: "voluntary", company_form: true) %></p>
+  <% elsif @user_role.role == "teacher" %>
+    S'inscrire en tant que <%= link_to "parent", new_registration_stepper_first_step_path(role: "tutor") %>, <%= link_to "volontaire", new_registration_stepper_first_step_path(role: "voluntary") %> ou <%= link_to "organisation", new_registration_stepper_first_step_path(role: "voluntary", company_form: true) %></p>
+<% elsif ( @user_role.role == "voluntary" ) && ( @user_role.company_form != "true") %>
+  S'inscrire en tant que <%= link_to "parent", new_registration_stepper_first_step_path(role: "tutor") %>, <%= link_to "enseignant", new_registration_stepper_first_step_path(role: "teacher") %> ou <%= link_to "organisation", new_registration_stepper_first_step_path(role: "voluntary", company_form: true) %></p>
+<% elsif ( @user_role.role == "voluntary" ) && ( @user_role.company_form == "true") %>
+  S'inscrire en tant que <%= link_to "parent", new_registration_stepper_first_step_path(role: "tutor") %>, <%= link_to "enseignant", new_registration_stepper_first_step_path(role: "teacher") %> ou <%= link_to "volontaire", new_registration_stepper_first_step_path(role: "voluntary") %></p>
+<% else %>
+  S'inscrire en tant que <%= link_to "parent", new_registration_stepper_first_step_path(role: "tutor") %>, <%= link_to "enseignant", new_registration_stepper_first_step_path(role: "teacher") %>, <%= link_to "volontaire", new_registration_stepper_first_step_path(role: "voluntary") %> ou <%= link_to "organisation", new_registration_stepper_first_step_path(role: "voluntary", company_form: true) %></p>
+<% end %>
+</div>

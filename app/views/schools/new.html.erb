@@ -1,0 +1,20 @@
+<div class="auth__container">
+  <div class="auth__side-image"></div>
+  <div class="auth__wrapper">
+    <h2 class="title2 dark-01">Demande d'ajout d'un établissement</h2>
+    <%= simple_form_for @school, url: schools_path do |f| %>
+      <%= f.input :school_type,
+                  label: "Type d'établissement",
+                  collection: School.school_types.keys %>
+      <%= f.input :zip_code,
+                  label: "Code postal de l'établissement" %>
+      <%= f.input :city,
+                  label: "Ville de l'établissement" %>
+      <%= f.input :name,
+                  label: "Nom de l'établissement" %>
+      <%= f.input :referent_phone_number,
+                  label: "Numéro de téléphone du référent" %>
+      <%= f.button :submit, "Enregistrer", class: "btn-primary__full-width" %>
+    <% end %>
+  </div>
+</div>

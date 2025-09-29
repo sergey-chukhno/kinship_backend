@@ -1,0 +1,58 @@
+<div class="form__wrapper" data-controller="reveal">
+  <p class="paragraph dark-01"><%= t("registration.second_step.company.title.#{@user_profile.role}") %></p>
+  <div class="form__wrapper--2col gap-12px">
+    <label class="radio-button-check fs-12">
+      <input type="radio" name="show-company" data-action="click->reveal#show">
+      Oui
+    </label>
+    <label class="radio-button-check fs-12">
+      <input type="radio" name="show-company"  data-action="click->reveal#hide">
+      Non
+    </label>
+  </div>
+  <div class="form__wrapper hidden" data-controller="nested-form" data-nested-form-wrapper-selector-value='.nested-fields-container' data-reveal-target="item">
+    <template data-nested-form-target="template">
+      <div class="nested-fields-container form__wrapper">
+        <%= f.simple_fields_for :user_company_attributes, child_index: "NEW_RECORD" do |company_fields| %>
+          <div class="nested-form-wrapper">
+            <div class="form__wrapper--2col" data-controller="companies-select-search">
+              <%= company_fields.input :company_id,
+                                    collection: Company.confirmed.first(20).map { |company| [company.full_name, company.id] },
+                                    label: "Rechercher par nom, code postal ou ville",
+                                    input_html: {
+                                      name: "registration_stepper_user_profile[user_company_attributes][NEW_RECORD][company_id]",
+                                      data: {
+                                        companies_select_search_target: "companyInput",
+                                      }
+                                    } %>
+              <button type="button" class="nested-fields--remove-btn" data-action="nested-form#remove"><%= show_svg "trash.svg" %></button>
+              <%= company_fields.input :_destroy,
+                                      as: :hidden,
+                                      input_html: {
+                                        name: "registration_stepper_user_profile[user_company_attributes][NEW_RECORD][_destroy]",
+                                      } %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </template>
+    <div class="nested-fields-container form__wrapper">
+      <%= f.simple_fields_for :user_company_attributes do |company_fields| %>
+        <div class="nested-form-wrapper">
+          <div class="form__wrapper--2col" data-controller="companies-select-search">
+            <%= company_fields.input :company_id,
+                                    collection: Company.confirmed.first(20).map { |company| [company.full_name, company.id] },
+                                    label: "Rechercher par nom, code postal ou ville",
+                                    input_html: {
+                                      name: "registration_stepper_user_profile[user_company_attributes][0][company_id]",
+                                      data: {
+                                        companies_select_search_target: "companyInput",
+                                      }
+                                    } %>
+          </div>
+        </div>
+      <% end %>
+      <button type="button" class="nested-fields--add-link" data-action="nested-form#add" data-nested-form-target="target"><%= show_svg "add.svg" %>Se rattacher à une organisation supplémentaire</button>
+    </div>
+  </div>
+</div>

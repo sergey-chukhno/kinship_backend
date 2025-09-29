@@ -1,0 +1,5 @@
+fr:
+  activemodel:
+    attributes:
+      assign_badge_stepper/second_step:
+        project_id: Sélectionner le projet pour lequel vous souhaitez délivrer un badge

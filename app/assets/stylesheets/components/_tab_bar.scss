@@ -1,0 +1,124 @@
+.tab-bar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  @include for-tablet-portrait {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  align-items: baseline;
+
+  margin-bottom: 32px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid $grey-04;
+
+  .tab-bar-container__links {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .button-container {
+    flex-shrink: 0;
+    margin-top: 5px;
+    width: 100%;
+    button {
+      width: 100%;
+    }
+    @include for-tablet-portrait {
+      margin-top: 0;
+      width: inherit;
+      button {
+        width: inherit;
+      }
+    }
+  }
+}
+.tab-bar-container__links {
+  display: flex;
+  width: 100%;
+  gap: 32px;
+  margin-block: 32px;
+  border-bottom: 1px solid $grey-04;
+  white-space: nowrap;
+  overflow: scroll;
+
+  &.full-width {
+    width: 100%;
+  }
+
+  &::-webkit-scrollbar {
+    width: 0px;
+    height: 2px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $grey-04;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 10px;
+  }
+
+  .tab-bar-container__links--text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 8px;
+    color: $dark-01;
+    &:hover {
+      color: $primary-acc-1;
+      border-bottom: 2px solid $primary-acc-1;
+    }
+  }
+  .active {
+    font-weight: 600;
+    color: $primary-acc-1;
+    border-bottom: 3px solid $primary-acc-1;
+    &:hover {
+      border-bottom: 3px solid $primary-acc-1;
+    }
+  }
+}
+.tab-bar-container__add-button {
+  width: max-content;
+  padding-block: 4px;
+  display: flex;
+}
+
+.tab-bar {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-start;
+  border-bottom: 1px solid $grey-04;
+
+  overflow: scroll;
+  white-space: nowrap;
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 3px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $grey-04;
+    border-radius: 3px;
+  }
+
+  &--link {
+    padding: 12px 24px;
+    border-bottom: 3px solid transparent;
+    color: $dark-01;
+    &.current {
+      color: $primary-acc-1;
+      border-color: $primary-acc-1;
+    }
+    &:hover {
+      border-color: $primary-acc-1;
+    }
+  }
+}

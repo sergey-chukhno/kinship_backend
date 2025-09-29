@@ -1,0 +1,79 @@
+<div class="nested-fields-container form__wrapper" data-controller="schools-form">
+  <div class="flex space-between">
+    <p class="paragraph dark-01">Nouvel Établissement</p>
+    <button type="button" class="nested-fields--remove-btn unset" data-action="nested-form#remove"><%= show_svg "trash.svg" %></button>
+  </div>
+  <%= school_fields.input :school_id,
+      as: :select,
+      required: true,
+      label: t(current_user.role, scope: [:views, :account, :schools, :form, :school_id]),
+      collection: School.confirmed.first(20).map { |school| [school.full_name, school.id] },
+      input_html: {
+        placeholder: "Ville, code postal, nom de l'établissement...",
+        data: {
+          schools_form_target: "schoolInput",
+          action: "change->schools-form#updateSchoolIdValueOfCustomSchoolLevel",
+        }
+      } %>
+  <% unless current_user.teacher? %>
+    <div data-controller="nested-form-multi-select" data-nested-form-multi-select-index-value="NEW_USER_SCHOOL_LEVEL_RECORD">
+      <template data-nested-form-multi-select-target="template">
+        <%= f.simple_fields_for :user_school_levels, UserSchoolLevel.new, child_index: "NEW_USER_SCHOOL_LEVEL_RECORD" do |ff| %>
+          <%= ff.input :school_level_id, wrapper: false, label: false %>
+        <% end %>
+      </template>
+      <div data-nested-form-multi-select-target="container" class="hidden">
+        <%= f.simple_fields_for :user_school_levels do |ff| %>
+          <div>
+            <%= ff.input :school_level_id, wrapper: false, label: false %>
+            <%= ff.input :_destroy, wrapper: false, label: false, as: :hidden %>
+          </div>
+        <% end %>
+      </div>
+      <div class="form__wrapper--2col gap-8px">
+        <%= f.association :school_levels,
+              label: "Classes de mon enfant",
+              collection: [],
+              input_html: {
+                data: {
+                  "nested-form-multi-select-target": "multiSelect",
+                  "schools-form-target": "schoolLevelInput"
+                }
+              } %>
+      </div>
+    </div>
+
+    <!-- To request a school level creation -->
+    <%= simple_fields_for :request_school_level_creation do |school_level_field| %>
+      <div data-controller="reveal" class="form__wrapper">
+        <label class="check-box xs-paragraph grey-01" data-action="change->reveal#toggle">
+          <input type="checkbox">
+          <span>Le nom de ma classe n'est pas dans les choix</span>
+        </label>
+        <div class="form__wrapper--2col hidden" data-reveal-target="item">
+          <%= school_level_field.input :school_id,
+                                                as: :hidden,
+                                                value: school_fields.object.school_id,
+                                                input_html: {
+                                                  name: "request_school_level_creation[NEW_RECORD][school_id]",
+                                                  data: {
+                                                    schools_form_target: "requestSchoolLevelCreationInputSchoolId"
+                                                  }
+                                                } %>
+          <%= school_level_field.input :level,
+                                              label: t("registration.second_step.schools.create_custom_school_level.level.label"),
+                                              placeholder: t("registration.second_step.schools.create_custom_school_level.level.placeholder"),
+                                              input_html: {
+                                                name: "request_school_level_creation[NEW_RECORD][level]",
+                                              } %>
+          <%= school_level_field.input :name,
+                                            label: t("registration.second_step.schools.create_custom_school_level.name.label"),
+                                            placeholder: t("registration.second_step.schools.create_custom_school_level.name.placeholder"),
+                                            input_html: {
+                                              name: "request_school_level_creation[NEW_RECORD][name]",
+                                            } %>
+        </div>
+      </div> 
+    <% end %>
+  <% end %>
+</div>

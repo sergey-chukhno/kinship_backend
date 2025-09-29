@@ -1,0 +1,8 @@
+<h1 class="title2 dark-01">Mot de passe oublié?</h1>
+<%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+  <%= f.input :email,
+              required: true,
+              autofocus: true %>
+  <%= f.button :submit, "Réinitialiser mon mot de passe", class: "btn-primary__full-width"%>
+<% end %>
+<%= render "auth/shared/links" %>

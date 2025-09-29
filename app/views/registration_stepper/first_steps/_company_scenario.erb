@@ -1,0 +1,19 @@
+<h1 class="title2 dark-01">Inscription d'une organisation</h1>
+<%= simple_form_for @user_role, url: registration_stepper_first_steps_path, data: { turbo: :false, controller: "toggle" } do |f| %>
+  <label class="xs-paragraph grey-01" for="role">Je suis...</label>
+  <%= f.input :company_form, as: :hidden %>
+  <%= f.input :role, as: :hidden %>
+  <%= f.input :role_additional_information,
+        collection: RegistrationStepper::UserRole::COMPANIES_ADDITIONAL_ROLES.map { |role| [role, role] },
+        as: :radio_buttons,
+        label: false,
+        item_label_class: 'radio-button-check',
+        wrapper_html: { class: 'role-wrapper-col' },
+        input_html: { data: { action: "change->toggle#toggle_if_other_selected" } } %>
+  <%= f.input :role_additional_information_other,
+        label: "Précisez votre statut",
+        input_html: { data: { "toggle-target": "element" } },
+        wrapper_html: { class: "d-none",
+                        data: { "toggle-target": "element" } } %>
+  <%= f.submit "Continuer", class:"btn-primary__full-width" %>
+<% end %>

@@ -1,0 +1,11 @@
+<p class="paragraph dark-01"><%= t("registration.second_step.cgu.title.#{@user_profile.role}") %></p>
+<iframe id="policyIframe" src="https://www.kinshipedu.fr/politique-de-confidentialite-embed" loading="lazy"></iframe>
+<%= f.input :accept_privacy_policy,
+            label: ("<span>#{t("registration.second_step.cgu.accept_privacy_policy.label")}</span>").html_safe,
+            required: false,
+            as: :boolean,
+            label_html: { class: 'check-box fs-12 mt-12px' } %>
+<%= f.input :accept_marketing,
+            label: ("<span>#{t("registration.second_step.cgu.accept_marketing.label")}</span>").html_safe,
+            as: :boolean,
+            label_html: { class: 'check-box fs-12' } %>

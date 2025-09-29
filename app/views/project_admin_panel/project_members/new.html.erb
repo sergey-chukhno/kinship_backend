@@ -1,0 +1,60 @@
+<%= turbo_frame_tag "new-modal" do %>
+  <div data-controller="add-project-member-selects">
+    <div>
+      <%= render(Ui::Modal::Header::HeaderComponent.new(title: "Ajouter des participants")) %>
+      <span class="fs-14 grey-03 fw-400 block mb-8px">Rechercher et sélectionner dans votre réseau,
+        les personnes qui participent à votre projet. <br>
+         Chaque participant recevra un email lui
+        permettant de se rattacher au projet.
+      </span>
+    </div>
+    <%= simple_form_for :filter, url: new_project_admin_panel_project_member_path, 
+                  method: :get,
+                  html: { class: nil },
+                  data: { controller: "submit", turbo_frame: "network_content", turbo_stream: true } do |filter| %>
+      <%= filter.input :project_id, as: :hidden, input_html: { value: @project_id } %>
+      <div class="mb-16px">
+        <span class="fs-12 grey-01 fw-400">Filtrer la recherche par</span>
+        <%= filter.input :network_type,
+                          label: false,
+                          required: false,
+                          include_blank: "Tout mon réseau",
+                          collection: [
+                            ["Mes organisations", "organizations"],
+                            ["Mes établissements", "schools"],
+                            ["Mes projets", "projects"]
+                          ],
+                          input_html: { 
+                            data: { action: "change->submit#submit", add_project_member_selects_target: "select" }
+                          } %>
+      </div>
+    <% end %>
+    <%= turbo_frame_tag "network_content" do %>
+      <!-- Will be loaded when selecting a network type -->
+      <div id="availableUsers" data-available-users="<%= @available_users.map { |user| { id: user.id, full_name: user.full_name, role:  I18n.t("activerecord.attributes.user.roles.#{user.role}"), school: "#{user.schools.first&.name} (#{user.schools.first&.zip_code})" } }.to_json %>"></div>
+    <% end %>
+    <%= simple_form_for @project_member, method: :post, url: project_admin_panel_project_members_path, data: { turbo: false } do |f| %>
+      <%= f.input :project_id, as: :hidden, input_html: { value: @project_id } %>
+      <div class="mb-16px">
+        <span class="fs-12 grey-01 fw-400">Rechercher par nom et prénom</span>
+        <%= f.input :user_ids,
+            collection: User.all.map {|user| [user.full_name, user.id]},
+            include_blank: "--",
+            selected: @participants,
+            label: false,
+            input_html: { 
+              data: {
+                custom_labels: true,
+                add_project_member_selects_target: "select",
+                action: "change->submit#submit"
+              },
+              multiple: true,
+              name: "project_member[user_ids][]"
+            } %>
+      </div>
+      <%= f.button :submit,
+                  "Ajouter des participants",
+                  class: "btn-primary align-self-end" %>
+    <% end %>
+  </div>
+<% end %>

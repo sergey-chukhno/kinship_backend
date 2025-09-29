@@ -1,0 +1,61 @@
+.radio-badge {
+  display: grid;
+  gap: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid $grey-04;
+  padding-top: 0.5rem;
+
+  &__wrapper {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 1rem;
+  }
+
+  &__content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  &__radio {
+    width: 0.75rem;
+    height: 0.75rem;
+    appearance: none;
+
+    &::before {
+      content: "";
+      display: block;
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+      outline-offset: 2px;
+      outline: 2px solid $dark-01;
+      background-color: transparent;
+      cursor: pointer;
+    }
+
+    &:checked::before {
+      outline-color: $primary-acc-1;
+      background-color: $primary-acc-1;
+    }
+  }
+
+  &__icon {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  &__text {
+    display: grid;
+  }
+
+  &__button {
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+}

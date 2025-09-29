@@ -1,0 +1,53 @@
+name: Tests
+
+on: [push]
+
+jobs:
+  test:
+    env:
+      RAILS_ENV: test
+      NODE_ENV: test
+      CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+      STRIPE_PRIVATE_KEY: ${{ secrets.STRIPE_PRIVATE_KEY }}
+    runs-on: ubuntu-latest
+    # NEW! Adds postgres service. Must come before `steps`.
+    services:
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    # END NEW
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Set up Ruby # An action to install Ruby and gems
+        uses: ruby/setup-ruby@v1 # short for https://github.com/ruby/setup-ruby
+        with:
+          # runs 'bundle install' and caches installed gems automatically
+          bundler-cache: true
+      - name: Prepare DB
+        run: | # Pipe is important, adds line breaks
+          cp config/database.github.yml config/database.yml
+          bundle exec rails db:create db:schema:load --trace
+      - name: Run specs
+        run: bundle exec rspec

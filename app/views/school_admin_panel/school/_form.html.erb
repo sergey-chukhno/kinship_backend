@@ -1,0 +1,16 @@
+<%= f.input :name,
+            label: t(:name, scope: [:layouts, :school_admin_panel, :school, :form]),
+            disabled: true %>
+<%= f.input :zip_code,
+            label: t(:zip_code, scope: [:layouts, :school_admin_panel, :school, :form]),
+            disabled: true %>
+<%= f.input :city,
+            label: t(:city, scope: [:layouts, :school_admin_panel, :school, :form]),
+            disabled: true %>
+<%= f.input :school_type,
+            label: t(:school_type, scope: [:layouts, :school_admin_panel, :school, :form]),
+            collection: School.school_types.keys.map{ |school_type| [t(school_type, scope: [:layouts, :school_admin_panel, :school, :form, :school_types]), school_type]},
+            disabled: true %>
+<%= f.input :referent_phone_number,
+            label: t(:referent_phone_number, scope: [:layouts, :school_admin_panel, :school, :form]),
+            disabled: true %>

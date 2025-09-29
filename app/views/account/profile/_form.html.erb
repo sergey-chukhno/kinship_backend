@@ -1,0 +1,67 @@
+<p class="paragraph"><%= t(current_user.role, scope: [:views, :account, :profile, :text, :global_info]) %></p>
+
+<div class="form__input-wrapper">
+  <p class="xs-paragraph grey-01">Je suis...</p>
+  <div class="form__wrapper--2col gap-12px flex-wrap">
+    <% @role_additional_information_collection.each do |role_additional_information| %>
+      <label class="radio-button-check fs-12" for=<%= "user_role_additional_information_#{role_additional_information.gsub(" ","_")}" %> data-action="click->reveal#hide">
+        <input type="radio" name="user[role_additional_information]" id=<%= "user_role_additional_information_#{role_additional_information.gsub(" ","_")}" %> value="<%= role_additional_information %>" <%= "checked" if @user.role_additional_information == role_additional_information %>>
+        <%= role_additional_information.capitalize %>
+      </label>
+    <% end %>
+    <label class="radio-button-check fs-12" for="user_role_additional_information_autres" data-action="click->reveal#show">
+      <input type="radio" name="user[role_additional_information]" id="user_role_additional_information_autres" value="Autres" <%= "checked" unless @role_additional_information_collection.include?(@user.role_additional_information) %> >
+      Autres
+    </label>
+  </div>
+</div>
+<%= f.input :role_additional_information_custom,
+    label: "Précisez votre statut",
+    wrapper_html: {
+      class: @role_additional_information_collection.include?(@user.role_additional_information) && "hidden",
+      data: { reveal_target: "item" }
+    },
+    input_html: {
+      value: @role_additional_information_collection.include?(@user.role_additional_information) ? nil : @user.role_additional_information
+    } %>
+
+<%= f.input :last_name,
+            required: true,
+            label: t(current_user.role, scope: [:views, :account, :profile, :form, :last_name]) %>
+<%= f.input :first_name,
+            required: true,
+            label: t(current_user.role, scope: [:views, :account, :profile, :form, :first_name]) %>
+<%= f.input :email,
+            disabled: true,
+            label: t(current_user.role, scope: [:views, :account, :profile, :form, :email]) %>
+<% if @user.teacher? %>
+  <%= f.input :contact_email,
+              hint: t(current_user.role, scope: [:views, :account, :profile, :form, :contact_email, :hint]),
+              label: t(current_user.role, scope: [:views, :account, :profile, :form, :contact_email, :label]) %>
+<% end %>
+
+<% if @user.voluntary? %>
+  <%= f.input :birthday,
+              as: :string,
+              required: true,
+              disabled: true,
+              label: "Date de naissance" %>
+<% end %>
+
+<%= f.input :accept_marketing,
+            as: :boolean,
+            label: t(current_user.role, scope: [:views, :account, :profile, :form, :accept_marketing]),
+            label_html: {
+              class: 'check-box fs-12'
+              } %>
+
+<label class="check-box-black fs-12">
+  <%= f.check_box :accept_privacy_policy,
+                  disabled: true %>
+  <span><%= t(current_user.role, link: link_to("la politique de confidentialité", "https://www.kinshipedu.fr/politique-de-confidentialite", class: "xs-paragraph"), scope: [:views, :account, :profile, :form, :accept_privacy_policy]).html_safe %></span>
+</label>
+
+<div class="form__wrapper--2col">
+  <%= f.submit t(current_user.role, scope: [:views, :account, :profile, :form, :submit]), class: "btn-primary__full-width" %>
+  <%= link_to "Supprimer mon compte", new_account_delete_account_path(id: @user), method: :put, class: "btn-secondary" %>
+</div>

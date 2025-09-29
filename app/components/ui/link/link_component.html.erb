@@ -1,0 +1,14 @@
+<% case @buidler %>
+<% when :button %>
+  <%= button_tag(@options) do %>
+    <%= content %>
+  <% end %>
+<% when :button_to %>
+  <%= button_to(@options[:path], @options) do %>
+    <%= content %>
+  <% end %>
+<% when :link %>
+  <%= link_to(@options[:path], @options) do %>
+    <%= content %>
+  <% end %>
+<% end %>

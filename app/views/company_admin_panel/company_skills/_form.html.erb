@@ -1,0 +1,33 @@
+<div class="form__wrapper gap-8px">
+  <% @skills.each do |skill| %>
+    <div class="form__wrapper gap-8px" data-controller="uncheck-all reveal">
+      <%= f.input :skill_ids,
+                    label: false,
+                    as: :check_boxes,
+                    collection: [skill],
+                    input_html: {
+                      data: {
+                        "action": "click->reveal#toggle click->uncheck-all#uncheckAll"
+                      }
+                    },
+                    item_label_class: 'thin-button-check fs-12' %>
+      <% unless skill.sub_skills.empty? %>
+        <div class="form__wrapper gap-8px <%= "hidden" unless @company.skills.include?(skill) %>" data-reveal-target="item">
+          <% skill.sub_skills.each do |sub_skill| %>
+            <%= f.input :sub_skill_ids,
+                          label: false,
+                          as: :check_boxes,
+                          collection: [sub_skill],
+                          input_html: {
+                            data: { "uncheck-all-target": "checkbox" }
+                          },
+                          item_label_class: 'thin-button-check fs-12 ml-32px' %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+<%= f.input :skill_additional_information,
+            label: "Ajouter des précisions générales" %>
+<%= f.button :submit, "Enregistrer", class: "btn-primary__full-width" %>

@@ -1,0 +1,7 @@
+<div class="flex-col gap-16px">
+  <h2 class="s-paragraph">Participer au projet</h2>
+  <p class="xs-paragraph grey-03">
+    Le projet vous intéresse, vous souhaitez développer ou apporter vos compétences, créer des ateliers...alors postuler
+  </p>
+  <%= link_to  "Demander à participer", new_project_project_member_path(project_id: params[:id]), class:"btn-primary w-100", data: { turbo_frame: "modal" } %>
+</div>

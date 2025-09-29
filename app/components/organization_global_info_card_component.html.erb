@@ -1,0 +1,57 @@
+<div class="organization-global-info__card">
+  <div class="organization-global-info__card--name-and-status">
+    <p class="paragraph grey-01"><%= name %></p>
+    <div class="organization-global-info__card--menu" data-controller="dropdown">
+      <%= render Common::Tag::TagComponent.new(color: status) do %>
+        <%= t(status, scope: [:components, :organization_global_info_card, :status]) %>
+      <% end %>
+      <button type="button" class="organization-global-info__card--menu--button" data-action="dropdown#toggle click@window->dropdown#hide">
+        <%= show_svg "more.svg", class: "w-full" %>
+      </button>
+      <div class="organization-global-info__card--menu--items hidden" data-dropdown-target="menu">
+        <% if school? && !@current_user.teacher? %>
+          <%= link_to edit_account_schools_school_level_path(@organization),
+                      class: "organization-global-info__card--menu--item",
+                      data: {
+                        action: "dropdown#toggle",
+                        turbo_frame: dom_id(@organization)
+                        } do %>
+            <%= show_svg "edit2.svg" %>
+            <%= t(@organization.class.to_s.downcase, scope: [:components, :organization_global_info_card, :edit, :update]) %>
+          <% end %>
+        <% end %>
+        <%= link_to delete_organization_path,
+                    data: {
+                      turbo_method: :delete,
+                      action: "dropdown#toggle"
+                      },
+                      class: "organization-global-info__card--menu--item" do %>
+          <%= show_svg "trash.svg" %>
+          <%= t(@organization.class.to_s.downcase, scope: [:components, :organization_global_info_card, :edit, :delete]) %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <% if school? %>
+    <%= turbo_frame_tag @organization do %>
+      <div class="organization-global-info__card--school-levels">
+        <%= show_svg "school_level.svg" %>
+        <%= user_school_levels %>
+      </div>
+    <% end %>
+  <% end %>
+  <div class="organization-global-info__card--stats">
+    <div class="organization-global-info__card--stat">
+      <%= show_svg "users.svg" %>
+      <p class="xs-paragraph"><%= users_count %> inscrits</p>
+    </div>
+    <div class="organization-global-info__card--stat">
+      <%= show_svg "magnifying_glass.svg" %>
+      <p class="xs-paragraph"><%= users_take_trainee_count %> proposent des stages</p>
+    </div>
+    <div class="organization-global-info__card--stat">
+      <%= show_svg "work_in_progress.svg" %>
+      <p class="xs-paragraph"><%= organization_skills_count %> compétences représentées</p>
+    </div>
+  </div>
+</div>

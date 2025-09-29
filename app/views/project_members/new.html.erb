@@ -1,0 +1,14 @@
+<%= render TurboModalComponent.new(title: "Vous souhaitez participer à ce projet ?") do %>
+  <%= simple_form_for @project_member, url: project_project_members_path(project_id: params[:project_id])  do |f| %>
+    <p class="s-paragraph grey-03">Contacter le porteur de projet pour obtenir des informations complémentaires sur le projet ou lui apporter votre aide.</p>
+    <%= f.input :message,
+                as: :text,
+                input_html: {
+                  value: "Bonjour ...,\nJe souhaiterais participer à votre projet. Voici les compétences ou disponibilités que je pourrais partager : ...\nSeriez-vous disponible pour en discuter ?\n\nCordialement,"
+                },
+                label: "Message de demande de participation" %>
+    <%= f.button :submit,
+                "Envoyer la demande de participation",
+                  class: "btn-primary w-100" %>
+  <% end %>
+<% end %>

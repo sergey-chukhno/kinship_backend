@@ -1,0 +1,106 @@
+<%= render "company_admin_panel/layout" do %>
+  <div class="admin-panel__form">
+    <p class="paragraph dark-01 pb-m">Les demandes externe de partenariats</p>
+    <div class="admin-panel-member__container">
+      <% if @wanted_conpany_partners.empty? %>
+        <div class="admin-panel-member__empty">
+          <p class="admin-panel-member__empty--text s-paragraph grey-02"><%= show_svg "clock.svg" %>Vous n'avez aucune demande externe de partenariats</p>
+        </div>
+      <% end %>
+
+      <% @wanted_conpany_partners.each do |company_partner| %>
+        <div class="admin-panel-member__card">
+          <div class="admin-panel-member__card--content">
+            <p class="s-paragraph-bold dark-01"><%= company_partner.company_sponsor.full_name %></p>
+            <%= render Common::Tag::TagComponent.new(color: "purple").with_content("Association") %>
+            <div class="admin-panel-member__stats">
+              <%= show_svg "users.svg", class: "grey-03" %>
+              <p class="xxs-paragraph-light grey-03"><%= pluralize(company_partner.company_sponsor.users.count, "membre", plural: "membres") %></p>
+            </div>
+          </div>
+          <div class="admin-panel-member__card--inputs">
+            <%= simple_form_for company_partner, url: company_admin_panel_partnership_update_sponsor_confirmation_path(id: @company.id, sponsor_id: company_partner.id), method: :put, html: { class: "admin-panel-member__card--inputs" }, data: { controller: "submit update-admin-panel-member-status-text", submit_target: "form" } do |member_school_or_member_company_fields| %>
+              <span class="xxs-paragraph <%= company_partner.confirmed? ? "color-var-2" : "grey-03" %>" data-update-admin-panel-member-status-text-target="textStatus"><%= company_partner.confirmed? ? "Rattaché" : "En attente" %></span>
+              <input type="checkbox" class="btn-toggle" <%= "checked" if company_partner.confirmed? %> data-action="change->submit#submit change->update-admin-panel-member-status-text#updateStatus">
+            <% end %>
+            <%= button_to company_admin_panel_partnership_destroy_sponsor_path(id: @company.id, sponsor_id: company_partner.id), method: :delete, class: "btn-trash grey-02", disabled: company_partner.confirmed? do %>
+              <%= show_svg "trash.svg" %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="admin-panel__form">
+    <p class="paragraph dark-01 pb-m">Les partenaires de l'organisation</p>
+    <div class="organization-global-info__container pb-m">
+      <p class="s-paragraph dark-01">Les établissements partenaires</p>
+      <% @schools.each do |school| %>
+        <div class="organization-global-info__card">
+          <div class="organization-global-info__card--name-and-status">
+            <p class="s-paragraph dark-01"><%= school.full_name %></p>
+            <% if school.school_companies.find_by(company: @company).pending? %>
+              <%= render Common::Tag::TagComponent.new(color: "purple").with_content("En attente") %>
+            <% else %>
+              <%= render Common::Tag::TagComponent.new(color: "green").with_content("Rattaché") %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      <p class="s-paragraph dark-01">Les organisations partenaires</p>
+      <% @company_partners.each do |company_partner| %>
+        <div class="organization-global-info__card">
+          <div class="organization-global-info__card--name-and-status">
+            <p class="s-paragraph dark-01"><%= company_partner.company.full_name %></p>
+            <% if company_partner.pending? %>
+              <%= render Common::Tag::TagComponent.new(color: "purple").with_content("En attente") %>
+            <% else %>
+              <%= render Common::Tag::TagComponent.new(color: "green").with_content("Rattaché") %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+
+    <p class="paragraph dark-01">Ajouter des établissements partenaires</p>
+    <%= simple_form_for @company, url: company_admin_panel_partnership_path(@company), method: :put, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |f| %>
+      <template data-nested-form-target="template">
+        <%= f.simple_fields_for :school_companies, SchoolCompany.new, child_index: "NEW_RECORD" do |ff| %>
+          <div class="nested-form-wrapper form__wrapper--2col" data-controller="school-registration-form">
+            <%= ff.input :school_id,
+                          collection: [],
+                          label: "Rechercher par nom, code postal ou ville",
+                          input_html: { data: { school_registration_form_target: "schoolInput"} } %>
+            <%= ff.input :_destroy, as: :hidden %>
+            <button type="button" class="nested-fields--remove-btn" data-action="nested-form#remove"><%= show_svg "trash.svg" %></button>
+          </div>
+        <% end %>
+      </template>
+
+      <button class="nested-fields--add-link" data-action="nested-form#add" data-nested-form-target="target"><%= show_svg "add.svg" %>Se rattacher à un établissement supplémentaire</button>
+
+      <%= f.button :submit, "Enregistrer", class: "btn-primary__full-width" %>
+    <% end %>
+
+    <p class="paragraph dark-01">Ajouter des organisations partenaires</p>
+    <%= simple_form_for @company, url: company_admin_panel_partnership_path(@company), method: :put, data: { controller: 'nested-form', nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |f| %>
+      <template data-nested-form-target="template">
+        <%= f.simple_fields_for :company_partners, @company.company_partners.build, child_index: "NEW_RECORD" do |ff| %>
+          <div class="nested-form-wrapper form__wrapper--2col" data-controller="companies-select-search">
+            <%= ff.input :company_id,
+                          collection: [],
+                          label: "Rechercher par nom, code postal ou ville",
+                          input_html: { data: { companies_select_search_target: "companyInput" } } %>
+            <%= ff.input :_destroy, as: :hidden %>
+            <button type="button" class="nested-fields--remove-btn" data-action="nested-form#remove"><%= show_svg "trash.svg" %></button>
+          </div>
+        <% end %>
+      </template>
+
+      <button class="nested-fields--add-link" data-action="nested-form#add" data-nested-form-target="target"><%= show_svg "add.svg" %>Se rattacher à une organisation supplémentaire</button>
+
+      <%= f.button :submit, "Enregistrer", class: "btn-primary__full-width" %>
+    <% end %>
+  </div>
+<% end %>

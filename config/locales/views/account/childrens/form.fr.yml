@@ -1,0 +1,24 @@
+fr:
+  account:
+    childrens:
+      form:
+        first_name:
+          tutor: "Prénom de mon enfant"
+          teacher: "Prénom de l'élève"
+          voluntary: "Prénom de l'adhérent"
+        last_name:
+          tutor: "Nom de mon enfant"
+          teacher: "Nom de l'élève"
+          voluntary: "Nom de l'adhérent"
+        schools:
+          tutor: "Établissement de mon enfant"
+          teacher: "Établissement de l'élève"
+        school_levels:
+          tutor: "Classe de mon enfant"
+          teacher: "Classe de de l'élève"
+        companies:
+          voluntary: "Organisation de rattachement de l’adhérent"
+        show_my_skills:
+          tutor: "J’accepte que mon enfant apparaisse dans mes informations de réseau"
+          teacher: "J’accepte que mon élève apparaisse dans mes informations de réseau"
+          voluntary: "J’accepte que mon adhérent apparaisse dans mes informations de réseau"

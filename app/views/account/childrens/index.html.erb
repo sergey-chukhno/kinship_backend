@@ -1,0 +1,21 @@
+<div>
+  <h1 class="paragraph dark-01"><%= t(current_user.role, scope: [:account, :childrens, :index, :title]) %></h1>
+  <p class="xs-paragraph grey-02 italic"><%= t(current_user.role, scope: [:account, :childrens, :index, :description]) %></p>
+</div>
+
+<%= turbo_frame_tag 'childrens', class: 'grid gap-16px' do %>
+  <% if @childrens.any? %>
+    <%= render(Children::Card::CardComponent.with_collection(@childrens)) %>
+  <% else %>
+    <div class="admin-panel-member__empty">
+      <p class="admin-panel-member__empty--text s-paragraph grey-02"><%= show_svg "new/info.svg" %> <%= t(current_user.role, scope: [:account, :childrens, :index, :empty_childrens]) %></p>
+    </div>
+  <% end %>
+<% end %>
+
+<%= turbo_frame_tag 'new_children', class: "grid" do %>
+  <%= render(Ui::Link::LinkComponent.new(builder: :link, path: new_account_children_path, class: "ml-auto")) do %>
+    <%= show_svg "new/add.svg" %>
+    <%= t(current_user.role, scope: [:account, :childrens, :index, :actions, :new]) %>
+  <% end if policy([:account, :childrens]).new? %>
+<% end %>

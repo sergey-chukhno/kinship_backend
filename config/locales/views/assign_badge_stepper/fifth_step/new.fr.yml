@@ -1,0 +1,9 @@
+fr:
+  assign_badge_stepper:
+    fifth_step:
+      new:
+        title: "Attribuer un badge"
+        description: "Justificatif du projet"
+        actions:
+          back: "Retour"
+          submit: "Terminer l'attribution"

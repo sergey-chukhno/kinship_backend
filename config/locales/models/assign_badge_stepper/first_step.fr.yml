@@ -1,0 +1,6 @@
+fr:
+  activemodel:
+    attributes:
+      assign_badge_stepper/first_step:
+        receiver: Personne destinataire du badge
+        organization: L’organisation avec laquelle vous attribuez ce badge

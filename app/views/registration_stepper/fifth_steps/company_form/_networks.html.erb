@@ -1,0 +1,19 @@
+<p class="paragraph dark-01"><%= t("views.company.new.subtitle-3") %></p>
+<%= f.input :job,
+            label: t("models.company.job.label"),
+            hint: t("models.company.job.hint") %>
+<%= f.input :take_trainee,
+            as: :select,
+            include_blank: false,
+            collection: [["Oui", true], ["Non", false]],
+            label: t("models.company.take_trainee.label") %>
+<%= f.input :propose_workshop,
+            as: :select,
+            include_blank: false,
+            collection: [["Oui", true], ["Non", false]],
+            label: t("models.company.propose_workshop.label") %>
+<%= f.input :propose_summer_job,
+            as: :select,
+            include_blank: false,
+            collection: [["Oui", true], ["Non", false]],
+            label: t("models.company.propose_summer_job.label") %>

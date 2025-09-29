@@ -1,0 +1,30 @@
+.tag {
+  padding: 0 0.75rem;
+  border-radius: 50vh;
+
+  $available-colors: (
+    "green": $color-var-2-light $color-var-2,
+    "confirmed": $color-var-2-light $color-var-2,
+    "red": $color-var-3-light $color-var-3,
+    "blue": $color-var-1-light $color-var-1,
+    "yellow": $primary-light-2 $primary-acc-1,
+    "purple": $color-var-4-light $color-var-4,
+    "pending": $color-var-4-light $color-var-4,
+    "grey": $grey-05 $grey-02,
+    "light-grey": $grey-06 $grey-03,
+    "pink": $color-var-5-light $color-var-5,
+  );
+
+  @each $name, $colors in $available-colors {
+    &--#{$name} {
+      background-color: nth($colors, 1);
+      color: nth($colors, 2);
+    }
+  }
+
+  &__wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}

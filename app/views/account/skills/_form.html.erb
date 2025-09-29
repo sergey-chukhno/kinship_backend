@@ -1,0 +1,54 @@
+<p class="paragraph dark-01"><%= t(@user.role, scope: [:views, :account, :skills, :text, :global_info]) %></p>
+<div class="form__wrapper--2col gap-12px user_show_my_skills">
+  <label class="radio-button-check fs-12" for="user_show_my_skills_true">
+    <input type="radio" name="user[show_my_skills]" id="user_show_my_skills_true" value="true" data-action="click->reveal#show" <%= "checked" if @user.show_my_skills %>>
+    Oui
+  </label>
+  <label class="radio-button-check fs-12" for="user_show_my_skills_false">
+    <input type="radio" name="user[show_my_skills]" id="user_show_my_skills_false" value="false" data-action="click->reveal#hide"  <%= "checked" unless @user.show_my_skills %>>
+    Non
+  </label>
+</div>
+<div class="form__wrapper <%= "hidden" unless @user.show_my_skills %>" data-reveal-target="item">
+  <p class="paragraph dark-01"><%= t(@user.role, scope: [:views, :account, :skills, :text, :select_skills]) %></p>
+  <div class="form__wrapper gap-8px">
+    <% @skills.each do |skill| %>
+      <div class="form__wrapper gap-8px" data-controller="uncheck-all reveal">
+        <%= f.input :skill_ids,
+                    label: false,
+                    as: :check_boxes,
+                    collection: [skill],
+                    input_html: {
+                      checked: @user.this_skill?(skill),
+                      data: {
+                        "uncheck-all-target": "checkbox",
+                        "action": "click->reveal#toggle click->uncheck-all#uncheckAll"
+                      }
+                    },
+                    item_label_class: 'thin-button-check fs-12' %>
+        <% unless skill.sub_skills.empty? %>
+          <div class="form__wrapper gap-8px <%= "hidden" unless @user.this_skill?(skill) %>" data-reveal-target="item">
+            <% skill.sub_skills.each do |sub_skill| %>
+              <%= f.input :sub_skill_ids,
+                          label: false,
+                          as: :check_boxes,
+                          collection: [sub_skill],
+                          input_html: {
+                            checked: @user.this_sub_skill?(sub_skill),
+                            data: { "uncheck-all-target": "checkbox" }
+                          },
+                          item_label_class: 'thin-button-check fs-12 ml-32px' %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+  <%= f.input :skill_additional_information,
+              label: t(@user.role, scope: [:views, :account, :skills, :form, :skill_additional_information, :label]),
+              placeholder: t(@user.role, scope: [:views, :account, :skills, :form, :skill_additional_information, :placeholder]) %>
+
+  <%= f.hidden_field :expend_skill_to_school, value: true %>
+</div>
+
+<%= f.submit t(current_user.role, scope: [:views, :account, :skills, :form, :submit]), class: "btn-primary__full-width" %>

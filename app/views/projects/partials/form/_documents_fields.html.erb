@@ -1,0 +1,27 @@
+<div class="form__input-wrapper">
+  <label class="xs-paragraph grey-01">Ajouter des documents</label>
+  <span class="hint grey-02">Ajouter ou importer tous documents utiles aux participants pour le lancement de votre projet (fiche action, budget, liste matériel, ...)(1Mo max)</span>
+  <div class="dropzone dropzone-default dz-clickable"
+      data-controller="file-uploader"
+      data-file-uploader-max-files="3"
+      data-file-uploader-max-file-size="10"
+      data-file-uploader-accepted-files="application/pdf,.psd"
+      data-file-uploader-upload-multiple="true"
+      data-file-uploader-add-remove-links="true"
+      data-file-uploader-files="<%= @documents_files %>">
+    <%= f.input :documents,
+                as: :file,
+                label: false,
+                input_html: {
+                  multiple: true,
+                  direct_upload: true,
+                  data: {
+                    "file-uploader-target": "input"
+                  }
+                } %>
+    <div class="dropzone-msg dz-message needsclick">
+      <%= show_svg "add_document.svg" %>
+      <span class="s-paragraph grey-03">Glisser déposer ou cliquer ici pour ajouter un document</span>
+    </div>
+  </div>
+</div>

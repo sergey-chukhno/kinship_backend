@@ -1,0 +1,20 @@
+<%= turbo_frame_tag "new-modal" do %>
+  <%= render(Ui::Modal::Header::HeaderComponent.new(title: t(".title"))) %>
+
+  <p class="s-paragraph grey-03 mb-16px"><%= raw t(".description") %></p>
+
+  <%= simple_form_for @assign_badge, url: assign_badge_stepper_first_step_index_path, method: :post do |f| %>
+    <%= f.input :receiver_id, as: :hidden %>
+    <%= f.input :sender_id, as: :hidden %>
+
+    <%= f.input :receiver,
+                disabled: true,
+                required: true,
+                input_html: { value: @assign_badge.receiver.full_name } %>
+    <%= f.input :organization,
+                  as: :select,
+                  collection: @organizations %>
+
+    <%= f.submit t('.actions.submit'), class: "button button--primary button--md button--full" %>
+  <% end %>
+<% end %>

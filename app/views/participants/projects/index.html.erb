@@ -1,0 +1,63 @@
+<main class="main-container">
+  <div class="participants">
+    <h1 class="title2 dark-01"><%= t("views.participants.title") %></h1>
+    <div class="tab-bar">
+      <%= link_to t("views.participants.tab_bar.all"), participants_path, class: "s-paragraph tab-bar--link #{"current" if request.path == participants_path}" %>
+      <%= link_to t("views.participants.tab_bar.schools"), participants_schools_path, class: "s-paragraph tab-bar--link #{"current" if request.path.include?(participants_schools_path)}" %>
+      <%= link_to "Par projet", participants_projects_path, class: "s-paragraph tab-bar--link #{"current" if request.path.include?(participants_projects_path)}" %>
+      <%= link_to t("views.participants.tab_bar.companies"), participants_companies_path, class: "s-paragraph tab-bar--link #{"current" if request.path.include?(participants_companies_path)}" %>
+      <%= link_to t("views.participants.tab_bar.other_companies"), participants_other_companies_path, class: "s-paragraph tab-bar--link #{"current" if request.path.include?(participants_other_companies_path)}" %>
+    </div>
+    <%= simple_form_for :filters,
+                        url: participants_projects_path,
+                        method: :get,
+                        data: {
+                          controller: "submit",
+                          turbo_frame: "participants"
+                        } do |filter| %>
+      <div class="participants__container">
+
+        <div class="participants__container--first" data-controller="project-searcher">
+          <%= filter.input :project,
+                      label: false,
+                      collection: @projects_collection.map {|project| [project.title, project.id]},
+                      include_blank: "Tous mes projets",
+                      selected: params.dig(:filters, :project),
+                      input_html: {
+                        class: "form__input--project-select",
+                        data: {
+                          action: "change->submit#submit",
+                          "project-searcher-target": "projectInput"
+                        }
+                      } %>
+        </div>
+
+        <div class="participants__container--second">
+
+          <%= turbo_frame_tag "filters" do%>
+            <div class="participants__side-filter">
+              <%= link_to "Supprimer les filtres", participants_projects_path, class: "xs-paragraph-bold primary" %>
+              <%= render "participants/_filters/skills_form", active_filter: @active_filters[:skills], f: filter, skills: @skills %>
+              <%= render "participants/_filters/availabilities_form", active_filter: @active_filters[:availabilities], f: filter, availabilities: @availabilities %>
+              <%= render "participants/_filters/take_trainee_form", active_filter: @active_filters[:take_trainee], f: filter %>
+              <%= render "participants/_filters/propose_workshop_form", active_filter: @active_filters[:propose_workshop], f: filter %>
+            </div>
+          <% end %>
+
+          <%= turbo_frame_tag "participants", style: "flex-grow: 1;" do %>
+            <div class="participants__list">
+              <% if @participants.blank? %>
+                <div class="info-message warning">
+                  <%= show_svg "warning.svg", class: "icon-24x24" %>
+                  <p class="xs-paragraph">Aucun participant n'a été trouvé pour votre recherche.</p>
+                </div>
+              <% else %>
+                <%= render(Participant::Card::CardComponent.with_collection(@participants, current_user:)) %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</main>

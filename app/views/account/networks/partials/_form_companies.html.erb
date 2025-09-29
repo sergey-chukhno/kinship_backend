@@ -1,0 +1,7 @@
+<template data-nested-form-target="template">
+  <%= f.simple_fields_for :user_company, UserCompany.new, child_index: "NEW_RECORD" do |user_company_fields| %>
+    <%= render "account/networks/partials/form_company", f: user_company_fields %>
+  <% end %>
+</div>
+</template>
+<button type="button" class="nested-fields--add-link" data-action="nested-form#add" data-nested-form-target="target"><%= show_svg "add.svg" %>Se rattacher à une organisation supplémentaire</button>

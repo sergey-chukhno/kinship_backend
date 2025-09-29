@@ -1,0 +1,49 @@
+<h1>Inscription Elève - 15 ans</h1>
+<%= render StepperComponent.new(current_step: 1, role: "children" ) %>
+<div data-controller="school-fetcher registration-disable-submit">
+  <%= simple_form_for @child, url: registration_stepper_pupils_path, data: { turbo: :false }, method: :post do |f| %>
+    <div class="form-inputs">
+      <%= render "school_inputs" %>
+      <%= f.input :last_name,
+                    label: "Nom",
+                    required: true,
+                    input_html: { } %>
+      <%= f.input :first_name,
+                    label: "Prénom",
+                    required: true,
+                    input_html: { } %>
+      <%= f.input :birthday,
+                    label: "Date de naissance",
+                    required: true,
+                    as: :date,
+                    html5: true %>
+      <%= render "school_level_inputs" %>
+      <div data-controller="toggle-checkbox">
+        <%= f.input :accept_privacy_policy,
+                      as: :boolean,
+                      label: false,
+                      input_html: { checked: true, class: "d-none", data: { "registration-disable-submit-target": "checkBoxToCheck", "toggle-checkbox-target": "checkbox" }}
+          %>
+        <%= simple_fields_for :accept_privacy_policy do |t|  %>
+          <label class="xs-paragraph grey-01 mb-8px"><span>J'accepte la <%= link_to "https://www.kinshipedu.fr/politique-de-confidentialite-embed",  target:"_blank", class:"fs-12", data: { action: "click->toggle-checkbox#showPolicy" } %></span></label>
+          <%# TODO : Voir si la LP change d'adresse, sinon retirer ce commentiare. %>
+          <iframe id="policyIframe" class="d-none" src="https://www.kinshipedu.fr/politique-de-confidentialite-embed" data-toggle-checkbox-target="policy"></iframe>
+          <%= t.input :user_choice,
+                      as: :radio_buttons,
+                      label: false,
+                      collection: ["Oui", "Non"],
+                      checked: "Oui",
+                      item_label_class: 'radio-button-check fs-12',
+                      wrapper_html: {
+                        class: 'skill-wrapper mb-12px',
+                        data: {
+                          action: "change->toggle-checkbox#toggle"
+                        }
+                      }
+          %>
+        <% end %>
+      </div>
+      <%= f.submit "Continuer", class:"btn-primary", data: { "registration-disable-submit-target": "submit" } %>
+    </div>
+  <% end %>
+</div>

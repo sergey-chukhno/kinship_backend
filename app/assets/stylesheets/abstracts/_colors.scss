@@ -1,0 +1,48 @@
+// Primary Colors
+$primary: #ffb932;
+$primary-acc-1: #ee962f;
+$primary-acc-2: #d67300;
+$primary-light-1: #ffce70;
+$primary-light-2: #ffe3ad;
+$primary-light-3: #fff8ea;
+
+// Secondary Colors
+$color-var-1: #59c3c3;
+$color-var-1-light: #c9fcfc;
+$color-var-2: #84a98c;
+$color-var-2-light: #e0fae5;
+$color-var-3: #eb5160;
+$color-var-3-light: #ffd7db;
+$color-var-4: #52489c;
+$color-var-4-light: #d5d0fb;
+$color-var-5: #783a7f;
+$color-var-5-light: #f7d1fb;
+
+// Black Colors
+$white: #ffffff;
+$dark-01: #181528;
+$grey-01: #3c385b;
+$grey-02: #68638e;
+$grey-03: #9b96c1;
+$grey-04: #d5d1f4;
+$grey-05: #e9e7fa;
+$grey-06: #f8f7ff;
+$grey-07: #fbfaff;
+
+$colors: "primary" $primary, "primary-acc-1" $primary-acc-1,
+  "primary-acc-2" $primary-acc-2, "primary-light-1" $primary-light-1,
+  "primary-light-2" $primary-light-2, "primary-light-3" $primary-light-3,
+  "color-var-1" $color-var-1, "color-var-1-light" $color-var-1-light,
+  "color-var-2" $color-var-2, "color-var-2-light" $color-var-2-light,
+  "color-var-3" $color-var-3, "color-var-3-light" $color-var-3-light,
+  "color-var-4" $color-var-4, "color-var-4-light" $color-var-4-light,
+  "color-var-5" $color-var-5, "color-var-5-light" $color-var-5-light,
+  "white" $white, "dark-01" $dark-01, "grey-01" $grey-01, "grey-02" $grey-02,
+  "grey-03" $grey-03, "grey-04" $grey-04, "grey-05" $grey-05, "grey-06" $grey-06,
+  "grey-07" $grey-07;
+
+@each $name, $color in $colors {
+  .#{$name} {
+    color: $color !important;
+  }
+}

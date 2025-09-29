@@ -1,0 +1,81 @@
+<%= render "project_admin_panel/layout" do %>
+  <div class="admin-panel-member__container">
+    <% if params[:status] == "confirmed" %>
+      <%= link_to new_project_admin_panel_project_member_path(project_id: @project_id), class: "tab-bar-container__add-button btn-primary tooltip relative align-self-end", data: { turbo_frame: "new-modal" } do %>
+        <%= show_svg "add.svg" %>
+        Ajouter des participants
+      <% end %>
+    <% end %>
+    <% if @members.empty? %>
+      <div class="admin-panel-member__empty">
+        <p class="admin-panel-member__empty--text s-paragraph grey-02">
+          <% if params[:status] == "pending" %>
+            Aucune demande de participation en attente
+          <% else %>
+            Aucun participant rattaché
+          <% end %>
+        </p>
+      </div>
+    <% end %>
+    <% @members.each do |member| %>
+      <%= turbo_frame_tag dom_id(member), class: "admin-panel-member__card" do %>
+        <div class="admin-panel-member__card--content">
+          <p class="s-paragraph-bold dark-01"><%= member.user.full_name %></p>
+          <%= render Common::Tag::TagComponent.new(color: color_for_user_role(member.user.role)) do %>
+            <%= t(member.user.role, scope: [:models, :user, :roles]) %>
+          <% end %>
+          <% if params[:status] == "confirmed" %>
+            <%= simple_form_for member,
+                        url: update_team_project_admin_panel_project_member_path(member.user),
+                        method: :put,
+                        data: {
+                          controller: "submit",
+                          submit_target: "form"
+                        },
+                        html: {
+                          class: "",
+                          id: "#{dom_id(member)}_update_admin",
+                        } do |f| %>
+              <%= f.hidden_field :project_id, value: @project.id %>
+              <%= f.input :team_id,
+                  as: :select,
+                  label: false,
+                  include_blank: member.teams.find_by(project: @project).present? ? "Sélectionner une équipe" : nil,
+                  prompt: "Sélectionner une équipe",
+                  selected: member.teams.find_by(project: @project)&.id,
+                  collection: @teams_collection,
+                  input_html: {
+                    class: "mini-select",
+                    # disabled: member.owner? || member.pending?,
+                    data: {
+                      action: "change->submit#submit"
+                    }
+                  } %>
+            <% end %>
+          <% end %>
+        </div>
+        <div class="admin-panel-member__card--inputs">
+          <%= simple_form_for member, url: project_admin_panel_project_members_update_confirmation_path(member), method: :put, html: { class: "admin-panel-member__card--inputs", id: "update_confirmation_#{dom_id(member)}", data: { controller: "submit update-admin-panel-member-status-text", submit_target: "form" } } do |f| %>
+            <%= f.hidden_field :project_id, value: @project.id %>
+            <span class="xxs-paragraph <%= member.confirmed? ? "color-var-2" : "grey-03" %>" data-update-admin-panel-member-status-text-target="textStatus"><%= member.confirmed? ? "Rattaché" : "En attente" %></span>
+            <input type="checkbox" class="btn-toggle" <%= "checked" if member.confirmed? %> data-action="change->submit#submit change->update-admin-panel-member-status-text#updateStatus">
+          <% end %>
+
+        
+          <% if member.confirmed? %>
+            <%= simple_form_for member, url:  project_admin_panel_project_members_update_admin_status_path(member), method: :put,  html: { class: "admin-panel-member__card--inputs", id: "update_admin_status_#{dom_id(member)}", data: { controller: "submit update-admin-panel-member-status-text", submit_target: "form" } } do |f| %>
+              <%= f.hidden_field :project_id, value: @project.id %>
+              <span class="xxs-paragraph <%= member.admin? ? "color-var-2" : "grey-03" %>">Admin</span>
+              <input type="checkbox" class="btn-toggle" <%= "checked" if member.admin? %> data-action="change->submit#submit change->update-admin-panel-member-status-text#updateAdminText">
+            <% end %>
+          <% end %>
+        
+          
+          <%= button_to project_admin_panel_project_member_path(member), method: :delete, class: "btn-trash grey-02" do %>
+            <%= show_svg "trash.svg", class: "w-full" %>
+          <% end %>
+        </div>
+      <% end %>
+    <% end %>
+  </div>
+<% end %>

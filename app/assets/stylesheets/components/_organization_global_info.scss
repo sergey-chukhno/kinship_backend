@@ -1,0 +1,116 @@
+.organization-global-info__container {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.organization-global-info__card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 20px;
+  background-color: $white;
+  border: 1px solid $grey-05;
+  border-radius: 4px;
+}
+.organization-global-info__card--menu {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.organization-global-info__card--menu--button {
+  color: $primary;
+  background-color: $primary-light-3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.organization-global-info__card--menu--items {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  gap: 8px;
+  padding: 10px;
+  position: absolute;
+  z-index: 10;
+  top: 100%;
+  right: 0;
+  background-color: $white;
+  border: 1px solid $grey-05;
+  border-radius: 8px;
+}
+.organization-global-info__card--menu--item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  color: $grey-02;
+  font-size: 14px;
+  font-weight: 500;
+  background-color: transparent;
+  svg {
+    width: 18px;
+    height: 18px;
+    color: $primary;
+    background-color: transparent;
+    border-radius: 0;
+  }
+  &:hover {
+    background-color: $primary-light-3;
+  }
+}
+.organization-global-info__card--name-and-status {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.organization-global-info__card--school-levels {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: fit-content;
+  gap: 8px;
+
+  font-size: 12px;
+  font-weight: 400;
+  color: $grey-02;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+.organization-global-info__card--stats {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px 24px;
+}
+.organization-global-info__card--stat {
+  display: flex;
+  flex-direction: row;
+  gap: 4px;
+  align-items: center;
+
+  font-size: 10px;
+  font-weight: 400;
+  color: $grey-02;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}

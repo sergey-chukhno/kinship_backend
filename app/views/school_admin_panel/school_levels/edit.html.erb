@@ -1,0 +1,15 @@
+<%= render "school_admin_panel/layout" do %>
+  <div class="admin-panel__form">
+    <p class="paragraph dark-01"><%= t(:title, scope: [:layouts, :school_admin_panel, :school_level]) %></p>
+    <%= simple_form_for @school, url: school_admin_panel_school_level_path(@school), method: :put, data: { controller: "nested-form", nested_form_wrapper_selector_value: '.nested-form-wrapper' } do |f| %>
+      <%= render "edit_form", f: f %>
+    <% end %>
+  </div>
+
+  <div class="admin-panel__form">
+    <p class="paragraph dark-01"><%= t(:title2, scope: [:layouts, :school_admin_panel, :school_level]) %></p>
+    <%= simple_form_for @custom_school_level, url: school_admin_panel_school_levels_path(id: @school), method: :post do |f| %>
+      <%= render "new_form", f: f %>
+    <% end %>
+  </div>
+<% end %>

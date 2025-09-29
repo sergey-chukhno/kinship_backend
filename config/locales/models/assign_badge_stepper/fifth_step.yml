@@ -1,0 +1,9 @@
+fr:
+  activemodel:
+    attributes:
+      assign_badge_stepper/fifth_step:
+        project_title: Indiquer le nom du projet
+        project_description: Indiquer la description du projet
+        documents:
+          label: Ajouter des documents justificatifs
+          hint: todo

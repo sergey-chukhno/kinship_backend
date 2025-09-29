@@ -1,0 +1,91 @@
+fr:
+  registration:
+    title:
+      tutor: "Inscription Parent"
+      voluntary: "Inscription Volontaire"
+      teacher: "Inscription Enseignant"
+    second_step:
+      profile:
+        title:
+          tutor: "Mes informations générales"
+          voluntary: "Mes informations générales"
+          teacher: "Mes informations générales"
+        email:
+          label:
+            tutor: "Adresse email"
+            voluntary: "Adresse email"
+            teacher: "Adresse email académique"
+        contact_email:
+          tips: "Recevoir les discussions Kinship sur votre adresse email académique ?"
+          label: "Adresse email de correspondance"
+        first_name:
+          label:
+            tutor: "Prénom"
+            voluntary: "Prénom"
+            teacher: "Prénom"
+        last_name:
+          label:
+            tutor: "Nom"
+            voluntary: "Nom"
+            teacher: "Nom"
+      schools:
+        title:
+          tutor: "Je demande mon rattachement à un établissement scolaire"
+          voluntary: "Je souhaite rejoindre le réseau d'un établissement scolaire"
+          teacher: "Je demande mon rattachement à un établissement scolaire"
+        new:
+          title:
+            tutor: "Nouvelle établissement"
+            voluntary: "Nouvelle établissement"
+            teacher: "Nouvelle établissement"
+          button:
+            tutor: "Ajouter un autre établissement"
+            voluntary: "Ajouter un autre établissement"
+            teacher: "Ajouter un autre établissement"
+        school:
+          label:
+            tutor: "Établissement scolaire"
+            voluntary: "Établissement scolaire"
+            teacher: "Établissement scolaire"
+          hint:
+            tutor: "Renseignez le nom de votre établissement, son code postal, la ville pour afficher la liste des écoles"
+            voluntary: "Renseignez le nom de votre établissement, son code postal, la ville pour afficher la liste des écoles"
+            teacher: "Renseignez le nom de votre établissement, son code postal, la ville pour afficher la liste des écoles"
+        school_level:
+          label:
+            voluntary: "Mes classes dans cet établissement"
+            tutor: "Classes de mon (mes) enfant(s) dans cet étalissement"
+        dont_find_school_level: "Je ne trouve pas ma classe"
+        create_school_level:
+          level:
+            label: "Choisir un niveau"
+          name:
+            label: "Nom de la classe"
+          new:
+            button: "Ajouter une classe"
+        create_custom_school_level:
+          level:
+            label: "Préciser le niveau"
+            placeholder: "Ex: Terminale"
+          name:
+            label: "Préciser la spécialité de la classe"
+            placeholder: "Ex: STI2D"
+      company:
+        title:
+          tutor: "Je demande mon rattachement à une association, un organisme ou autre"
+          voluntary: "Je souhaite me rattacher à une association, une organisation ou autre"
+          teacher: "Je demande mon rattachement à une association, un organisme ou autre"
+      cgu:
+        title:
+          tutor: "Politique de confidentialité"
+          voluntary: "Politique de confidentialité"
+          teacher: "Politique de confidentialité"
+        accept_privacy_policy:
+          label: "J'accepte la politique de confidentialité"
+        accept_marketing:
+          label: "J’accepte de recevoir des informations ou la newsletter de Kinship Edu (6 par an maximum)"
+    third_step:
+      password:
+        label: "Mot de passe"
+      password_confirmation:
+        label: "Confirmation du mot de passe"

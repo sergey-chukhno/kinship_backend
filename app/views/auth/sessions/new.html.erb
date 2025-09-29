@@ -1,0 +1,13 @@
+<h1 class="title2 dark-01">Connexion</h1>
+<%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+  <%= f.input :email,
+              autofocus: true,
+              input_html: { autocomplete: "email" } %>
+  <%= f.input :password, input_html: { autocomplete: "current-password" } %>
+  <%= f.input :remember_me,
+              label: "Se souvenir de moi",
+              label_html: { class: 'check-box fs-12 mb-12px' },
+              as: :boolean if devise_mapping.rememberable? %>
+  <%= f.button :submit, "Se connecter", class: "btn-primary__full-width" %>
+<% end %>
+<%= render "auth/shared/links" %>

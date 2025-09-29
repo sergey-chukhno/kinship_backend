@@ -1,0 +1,37 @@
+<h1 class="title2 dark-01">
+  <% if @user_profile.company_form == "true" %>
+    Inscription d'une organisation
+  <% else %>
+    <%= t("registration.title.#{session[:user_role]["role"]}") %>
+  <% end %>
+</h1>
+<%= render StepperComponent.new(current_step: 1, role: session[:user_role]["role"], company_form: @user_profile.company_form) %>
+
+<%= simple_form_for @user_profile, url:  registration_stepper_second_steps_path, data: { controller: "reveal registration-slide" }, html: { class: "splide" } do |f| %>
+  <div class="splide__track form">
+    <div class="splide__list">
+      <div class="splide__slide form">
+        <%= render "profile_inputs", f: f %>
+      </div>
+      <% if @user_profile.company_form != "true" %>
+        <div class="splide__slide form">
+          <%= render "schools_inputs_new", f: f %>
+        </div>
+        <div class="splide__slide form">
+          <%= render "company_inputs", f: f %>
+        </div>
+      <% end %>
+      <div class="splide__slide form">
+        <%= render "marketing_cgu_inputs", f: f %>
+      </div>
+    </div>
+    <div class="splide__arrows splide__arrows--ltr form__wrapper--2col gap-15px">
+      <button class="splide__arrow splide__arrow--prev btn-secondary" type="button" aria-label="Previous slide" aria-controls="splide01-track">
+        Retour
+      </button>
+      <button class="splide__arrow splide__arrow--next btn-primary__full-width" type="button" aria-label="Next slide" aria-controls="splide01-track" data-registration-slide-target="submitButton">
+        Continuer
+      </button>
+    </div>
+  </div>
+<% end %>

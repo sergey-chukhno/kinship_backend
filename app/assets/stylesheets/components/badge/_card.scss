@@ -1,0 +1,63 @@
+.badge-cards-container {
+    display: block;
+    overflow-y: scroll;
+    max-height: 400px;
+}
+
+.badge-card {
+    width: 100%;
+    min-height: 227px;
+    border: 1px solid $grey-04;
+    border-radius: 10px;
+    padding: 15px;
+    box-sizing: border-box;
+    background-color: white;
+    margin-bottom: 16px;
+
+    &__header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+
+        &-icon {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+
+        &-title {
+            font-size: 18px;
+            color: $grey-01;
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        &-subtitle {
+            font-size: 13px;
+            font-weight: 300;
+            color: $grey-02;
+        }
+    }
+
+    &__body {
+        font-size: 14px;
+        color: #6a6a6a;
+
+        &__element {
+            margin: 4px 0;
+
+            &-name {
+                font-weight: 300;
+                font-size: 10px;
+                color: $grey-03;
+            }
+
+            &-value {
+                font-weight: 300;
+                font-size: 10px;
+                color: $grey-02;
+            }
+        }
+    }
+}

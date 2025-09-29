@@ -1,0 +1,6 @@
+<%= render "project_admin_panel/layout" do %>
+  <div class="project-form-container">
+    <%= render "projects/partials/form/form", project: @project, url: project_admin_panel_project_path(@project) %>
+    <%= render "projects/partials/stepper_card" %>
+  </div>
+<% end %>

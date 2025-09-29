@@ -1,0 +1,11 @@
+<h1>Inscription Elève - 15 ans</h1>
+
+<%= render StepperComponent.new(current_step: 2, role: "children" ) %>
+
+<div>
+  <%= render "user_skills/shared/user_skills_inputs",
+              user: @child,
+              title: "Souhaitez vous que votre enfant partage ses passions et autres compétences avec sa classe? (Projet, atelier...)",
+              default_dropdown_checked: "Non"
+              %>
+</div>

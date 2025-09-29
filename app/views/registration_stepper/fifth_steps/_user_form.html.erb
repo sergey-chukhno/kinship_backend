@@ -1,0 +1,25 @@
+<h1><%= title_sign_up_stepper(current_user.role) %></h1>
+<%= render StepperComponent.new(current_step: current_user.role == "teacher" ? 3 : 4, role: current_user.role) %>
+
+<%= simple_form_for @user, url: registration_stepper_fifth_step_path(@user), data: { controller: "reveal registration-slide" }, html: { class: "splide" } do |f| %>
+  <div class="splide__track form">
+    <div class="splide__list">
+      <div class="splide__slide form">
+        <%= render "registration_stepper/fifth_steps/user_form/availability", f: f %>
+      </div>
+      <% unless @user.teacher? %>
+        <div class="splide__slide form">
+          <%= render "registration_stepper/fifth_steps/user_form/networks", f: f %>
+        </div>
+      <% end %>
+    </div>
+    <div class="splide__arrows splide__arrows--ltr form__wrapper--2col gap-15px">
+      <button class="splide__arrow splide__arrow--prev btn-secondary" type="button" aria-label="Previous slide" aria-controls="splide01-track">
+        Retour
+      </button>
+      <button class="splide__arrow splide__arrow--next btn-primary__full-width" type="button" aria-label="Next slide" aria-controls="splide01-track" data-registration-slide-target="submitButton">
+        Continuer
+      </button>
+    </div>
+  </div>
+<% end %>

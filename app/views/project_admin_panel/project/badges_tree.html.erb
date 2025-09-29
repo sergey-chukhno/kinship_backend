@@ -1,0 +1,65 @@
+<%= render "project_admin_panel/layout" do %>
+  <div class="admin-panel-member__container">
+    <div class="main-container main-container--responsive mt-0px">
+      <div class="flex space-between">
+        <h1 class="subtitle dark-01">Statistiques des badges délivrés sur le projet</h1>
+        <% unless params[:public_access] %>
+          <div class="badges-container__copy-link">
+            <%= show_svg "copy.svg" %>
+            <span class="s-paragraph primary text-underlined"
+            data-controller="copy"
+            data-action="click->copy#copyToClipboard"
+              data-copy-content-to-copy-value="<%= request.original_url %>?public_access=true&token=<%= SecureRandom.hex %>">
+              Copier le lien vers la cartographie des badges
+            </span>
+          </div>
+        <% end %>
+      </div>
+      <div class="badges-container badges-container--full-width">
+        <div class="badges-container__content badges-container__content--no-background">
+          <div class="badges-container__tree">
+            <div class="badges-container__tree-header-column">
+              <% @percentage_per_category.each do |category, percentage| %>
+                <div class="badges-container__tree-header-column--row">
+                  <span class="badges-container__tree-column-title"><%= category %></span>
+                  <span class="badges-container__tree-column-progress <%= "color-var-1" if percentage.positive? %>">
+                    <%= percentage %>%
+                  </span>
+                </div>
+              <% end %>
+            </div>
+            <div class="badges-container__tree-columns">
+              <% Badge.levels.each_with_index do |level, level_index| %>
+                <div class="badges-container__tree-column">
+                  <span class="badges-container__tree-column-title">
+                    <%= t("activerecord.attributes.badge.levels.level_#{level_index + 1}") %>
+                  </span>
+                  <% @percentage_per_category.each do |category, _| %>
+                    <% user_badges_count = @user_badges_per_level[[category, "level_#{level_index + 1}"]] || 0 %>
+                    <div class="badges-container__tree-row">
+                      <% if user_badges_count.positive? %>
+                        <%= link_to project_admin_panel_project_modal_badges_details_path(
+                              project_id: @project.id,
+                              badge_name: category
+                            ),
+                            data: { turbo_frame: "modal" },
+                            class: "badges-container__tree-row--blue-square",
+                            style: { "height:": "#{((user_badges_count.to_f / 20) * 100).ceil}%" } do %>
+                              <div class="badges-container__tree-row--blue-square" style="height: <%= ((user_badges_count.to_f / 20) * 100).ceil %>%;">
+                                <%= user_badges_count %>
+                              </div>
+                        <% end %>
+                      <% else %>
+                        <div class="badges-container__tree-row--empty-square"></div>
+                      <% end %>
+                    </div>
+                  <% end %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

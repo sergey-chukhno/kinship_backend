@@ -1,0 +1,11 @@
+fr:
+  assign_badge_stepper:
+    fourth_step:
+      new:
+        title: "Attribuer un badge"
+        description: "Détails de l'attribution"
+        description_2: "Cochez les savoir-faire observés au cours de cette expérience"
+        description_3: "(Au minimum 2 compétences + la compétence obligatoire)"
+        actions:
+          back: "Retour"
+          submit: "Continuer"

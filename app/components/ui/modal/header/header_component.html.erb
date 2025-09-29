@@ -1,0 +1,12 @@
+<div class="new-modal__header">
+  <div class="new-modal__header__left">
+    <%= render(Ui::Button::ButtonComponent.new(builder: :link, path: @back_link, style: :ghost, size: :sm, square: true)) do %>
+      <%= render(Ui::Icon::IconComponent.new(icon: "new/arrow-left", size: "20", color: "dark-01")) %>
+    <% end if @back_link %>
+    <h2 class="paragraph grey-01"><%= @title %></h2>
+  </div>
+
+  <%= render(Ui::Button::ButtonComponent.new(builder: :button, type: :button, style: :ghost, size: :sm, square: true, data: { action: "ui--modal#closeBtn" })) do %>
+    <%= render(Ui::Icon::IconComponent.new(icon: "new/x", size: "20", color: "dark-01")) %>
+  <% end %>
+</div>

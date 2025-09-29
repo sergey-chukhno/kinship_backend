@@ -1,0 +1,17 @@
+<div class="footer-container">
+  <div class="footer">
+    <%= link_to "https://www.kinshipedu.fr/parents", target:"_blank", class: "footer--link" do %>
+      <%= show_svg "kinship_text.svg" %>
+      Parent
+    <% end %>
+    <span class="separator"></span>
+    <%= link_to "https://www.kinshipedu.fr", target: "_blank", class: "footer--link" do %>
+      <%= show_svg "kinship_text.svg" %>
+      Enseignant
+    <% end %>
+    <span class="separator"></span>
+    <%= link_to "Mentions légales","https://www.kinshipedu.fr/mentions-legales", target:"_blank", class: "footer--link" %>
+    <span class="separator"></span>
+    <%= mail_to "support@kinshipedu.fr", class: "footer--link" %>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+en:
+  simple_form:
+    "yes": 'Oui'
+    "no": 'Non'
+    required:
+      text: 'obligatoire'
+      mark: '*'
+    error_notification:
+      default_message: "Merci de vérifier les erreurs ci-dessous :"

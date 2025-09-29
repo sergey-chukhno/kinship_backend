@@ -1,0 +1,278 @@
+<header class="navbar__wrapper">
+  <nav class="navbar">
+    <%= link_to root_path, class: "navbar__brand" do %>
+      <%= helpers.show_svg "kinship_brand.svg" %>
+    <% end %>
+    <ul class="navbar__main-links">
+      <%= link_to "Découvrir les projets",
+                  projects_path,
+                  class: "navbar__main-links__link s-paragraph",
+                  current: request.path.include?((projects_path) || request.path == "/") && !request.path.include?(participants_path) %>
+      <%= link_to "Découvrir les partenaires",
+                  participants_path,
+                  class: "navbar__main-links__link s-paragraph",
+                  current: request.path.include?(participants_path) %>
+    </ul>
+    <button class="navbar__menu" data-controller="dropdown" data-action="dropdown#toggle click@window->dropdown#hide">
+      <div class="navbar__menu__link s-paragraph">
+        <%= helpers.show_svg "user.svg" %>
+        <%= @current_user.full_name %>
+        <%= helpers.show_svg "chevron-down.svg" %>
+      </div>
+      <ul class="navbar__menu__list hidden"
+            data-dropdown-target="menu"
+            data-transition-enter-from="opacity-0"
+            data-transition-enter-to="opacity-100"
+            data-transition-leave-from="opacity-100"
+            data-transition-leave-to="opacity-0">
+        <%= link_to edit_account_profile_path(helpers.current_user),
+                      class: "navbar__menu__item xs-paragraph" do %>
+          <%= helpers.show_svg "user.svg" %>
+          Mon profil
+        <% end %>
+        <li class="navbar__submenu xs-paragraph">
+          <%= helpers.show_svg "award.svg" %>
+          Mes badges
+          <ul class="navbar__submenu__list">
+            <%= link_to account_profile_badges_tree_path(helpers.current_user),
+                        class: "navbar__submenu__item xs-paragraph" do %>
+              Mes badges personnels
+            <% end %>
+            <% @current_user.childrens.each do |child| %>
+              <%= link_to account_profile_badges_tree_path(child),
+                        class: "navbar__submenu__item xs-paragraph" do %>
+                Les badges de <%= child.full_name %>
+              <% end %>
+            <% end %>
+          </ul>
+        </li>
+        <% if render_schools_admin_panel? && @current_user.schools_admin.any? %>
+          <li class="navbar__submenu xs-paragraph">
+            <%= helpers.show_svg "chevron-left.svg" %>
+            Administration Établissements
+            <ul class="navbar__submenu__list">
+              <% @current_user.schools_admin.each do |school_admin| %>
+                <%= link_to school_admin_panel_school_member_path(school_admin, status: :pending),
+                              class: "navbar__submenu__item xs-paragraph" do %>
+                  <%= helpers.show_svg "user-round-cog.svg" %>
+                  <%= school_admin.full_name %>
+                  <% if school_admin.users_waiting_for_confirmation? %>
+                    <%= render Common::Tag::TagComponent.new(color: "grey") do %>
+                      <%= school_admin.users_waiting_for_confirmation.count %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </ul>
+          </li>
+        <% end %>
+        <% if render_companies_admin_panel? && @current_user.companies_admin.any? %>
+          <li class="navbar__submenu xs-paragraph">
+            <%= helpers.show_svg "chevron-left.svg" %>
+            Administration Organisations
+            <ul class="navbar__submenu__list">
+              <% @current_user.companies_admin.each do |company_admin| %>
+                <%= link_to company_admin_panel_company_member_path(company_admin, status: :pending),
+                              class: "navbar__submenu__item xs-paragraph" do %>
+                  <%= helpers.show_svg "user-round-cog.svg" %>
+                  <%= company_admin.full_name %>
+                  <% if company_admin.users_waiting_for_confirmation? %>
+                    <%= render Common::Tag::TagComponent.new(color: "grey") do %>
+                      <%= company_admin.users_waiting_for_confirmation.count %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </ul>
+          </li>
+        <% end %>
+        <% if @current_user.projects_owner.where.not(status: "ended").any? %>
+          <li class="navbar__submenu xs-paragraph">
+            <%= helpers.show_svg "chevron-left.svg" %>
+            Administration Projets
+            <ul class="navbar__submenu__list">
+              <% @current_user.projects_owner.where.not(status: "ended").each do |project_owner| %>
+                <%= link_to project_admin_panel_project_member_path(project_owner, status: :pending),
+                              class: "navbar__submenu__item xs-paragraph" do %>
+                  <%= helpers.show_svg "user-round-cog.svg" %>
+                  <%= project_owner.title.truncate(30) %>
+                  <% if project_owner.pending_participants? %>
+                    <%= render Common::Tag::TagComponent.new(color: "grey") do %>
+                      <%= project_owner.pending_participants.count %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </ul>
+          </li>
+        <% end %>
+        <% if @current_user.admin? %>
+          <%= link_to admin_users_path,
+                        class: "navbar__menu__item xs-paragraph" do %>
+            <%= helpers.show_svg "shield.svg" %>
+            Administration
+          <% end %>
+        <% end %>
+        <%= link_to destroy_user_session_path,
+                      data: {
+                        turbo_method: :delete
+                      },
+                      class: "navbar__menu__item xs-paragraph" do %>
+          <%= helpers.show_svg "log-out.svg" %>
+          Se déconnecter
+        <% end %>
+      </ul>
+    </button>
+  </nav>
+  <nav class="navbar-mobile">
+    <%= link_to projects_path,
+                class: "navbar-mobile__link xs-paragraph dark-01",
+                current: true do %>
+      <div class="navbar-mobile__link__icon">
+        <%= helpers.show_svg "magnifying_glass.svg" %>
+      </div>
+      Projets
+    <% end %>
+    <%= link_to participants_path,
+                class: "navbar-mobile__link xs-paragraph dark-01",
+                current: request.path.include?(participants_path) do %>
+      <div class="navbar-mobile__link__icon">
+        <%= helpers.show_svg "identification-card.svg" %>
+      </div>
+      Réseaux
+    <% end %>
+    <button class="navbar-mobile__link xs-paragraph dark-01" data-controller="dropdown" data-action="dropdown#toggle click@window->dropdown#hide">
+      <div class="navbar-mobile__link__icon">
+        <%= helpers.show_svg "user.svg" %>
+      </div>
+      Profil
+      <ul class="navbar-mobile__menu hidden"
+          data-dropdown-target="menu"
+          data-transition-enter-from="opacity-0"
+          data-transition-enter-to="opacity-100"
+          data-transition-leave-from="opacity-100"
+          data-transition-leave-to="opacity-0">
+        <%= link_to edit_account_profile_path(helpers.current_user),
+                      class: "navbar-mobile__menu__item xs-paragraph" do %>
+          <%= helpers.show_svg "user.svg" %>
+          Mon profil
+        <% end %>
+        <li class="navbar-mobile__submenu xs-paragraph" data-controller="dropdown" data-action="click->dropdown#toggle click@window->dropdown#hide">
+          <%= helpers.show_svg "award.svg" %>
+          Mes badges
+          <ul class="navbar-mobile__submenu__list hidden"
+              data-dropdown-target="menu"
+              data-transition-enter-from="opacity-0"
+              data-transition-enter-to="opacity-100"
+              data-transition-leave-from="opacity-100"
+              data-transition-leave-to="opacity-0">
+            <%= link_to account_profile_badges_tree_path(helpers.current_user),
+                        class: "navbar__submenu__item xs-paragraph" do %>
+              Mes badges personnels
+            <% end %>
+            <% @current_user.childrens.each do |child| %>
+              <%= link_to account_profile_badges_tree_path(child),
+                        class: "navbar__submenu__item xs-paragraph" do %>
+                Les badges de <%= child.full_name %>
+              <% end %>
+            <% end %>
+          </ul>
+        </li>
+        <% if render_schools_admin_panel? %>
+          <li class="navbar-mobile__submenu xs-paragraph" data-controller="dropdown" data-action="click->dropdown#toggle click@window->dropdown#hide">
+            <%= helpers.show_svg "chevron-left.svg" %>
+            Administration Établissements
+            <ul class="navbar-mobile__submenu__list hidden"
+                data-dropdown-target="menu"
+                data-transition-enter-from="opacity-0"
+                data-transition-enter-to="opacity-100"
+                data-transition-leave-from="opacity-100"
+                data-transition-leave-to="opacity-0">
+              <% @current_user.schools_admin.each do |school_admin| %>
+                <%= link_to school_admin_panel_school_member_path(school_admin, status: :pending),
+                              class: "navbar-mobile__submenu__item xs-paragraph" do %>
+                  <%= helpers.show_svg "user-round-cog.svg" %>
+                  <%= school_admin.full_name %>
+                  <% if school_admin.users_waiting_for_confirmation? %>
+                    <%= render Common::Tag::TagComponent.new(color: "grey") do %>
+                      <%= school_admin.users_waiting_for_confirmation.count %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </ul>
+          </li>
+        <% end %>
+        <% if render_companies_admin_panel? %>
+          <li class="navbar-mobile__submenu xs-paragraph" data-controller="dropdown" data-action="click->dropdown#toggle click@window->dropdown#hide">
+            <%= helpers.show_svg "chevron-left.svg" %>
+            Administration Organisations
+            <ul class="navbar-mobile__submenu__list hidden"
+                data-dropdown-target="menu"
+                data-transition-enter-from="opacity-0"
+                data-transition-enter-to="opacity-100"
+                data-transition-leave-from="opacity-100"
+                data-transition-leave-to="opacity-0">
+              <% @current_user.companies_admin.each do |company_admin| %>
+                <%= link_to company_admin_panel_company_member_path(company_admin, status: :pending),
+                              class: "navbar-mobile__submenu__item xs-paragraph" do %>
+                  <%= helpers.show_svg "user-round-cog.svg" %>
+                  <%= company_admin.full_name %>
+                  <% if company_admin.users_waiting_for_confirmation? %>
+                    <%= render Common::Tag::TagComponent.new(color: "grey") do %>
+                      <%= company_admin.users_waiting_for_confirmation.count %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </ul>
+          </li>
+        <% end %>
+        <% if @current_user.projects_owner.any? %>
+          <li class="navbar-mobile__submenu xs-paragraph" data-controller="dropdown" data-action="click->dropdown#toggle click@window->dropdown#hide">
+            <%= helpers.show_svg "chevron-left.svg" %>
+            Administration Projets
+            <ul class="navbar-mobile__submenu__list hidden"
+                data-dropdown-target="menu"
+                data-transition-enter-from="opacity-0"
+                data-transition-enter-to="opacity-100"
+                data-transition-leave-from="opacity-100"
+                data-transition-leave-to="opacity-0">
+              <% @current_user.projects_owner.each do |project_owner| %>
+                <%= link_to project_admin_panel_project_member_path(project_owner, status: :pending),
+                              class: "navbar-mobile__submenu__item xs-paragraph" do %>
+                  <%= helpers.show_svg "user-round-cog.svg" %>
+                  <%= project_owner.title.truncate(30) %>
+                  <% if project_owner.pending_participants? %>
+                    <%= render Common::Tag::TagComponent.new(color: "grey") do %>
+                      <%= project_owner.pending_participants.count %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              <% end %>
+            </ul>
+          </li>
+        <% end %>
+        <% if @current_user.admin? %>
+          <%= link_to admin_users_path,
+                        class: "navbar__menu__item xs-paragraph" do %>
+            <%= helpers.show_svg "shield.svg" %>
+            Administration
+          <% end %>
+        <% end %>
+        <%= link_to "https://www.kinshipedu.fr/mentions-legales", class: "navbar-mobile__menu__item xs-paragraph" do %>
+          <%= helpers.show_svg "newspaper.svg" %>
+          Mentions légales
+        <% end %>
+        <%= link_to destroy_user_session_path,
+                      data: {
+                        turbo_method: :delete
+                      },
+                      class: "navbar-mobile__menu__item xs-paragraph" do %>
+          <%= helpers.show_svg "log-out.svg" %>
+          Se déconnecter
+        <% end %>
+      </ul>
+    </button>
+  </nav>
+</header>
