@@ -15,10 +15,10 @@ info:
     name: Kinship API Support
     
 servers:
-- url: https://{defaultHost}
+- url: http://{default_host}
   variables:
-    defaultHost:
-      default: www.example.com
+    default_host:
+      default: http://localhost:3000
       description: API host URL
 
 paths:
