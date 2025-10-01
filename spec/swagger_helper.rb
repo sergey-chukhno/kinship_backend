@@ -24,14 +24,20 @@ RSpec.configure do |config|
       paths: {},
       servers: [
         {
-          url: 'https://{defaultHost}',
-          variables: {
-            defaultHost: {
-              default: 'www.example.com'
-            }
+          url: 'http://localhost:3000',
+          description: 'Development server'
+        }
+      ],
+      components: {
+        securitySchemes: {
+          ApiKeyAuth: {
+            type: :apiKey,
+            in: :query,
+            name: 'token',
+            description: 'API access token for V2 endpoints'
           }
         }
-      ]
+      }
     }
   }
 
