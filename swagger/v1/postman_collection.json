@@ -1,0 +1,182 @@
+{
+  "info": {
+    "name": "Kinship API",
+    "description": "API endpoints for Kinship backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Companies (V1)",
+      "item": [
+        {
+          "name": "List companies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/companies?full_name=&admin=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "companies"
+              ],
+              "query": [
+                {
+                  "key": "full_name",
+                  "value": "",
+                  "description": "Filter companies by full name (partial match)"
+                },
+                {
+                  "key": "admin",
+                  "value": "",
+                  "description": "Set to true to include unconfirmed companies"
+                }
+              ]
+            },
+            "description": "Returns a list of companies with optional filtering"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Schools (V1)",
+      "item": [
+        {
+          "name": "List schools",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/schools?name=&zip_code=&school_type=&admin=",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "schools"
+              ],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "",
+                  "description": "Filter schools by name"
+                },
+                {
+                  "key": "zip_code",
+                  "value": "",
+                  "description": "Filter schools by zip code"
+                },
+                {
+                  "key": "school_type",
+                  "value": "",
+                  "description": "Filter schools by type"
+                },
+                {
+                  "key": "admin",
+                  "value": "",
+                  "description": "Set to true to include unconfirmed schools"
+                }
+              ]
+            },
+            "description": "Returns a list of schools with optional filtering"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users (V2)",
+      "item": [
+        {
+          "name": "List users",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/users?token={{api_token}}&query=&page=1",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{api_token}}",
+                  "description": "API access token (required)"
+                },
+                {
+                  "key": "query",
+                  "value": "",
+                  "description": "Search query for filtering users"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number for pagination"
+                }
+              ]
+            },
+            "description": "Returns a paginated list of users (requires authentication)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get user details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/users/:id?token={{api_token}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "v2",
+                "users",
+                ":id"
+              ],
+              "query": [
+                {
+                  "key": "token",
+                  "value": "{{api_token}}",
+                  "description": "API access token (required)"
+                }
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "1",
+                  "description": "User ID"
+                }
+              ]
+            },
+            "description": "Returns detailed information about a specific user (requires authentication)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "api_token",
+      "value": "your-api-token-here",
+      "type": "string"
+    }
+  ]
+}

@@ -1,53 +1,37 @@
 ---
 openapi: 3.0.1
 info:
-  title: Kinship API
-  description: |
-    API for the Kinship platform - a Rails application facilitating educational partnerships 
-    between schools, companies, and volunteers. The platform enables project-based learning where 
-    students, teachers, and company mentors collaborate on educational projects.
-    
-    **Authentication:**
-    - API V1 endpoints: Public access with optional admin parameter
-    - API V2 endpoints: Token-based authentication required (pass token as query parameter)
+  title: API V1
   version: v1
-  contact:
-    name: Kinship API Support
-    
-servers:
-- url: https://{defaultHost}
-  variables:
-    defaultHost:
-      default: www.example.com
-      description: API host URL
-
 paths:
-  /api/v1/companies:
+  "/api/v1/companies":
     get:
       summary: List companies
-      description: |
-        Returns a list of companies with optional filtering. 
-        By default, only confirmed companies are returned unless admin parameter is set to true.
       tags:
-        - Companies (V1)
+      - Companies (V1)
+      description: "Returns a list of companies with optional filtering. \nBy default,
+        only confirmed companies are returned unless admin parameter is set to true.\n"
       parameters:
-        - name: full_name
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Filter companies by full name (partial match)
-          example: "Tech Corp"
-        - name: admin
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: ["true", "false"]
-          description: Set to "true" to include unconfirmed companies (admin access)
+      - name: full_name
+        in: query
+        required: false
+        description: Filter companies by full name (partial match)
+        example: Tech Corp
+        schema:
+          type: string
+      - name: admin
+        in: query
+        required: false
+        description: "Set to \"true\" to include unconfirmed companies (admin access):\n
+          * `true` \n * `false` \n "
+        enum:
+        - 'true'
+        - 'false'
+        schema:
+          type: string
       responses:
         '200':
-          description: Successful response
+          description: successful
           content:
             application/json:
               schema:
@@ -61,61 +45,58 @@ paths:
                     full_name:
                       type: string
                       description: Full company name
-              example:
-                - id: 1
-                  full_name: "Tech Solutions Inc"
-                - id: 2
-                  full_name: "Digital Innovations Ltd"
-
-  /api/v1/schools:
+  "/api/v1/schools":
     get:
       summary: List schools
+      tags:
+      - Schools (V1)
       description: |
         Returns a list of schools with optional filtering by name, zip code, and school type.
         By default, only confirmed schools are returned unless admin parameter is set to true.
         Results are limited to 20 records.
-      tags:
-        - Schools (V1)
       parameters:
-        - name: name
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Filter schools by name (partial match)
-          example: "Lycée"
-        - name: zip_code
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Filter schools by zip code
-          example: "75001"
-        - name: school_type
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Filter schools by type
-          example: "Lycée"
-        - name: admin
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: ["true", "false"]
-          description: Set to "true" to include unconfirmed schools (admin access)
-        - name: q
-          in: query
-          required: false
-          schema:
-            type: object
-          description: Advanced search query object (Ransack format)
-          style: deepObject
-          explode: true
+      - name: name
+        in: query
+        required: false
+        description: Filter schools by name (partial match)
+        example: Lycée
+        schema:
+          type: string
+      - name: zip_code
+        in: query
+        required: false
+        description: Filter schools by zip code
+        example: '75001'
+        schema:
+          type: string
+      - name: school_type
+        in: query
+        required: false
+        description: Filter schools by type
+        example: lycee
+        schema:
+          type: string
+      - name: admin
+        in: query
+        required: false
+        description: "Set to \"true\" to include unconfirmed schools (admin access):\n
+          * `true` \n * `false` \n "
+        enum:
+        - 'true'
+        - 'false'
+        schema:
+          type: string
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: object
+        description: Advanced search query object (Ransack format)
+        style: deepObject
+        explode: true
       responses:
         '200':
-          description: Successful response
+          description: successful
           content:
             application/json:
               schema:
@@ -134,159 +115,36 @@ paths:
                       description: School zip code
                     school_type:
                       type: string
-                      description: Type of school (e.g., Lycée, Collège)
-              example:
-                - id: 1
-                  full_name: "Lycée Victor Hugo"
-                  zip_code: "75001"
-                  school_type: "Lycée"
-                - id: 2
-                  full_name: "Collège Montaigne"
-                  zip_code: "75006"
-                  school_type: "Collège"
-
-  /api/v2/users:
-    get:
-      summary: List users with pagination
-      description: |
-        Returns a paginated list of users accessible to the API token holder.
-        Only users who are confirmed members of companies associated with the API access token are returned.
-        Supports search by first name or last name.
-      tags:
-        - Users (V2)
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - name: token
-          in: query
-          required: true
-          schema:
-            type: string
-          description: API access token for authentication
-          example: "your-api-token-here"
-        - name: query
-          in: query
-          required: false
-          schema:
-            type: string
-          description: Search query for filtering users by first name or last name
-          example: "John Doe"
-        - name: page
-          in: query
-          required: false
-          schema:
-            type: integer
-            default: 1
-          description: Page number for pagination
-      responses:
-        '200':
-          description: Successful response with paginated user data
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                          description: User ID
-                        first_name:
-                          type: string
-                          description: User's first name
-                        last_name:
-                          type: string
-                          description: User's last name
-                        email:
-                          type: string
-                          format: email
-                          description: User's email address
-                        role:
-                          type: string
-                          description: User's role in the system
-                          enum: ["teacher", "tutor", "volunteer", "children"]
-                  meta:
-                    type: object
-                    properties:
-                      count:
-                        type: integer
-                        description: Total number of users
-                      pages:
-                        type: integer
-                        description: Total number of pages
-                      prev:
-                        type: integer
-                        nullable: true
-                        description: Previous page number
-                      next:
-                        type: integer
-                        nullable: true
-                        description: Next page number
-                      page:
-                        type: integer
-                        description: Current page number
-              example:
-                data:
-                  - id: 1
-                    first_name: "John"
-                    last_name: "Doe"
-                    email: "john.doe@example.com"
-                    role: "teacher"
-                  - id: 2
-                    first_name: "Jane"
-                    last_name: "Smith"
-                    email: "jane.smith@example.com"
-                    role: "volunteer"
-                meta:
-                  count: 45
-                  pages: 3
-                  prev: null
-                  next: 2
-                  page: 1
-        '401':
-          description: Unauthorized - Invalid or missing API token
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  error:
-                    type: string
-              example:
-                error: "Invalid API token"
-
-  /api/v2/users/{id}:
+                      description: Type of school (e.g., lycee, college)
+  "/api/v2/users/{id}":
     get:
       summary: Get user details
-      description: |
-        Returns detailed information about a specific user including their skills, badges received, 
-        and project participation. Access is restricted to users who are confirmed members of 
-        companies associated with the API access token.
       tags:
-        - Users (V2)
+      - Users (V2)
       security:
-        - ApiKeyAuth: []
+      - ApiKeyAuth: []
+      description: "Returns detailed information about a specific user including their
+        skills, badges received, \nand project participation. Access is restricted
+        to users who are confirmed members of \ncompanies associated with the API
+        access token.\n"
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: integer
-          description: User ID
-          example: 1
-        - name: token
-          in: query
-          required: true
-          schema:
-            type: string
-          description: API access token for authentication
-          example: "your-api-token-here"
+      - name: id
+        in: path
+        required: true
+        description: User ID
+        example: 1
+        schema:
+          type: integer
+      - name: token
+        in: query
+        required: true
+        description: API access token for authentication
+        example: your-api-token-here
+        schema:
+          type: string
       responses:
         '200':
-          description: Successful response with detailed user information
+          description: successful
           content:
             application/json:
               schema:
@@ -376,42 +234,8 @@ paths:
                                 properties:
                                   name:
                                     type: string
-              example:
-                id: 1
-                first_name: "John"
-                last_name: "Doe"
-                email: "john.doe@example.com"
-                role: "teacher"
-                birthday: "1985-05-15"
-                role_additional_information: "Mathematics specialist"
-                job: "Senior Teacher"
-                company_name: "Tech High School"
-                certify: true
-                skills:
-                  - name: "Mathematics"
-                  - name: "Programming"
-                badges_received:
-                  - project_title: "AI Workshop"
-                    project_description: "Introduction to AI concepts"
-                    created_at: "2024-01-15T10:30:00Z"
-                    badge:
-                      id: 1
-                      name: "AI Mentor"
-                      level: "intermediate"
-                      badge_skills:
-                        - name: "Artificial Intelligence"
-                          category: "Technology"
-                project_members:
-                  - project:
-                      id: 1
-                      title: "Web Development Course"
-                      description: "Learn modern web development"
-                      skills:
-                        - name: "HTML"
-                        - name: "CSS"
-                        - name: "JavaScript"
         '401':
-          description: Unauthorized - Invalid API token or access denied
+          description: unauthorized
           content:
             application/json:
               schema:
@@ -419,9 +243,107 @@ paths:
                 properties:
                   error:
                     type: string
-              example:
-                error: "Unauthorized"
-
+  "/api/v2/users":
+    get:
+      summary: List users with pagination
+      tags:
+      - Users (V2)
+      security:
+      - ApiKeyAuth: []
+      description: |
+        Returns a paginated list of users accessible to the API token holder.
+        Only users who are confirmed members of companies associated with the API access token are returned.
+        Supports search by first name or last name.
+      parameters:
+      - name: token
+        in: query
+        required: true
+        description: API access token for authentication
+        example: your-api-token-here
+        schema:
+          type: string
+      - name: query
+        in: query
+        required: false
+        description: Search query for filtering users by first name or last name
+        example: John Doe
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        description: Page number for pagination
+        default: 1
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          description: User ID
+                        first_name:
+                          type: string
+                          description: User's first name
+                        last_name:
+                          type: string
+                          description: User's last name
+                        email:
+                          type: string
+                          format: email
+                          description: User's email address
+                        role:
+                          type: string
+                          description: User's role in the system
+                          enum:
+                          - teacher
+                          - tutor
+                          - voluntary
+                          - children
+                  meta:
+                    type: object
+                    properties:
+                      count:
+                        type: integer
+                        description: Total number of users
+                      pages:
+                        type: integer
+                        description: Total number of pages
+                      prev:
+                        type: integer
+                        nullable: true
+                        description: Previous page number
+                      next:
+                        type: integer
+                        nullable: true
+                        description: Next page number
+                      page:
+                        type: integer
+                        description: Current page number
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+servers:
+- url: https://{defaultHost}
+  variables:
+    defaultHost:
+      default: www.example.com
 components:
   securitySchemes:
     ApiKeyAuth:
@@ -429,11 +351,3 @@ components:
       in: query
       name: token
       description: API access token for V2 endpoints
-
-tags:
-  - name: Companies (V1)
-    description: Operations for managing and retrieving company information
-  - name: Schools (V1)
-    description: Operations for managing and retrieving school information
-  - name: Users (V2)
-    description: Operations for managing and retrieving user information (requires authentication)
