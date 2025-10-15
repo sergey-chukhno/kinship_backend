@@ -234,6 +234,51 @@ Material-UI / Ant Design        // Component library
 - ✅ Example React components
 - ✅ Error handling patterns
 
+### 🔄 Multi-Context User Experience
+
+**Critical Feature:** Users can have multiple roles/contexts simultaneously and switch between them without re-authentication.
+
+**Example User:**
+```
+Marie Dupont (marie@ac-nantes.fr)
+├─ Personal Context → User Dashboard
+│  └─ My profile, my projects, my badges
+│
+├─ Teacher Context → Teacher Dashboard  
+│  └─ My classes, my students, create projects
+│
+├─ Admin of "Lycée Victor Hugo" → School Dashboard
+│  └─ Manage school, approve teachers, partnerships
+│
+└─ Admin of "Tech Education Company" → Company Dashboard
+   └─ Manage company, members, projects, partnerships
+```
+
+**Context Switching:**
+- ✅ Single JWT token for all contexts
+- ✅ Switch dashboards without re-login
+- ✅ Context persisted in localStorage
+- ✅ Default to User Dashboard (or first available if organization-only account)
+
+**Special Case - Organization-Only Accounts:**
+```
+Some users register ONLY as organization admins (no personal profile)
+→ available_contexts.user_dashboard: false
+→ Default to first organization context
+→ Context switcher shows only organization options
+```
+
+**Frontend Implementation:**
+- **Single unified React app** with context-based routing
+- Context stored in React Context + localStorage
+- Context switcher in header/sidebar
+- Routes: `/dashboard/user`, `/dashboard/company/:id`, `/dashboard/school/:id`, `/dashboard/teacher`
+
+**Backend Support:**
+- Login response includes `available_contexts`
+- Each endpoint validates user has access to that context
+- Existing authorization already supports this pattern
+
 ### 🚀 Getting Started
 
 **Immediate Actions:**
@@ -249,6 +294,7 @@ Material-UI / Ant Design        // Component library
 - ✅ CORS configured
 - ✅ Base API structure created
 - ✅ First serializers implemented
+- ✅ Context switching logic implemented
 
 ---
 
@@ -583,7 +629,7 @@ class Api::V1::AuthController < Api::V1::BaseController
         token = generate_jwt(user)
         render json: {
           token: token,
-          user: UserSerializer.new(user)
+          user: UserSerializer.new(user, include_contexts: true)
         }, status: :ok
       else
         render json: { error: 'Email not confirmed' }, status: :unauthorized
@@ -1430,24 +1476,73 @@ end
 - Axios (with interceptors for JWT)
 ```
 
-### 6.2 Project Structure
+### 6.2 Project Structure (Single Unified App - RECOMMENDED)
 
 ```
-frontend/
-├── apps/
-│   ├── company-dashboard/
-│   ├── school-dashboard/
-│   ├── user-dashboard/
-│   └── teacher-dashboard/
-├── packages/
-│   ├── shared-ui/          # Shared components
-│   ├── api-client/         # API integration
-│   ├── auth/               # Authentication logic
-│   └── types/              # TypeScript types
-└── package.json
+kinship-frontend/
+├── src/
+│   ├── app/
+│   │   ├── App.tsx                    # Main app with routing
+│   │   ├── AppLayout.tsx              # Layout with context switcher
+│   │   └── routes.tsx                 # Route configuration
+│   │
+│   ├── contexts/
+│   │   ├── UserContext.tsx            # User + available contexts
+│   │   ├── DashboardContext.tsx       # Current dashboard context
+│   │   └── AuthContext.tsx            # Authentication state
+│   │
+│   ├── dashboards/
+│   │   ├── user/                      # Personal dashboard
+│   │   │   ├── pages/
+│   │   │   ├── components/
+│   │   │   └── index.tsx
+│   │   │
+│   │   ├── teacher/                   # Teacher dashboard
+│   │   │   ├── pages/
+│   │   │   ├── components/
+│   │   │   └── index.tsx
+│   │   │
+│   │   ├── company/                   # Company dashboard
+│   │   │   ├── pages/
+│   │   │   ├── components/
+│   │   │   └── index.tsx
+│   │   │
+│   │   └── school/                    # School dashboard
+│   │       ├── pages/
+│   │       ├── components/
+│   │       └── index.tsx
+│   │
+│   ├── shared/
+│   │   ├── components/
+│   │   │   ├── ContextSwitcher.tsx    # Dashboard switcher
+│   │   │   ├── Navigation.tsx
+│   │   │   └── Layout.tsx
+│   │   ├── hooks/
+│   │   │   ├── useCurrentContext.ts
+│   │   │   ├── useContextSwitch.ts
+│   │   │   └── useAuth.ts
+│   │   └── utils/
+│   │
+│   ├── api/
+│   │   ├── client.ts                  # Axios instance
+│   │   ├── hooks/                     # React Query hooks
+│   │   └── types.ts                   # TypeScript types
+│   │
+│   └── types/
+│       ├── user.ts
+│       ├── context.ts
+│       └── dashboard.ts
+│
+├── package.json
+└── tsconfig.json
 ```
 
-**OR Monorepo with Turborepo/Nx**
+**Benefits of Unified App:**
+- ✅ Single authentication state
+- ✅ Shared components and utilities
+- ✅ Seamless context switching
+- ✅ Easier state management
+- ✅ Single deployment
 
 ### 6.3 API Client Setup
 
@@ -1486,7 +1581,508 @@ apiClient.interceptors.response.use(
 export default apiClient;
 ```
 
-### 6.4 React Query Setup
+### 6.4 Context Switching Implementation
+
+#### 6.4.1 Context Types
+
+```typescript
+// src/types/context.ts
+export type DashboardContext = 'user' | 'teacher' | 'company' | 'school';
+
+export interface OrganizationContext {
+  id: number;
+  name: string;
+  role: 'admin' | 'member' | 'owner';
+  permissions: {
+    admin: boolean;
+    owner?: boolean;
+    can_access_badges?: boolean;
+    can_create_project?: boolean;
+  };
+}
+
+export interface AvailableContexts {
+  user_dashboard: boolean;
+  teacher_dashboard: boolean;
+  schools: OrganizationContext[];
+  companies: OrganizationContext[];
+}
+
+export interface UserContextState {
+  user: User;
+  currentContext: DashboardContext;
+  currentOrganizationId?: number;
+  availableContexts: AvailableContexts;
+}
+```
+
+#### 6.4.2 Context Provider
+
+```typescript
+// src/contexts/DashboardContext.tsx
+import { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useCurrentUser } from '../api/hooks/useAuth';
+
+const DashboardContext = createContext<DashboardContextType | undefined>(undefined);
+
+export const DashboardProvider = ({ children }) => {
+  const navigate = useNavigate();
+  const { data: user, isLoading } = useCurrentUser();
+  
+  // Load persisted context from localStorage
+  const [currentContext, setCurrentContext] = useState<DashboardContext>(() => {
+    return localStorage.getItem('kinship_current_context') as DashboardContext || 'user';
+  });
+  
+  const [currentOrgId, setCurrentOrgId] = useState<number | undefined>(() => {
+    const stored = localStorage.getItem('kinship_current_org_id');
+    return stored ? parseInt(stored) : undefined;
+  });
+  
+  // Determine default context on login
+  useEffect(() => {
+    if (!user || isLoading) return;
+    
+    const contexts = user.available_contexts;
+    
+    // If no stored context, determine default
+    if (!localStorage.getItem('kinship_current_context')) {
+      const defaultContext = determineDefaultContext(contexts);
+      setCurrentContext(defaultContext.type);
+      setCurrentOrgId(defaultContext.orgId);
+    }
+  }, [user, isLoading]);
+  
+  const determineDefaultContext = (contexts: AvailableContexts) => {
+    // Priority 1: User dashboard (if available)
+    if (contexts.user_dashboard) {
+      return { type: 'user' as DashboardContext, orgId: undefined };
+    }
+    
+    // Priority 2: First school (if admin)
+    const adminSchool = contexts.schools.find(s => s.permissions.admin);
+    if (adminSchool) {
+      return { type: 'school' as DashboardContext, orgId: adminSchool.id };
+    }
+    
+    // Priority 3: First company (if admin)
+    const adminCompany = contexts.companies.find(c => c.permissions.admin);
+    if (adminCompany) {
+      return { type: 'company' as DashboardContext, orgId: adminCompany.id };
+    }
+    
+    // Priority 4: First available school
+    if (contexts.schools.length > 0) {
+      return { type: 'school' as DashboardContext, orgId: contexts.schools[0].id };
+    }
+    
+    // Priority 5: First available company
+    if (contexts.companies.length > 0) {
+      return { type: 'company' as DashboardContext, orgId: contexts.companies[0].id };
+    }
+    
+    // Fallback: user dashboard (even if not available - will show error)
+    return { type: 'user' as DashboardContext, orgId: undefined };
+  };
+  
+  const switchContext = (context: DashboardContext, orgId?: number) => {
+    setCurrentContext(context);
+    setCurrentOrgId(orgId);
+    
+    // Persist to localStorage
+    localStorage.setItem('kinship_current_context', context);
+    if (orgId) {
+      localStorage.setItem('kinship_current_org_id', orgId.toString());
+    } else {
+      localStorage.removeItem('kinship_current_org_id');
+    }
+    
+    // Navigate to appropriate dashboard
+    navigateToDashboard(context, orgId);
+  };
+  
+  const navigateToDashboard = (context: DashboardContext, orgId?: number) => {
+    switch (context) {
+      case 'user':
+        navigate('/dashboard/user');
+        break;
+      case 'teacher':
+        navigate('/dashboard/teacher');
+        break;
+      case 'company':
+        navigate(`/dashboard/company/${orgId}`);
+        break;
+      case 'school':
+        navigate(`/dashboard/school/${orgId}`);
+        break;
+    }
+  };
+  
+  const getCurrentOrganization = (): OrganizationContext | undefined => {
+    if (!user || !currentOrgId) return undefined;
+    
+    if (currentContext === 'company') {
+      return user.available_contexts.companies.find(c => c.id === currentOrgId);
+    }
+    
+    if (currentContext === 'school') {
+      return user.available_contexts.schools.find(s => s.id === currentOrgId);
+    }
+    
+    return undefined;
+  };
+  
+  const value = {
+    user,
+    currentContext,
+    currentOrganizationId: currentOrgId,
+    currentOrganization: getCurrentOrganization(),
+    availableContexts: user?.available_contexts,
+    switchContext,
+    isLoading,
+  };
+  
+  return (
+    <DashboardContext.Provider value={value}>
+      {children}
+    </DashboardContext.Provider>
+  );
+};
+
+export const useDashboardContext = () => {
+  const context = useContext(DashboardContext);
+  if (!context) {
+    throw new Error('useDashboardContext must be used within DashboardProvider');
+  }
+  return context;
+};
+```
+
+#### 6.4.3 Context Switcher Component
+
+```typescript
+// src/shared/components/ContextSwitcher.tsx
+import { Menu, MenuItem, ListItemIcon, ListItemText, Divider, Badge } from '@mui/material';
+import { Person, School, Business, MenuBook } from '@mui/icons-material';
+import { useDashboardContext } from '../../contexts/DashboardContext';
+
+export const ContextSwitcher = () => {
+  const { 
+    user, 
+    currentContext, 
+    currentOrganizationId,
+    availableContexts, 
+    switchContext 
+  } = useDashboardContext();
+  
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  
+  if (!user || !availableContexts) return null;
+  
+  const getCurrentContextLabel = () => {
+    if (currentContext === 'user') return 'Personal Dashboard';
+    if (currentContext === 'teacher') return 'Teacher Dashboard';
+    if (currentContext === 'company') {
+      const company = availableContexts.companies.find(c => c.id === currentOrganizationId);
+      return company?.name || 'Company Dashboard';
+    }
+    if (currentContext === 'school') {
+      const school = availableContexts.schools.find(s => s.id === currentOrganizationId);
+      return school?.name || 'School Dashboard';
+    }
+  };
+  
+  return (
+    <>
+      <Button
+        onClick={(e) => setAnchorEl(e.currentTarget)}
+        startIcon={<SwapHoriz />}
+        variant="outlined"
+      >
+        {getCurrentContextLabel()}
+      </Button>
+      
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={() => setAnchorEl(null)}
+      >
+        {/* Personal Dashboard */}
+        {availableContexts.user_dashboard && (
+          <MenuItem 
+            onClick={() => {
+              switchContext('user');
+              setAnchorEl(null);
+            }}
+            selected={currentContext === 'user'}
+          >
+            <ListItemIcon><Person /></ListItemIcon>
+            <ListItemText primary="Personal Dashboard" />
+          </MenuItem>
+        )}
+        
+        {/* Teacher Dashboard */}
+        {availableContexts.teacher_dashboard && (
+          <MenuItem 
+            onClick={() => {
+              switchContext('teacher');
+              setAnchorEl(null);
+            }}
+            selected={currentContext === 'teacher'}
+          >
+            <ListItemIcon><MenuBook /></ListItemIcon>
+            <ListItemText primary="Teacher Dashboard" />
+          </MenuItem>
+        )}
+        
+        {/* Schools */}
+        {availableContexts.schools.length > 0 && (
+          <>
+            <Divider />
+            <MenuItem disabled>
+              <ListItemText primary="Schools" secondary="Your educational institutions" />
+            </MenuItem>
+            {availableContexts.schools.map(school => (
+              <MenuItem
+                key={school.id}
+                onClick={() => {
+                  switchContext('school', school.id);
+                  setAnchorEl(null);
+                }}
+                selected={currentContext === 'school' && currentOrganizationId === school.id}
+                sx={{ pl: 4 }}
+              >
+                <ListItemIcon><School /></ListItemIcon>
+                <ListItemText 
+                  primary={school.name}
+                  secondary={school.permissions.admin ? 'Admin' : 'Member'}
+                />
+                {school.permissions.admin && (
+                  <Badge badgeContent="Admin" color="primary" />
+                )}
+              </MenuItem>
+            ))}
+          </>
+        )}
+        
+        {/* Companies */}
+        {availableContexts.companies.length > 0 && (
+          <>
+            <Divider />
+            <MenuItem disabled>
+              <ListItemText primary="Companies" secondary="Your organizations" />
+            </MenuItem>
+            {availableContexts.companies.map(company => (
+              <MenuItem
+                key={company.id}
+                onClick={() => {
+                  switchContext('company', company.id);
+                  setAnchorEl(null);
+                }}
+                selected={currentContext === 'company' && currentOrganizationId === company.id}
+                sx={{ pl: 4 }}
+              >
+                <ListItemIcon><Business /></ListItemIcon>
+                <ListItemText 
+                  primary={company.name}
+                  secondary={
+                    company.permissions.owner ? 'Owner' : 
+                    company.permissions.admin ? 'Admin' : 'Member'
+                  }
+                />
+                {company.permissions.admin && (
+                  <Badge badgeContent="Admin" color="primary" />
+                )}
+              </MenuItem>
+            ))}
+          </>
+        )}
+      </Menu>
+    </>
+  );
+};
+```
+
+#### 6.4.4 App Routing with Context
+
+```typescript
+// src/app/App.tsx
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { DashboardProvider, useDashboardContext } from '../contexts/DashboardContext';
+import { AppLayout } from './AppLayout';
+
+// Dashboard imports
+import UserDashboard from '../dashboards/user';
+import TeacherDashboard from '../dashboards/teacher';
+import CompanyDashboard from '../dashboards/company';
+import SchoolDashboard from '../dashboards/school';
+
+const queryClient = new QueryClient();
+
+export const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <DashboardProvider>
+          <AppRoutes />
+        </DashboardProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
+};
+
+const AppRoutes = () => {
+  const { user, availableContexts, isLoading } = useDashboardContext();
+  
+  if (isLoading) return <LoadingScreen />;
+  if (!user) return <Navigate to="/login" />;
+  
+  return (
+    <AppLayout>
+      <Routes>
+        {/* Personal Dashboard */}
+        {availableContexts?.user_dashboard && (
+          <Route path="/dashboard/user/*" element={<UserDashboard />} />
+        )}
+        
+        {/* Teacher Dashboard */}
+        {availableContexts?.teacher_dashboard && (
+          <Route path="/dashboard/teacher/*" element={<TeacherDashboard />} />
+        )}
+        
+        {/* School Dashboards */}
+        {availableContexts?.schools.map(school => (
+          <Route 
+            key={school.id}
+            path={`/dashboard/school/${school.id}/*`} 
+            element={<SchoolDashboard schoolId={school.id} />} 
+          />
+        ))}
+        
+        {/* Company Dashboards */}
+        {availableContexts?.companies.map(company => (
+          <Route 
+            key={company.id}
+            path={`/dashboard/company/${company.id}/*`} 
+            element={<CompanyDashboard companyId={company.id} />} 
+          />
+        ))}
+        
+        {/* Default redirect to first available dashboard */}
+        <Route path="/" element={<DefaultDashboardRedirect />} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </AppLayout>
+  );
+};
+
+const DefaultDashboardRedirect = () => {
+  const { availableContexts } = useDashboardContext();
+  
+  // Priority 1: User dashboard
+  if (availableContexts?.user_dashboard) {
+    return <Navigate to="/dashboard/user" />;
+  }
+  
+  // Priority 2: First school (admin)
+  const adminSchool = availableContexts?.schools.find(s => s.permissions.admin);
+  if (adminSchool) {
+    return <Navigate to={`/dashboard/school/${adminSchool.id}`} />;
+  }
+  
+  // Priority 3: First company (admin)
+  const adminCompany = availableContexts?.companies.find(c => c.permissions.admin);
+  if (adminCompany) {
+    return <Navigate to={`/dashboard/company/${adminCompany.id}`} />;
+  }
+  
+  // Priority 4: First available organization
+  if (availableContexts?.schools.length > 0) {
+    return <Navigate to={`/dashboard/school/${availableContexts.schools[0].id}`} />;
+  }
+  
+  if (availableContexts?.companies.length > 0) {
+    return <Navigate to={`/dashboard/company/${availableContexts.companies[0].id}`} />;
+  }
+  
+  // No contexts available
+  return <NoAccessPage />;
+};
+```
+
+#### 6.4.5 Context-Aware Hooks
+
+```typescript
+// src/shared/hooks/useCurrentContext.ts
+export const useCurrentContext = () => {
+  const context = useDashboardContext();
+  
+  return {
+    isUserContext: context.currentContext === 'user',
+    isTeacherContext: context.currentContext === 'teacher',
+    isCompanyContext: context.currentContext === 'company',
+    isSchoolContext: context.currentContext === 'school',
+    currentOrganization: context.currentOrganization,
+    hasAdminAccess: context.currentOrganization?.permissions.admin || false,
+  };
+};
+
+// Usage in components
+const MyComponent = () => {
+  const { isCompanyContext, currentOrganization, hasAdminAccess } = useCurrentContext();
+  
+  if (isCompanyContext && hasAdminAccess) {
+    return <AdminFeatures company={currentOrganization} />;
+  }
+  
+  return <MemberFeatures />;
+};
+```
+
+#### 6.4.6 Context Validation Guard
+
+```typescript
+// src/shared/components/ContextGuard.tsx
+interface ContextGuardProps {
+  requiredContext: DashboardContext;
+  requiredPermission?: 'admin' | 'owner' | 'can_access_badges';
+  fallback?: React.ReactNode;
+  children: React.ReactNode;
+}
+
+export const ContextGuard = ({ 
+  requiredContext, 
+  requiredPermission,
+  fallback,
+  children 
+}: ContextGuardProps) => {
+  const { currentContext, currentOrganization } = useDashboardContext();
+  
+  // Check context matches
+  if (currentContext !== requiredContext) {
+    return fallback || <Navigate to="/" />;
+  }
+  
+  // Check permissions if required
+  if (requiredPermission && currentOrganization) {
+    const hasPermission = currentOrganization.permissions[requiredPermission];
+    if (!hasPermission) {
+      return fallback || <PermissionDenied />;
+    }
+  }
+  
+  return <>{children}</>;
+};
+
+// Usage
+<ContextGuard requiredContext="company" requiredPermission="admin">
+  <CompanySettings />
+</ContextGuard>
+```
+
+### 6.5 React Query Setup
 
 ```typescript
 // packages/api-client/src/hooks/useUser.ts
@@ -2149,6 +2745,7 @@ class UserSerializer < ActiveModel::Serializer
   attribute :projects, if: -> { instance_options[:include_projects] }
   attribute :schools, if: -> { instance_options[:include_schools] }
   attribute :companies, if: -> { instance_options[:include_companies] }
+  attribute :available_contexts, if: -> { instance_options[:include_contexts] }
   
   def full_name
     "#{object.first_name} #{object.last_name}"
@@ -2171,6 +2768,46 @@ class UserSerializer < ActiveModel::Serializer
   
   def companies
     object.confirmed_companies.map { |c| CompanySerializer.new(c) }
+  end
+  
+  def available_contexts
+    {
+      user_dashboard: has_personal_dashboard?,
+      teacher_dashboard: object.teacher?,
+      schools: object.user_schools.confirmed.map do |us|
+        {
+          id: us.school.id,
+          name: us.school.name,
+          role: us.admin? ? 'admin' : 'member',
+          permissions: {
+            admin: us.admin?,
+            owner: us.owner?,
+            can_access_badges: us.can_access_badges?
+          }
+        }
+      end,
+      companies: object.user_company.confirmed.map do |uc|
+        {
+          id: uc.company.id,
+          name: uc.company.name,
+          role: uc.owner? ? 'owner' : (uc.admin? ? 'admin' : 'member'),
+          permissions: {
+            admin: uc.admin?,
+            owner: uc.owner?,
+            can_access_badges: uc.can_access_badges?,
+            can_create_project: uc.can_create_project?
+          }
+        }
+      end
+    }
+  end
+  
+  def has_personal_dashboard?
+    # User has personal dashboard if they have a complete individual profile
+    # Organization-only accounts (registered only for org management) don't have personal dashboard
+    # For now, all users have personal dashboard unless explicitly flagged otherwise
+    true
+    # Future: could add `organization_only` boolean to User model if needed
   end
 end
 ```
@@ -2445,4 +3082,159 @@ I recommend we start with:
 4. Then move to User API
 
 **Shall we begin with Step 1: JWT Authentication Setup?** 🚀
+
+---
+
+## 25. Context Switching - Implementation Summary
+
+### 25.1 Backend Requirements
+
+**1. Enhanced UserSerializer with `available_contexts`:**
+```ruby
+def available_contexts
+  {
+    user_dashboard: has_personal_dashboard?,
+    teacher_dashboard: object.teacher?,
+    schools: [...],  # All confirmed schools with permissions
+    companies: [...]  # All confirmed companies with permissions
+  }
+end
+```
+
+**2. Login Response includes contexts:**
+```json
+{
+  "token": "eyJhbGc...",
+  "user": {
+    "id": 123,
+    "name": "Marie Dupont",
+    "available_contexts": {
+      "user_dashboard": true,
+      "teacher_dashboard": true,
+      "schools": [{"id": 1, "name": "Lycée Hugo", "permissions": {...}}],
+      "companies": [{"id": 5, "name": "Tech Corp", "permissions": {...}}]
+    }
+  }
+}
+```
+
+**3. Context Validation in Controllers:**
+```ruby
+before_action :verify_company_access!  # Checks user is member
+before_action :verify_school_access!   # Checks user is member
+```
+
+**4. No Database Changes Needed:** ✅
+- Existing relationships already support this
+- UserSchool and UserCompany have all needed data
+
+### 25.2 Frontend Requirements
+
+**1. Single Unified React App:**
+- All dashboards in one application
+- Shared authentication state
+- Context-based routing
+
+**2. Context Provider:**
+- Manages current context (user/teacher/company/school)
+- Persists to localStorage
+- Determines default context on login
+
+**3. Context Switcher Component:**
+- Dropdown in header/sidebar
+- Shows all available contexts
+- Indicates admin/owner roles
+- One-click context switching
+
+**4. Default Context Logic:**
+```
+Priority 1: User Dashboard (if available)
+Priority 2: First School (if admin)
+Priority 3: First Company (if admin)
+Priority 4: First available organization
+```
+
+**5. Organization-Only Accounts:**
+- Detected via `available_contexts.user_dashboard: false`
+- Skip user dashboard, go to first organization
+- Context switcher hides personal option
+
+### 25.3 Key Benefits
+
+✅ **Seamless UX** - No re-authentication needed  
+✅ **Fast Switching** - Instant context changes  
+✅ **Persistent State** - Remembers last context  
+✅ **Smart Defaults** - User dashboard first (if available)  
+✅ **Permission-Aware** - Shows admin badges  
+✅ **Flexible** - Supports any number of organizations  
+✅ **Backward Compatible** - Matches existing Kinship behavior  
+
+### 25.4 Implementation Checklist
+
+**Backend:**
+- [ ] Add `available_contexts` method to UserSerializer
+- [ ] Include contexts in login response
+- [ ] Add context validation in organization controllers
+- [ ] Test context switching with multiple organizations
+- [ ] Document in rswag specs
+
+**Frontend:**
+- [ ] Create DashboardContext provider
+- [ ] Implement context persistence (localStorage)
+- [ ] Build ContextSwitcher component
+- [ ] Add default context logic
+- [ ] Create context-aware routing
+- [ ] Build ContextGuard component
+- [ ] Test with organization-only accounts
+
+### 25.5 Example User Scenarios
+
+**Scenario 1: Teacher with Personal Profile**
+```
+Marie (teacher) logs in
+→ Has: User Dashboard, Teacher Dashboard, School Admin
+→ Default: User Dashboard
+→ Can switch to: Teacher Dashboard, "Lycée Hugo" School Dashboard
+→ Context persisted: Returns to last used dashboard
+```
+
+**Scenario 2: Company-Only Admin**
+```
+Jean (company admin only) logs in
+→ Has: Company Admin for "Tech Solutions"
+→ No personal dashboard
+→ Default: "Tech Solutions" Company Dashboard
+→ Context switcher: Only shows company option
+```
+
+**Scenario 3: Multi-Organization Admin**
+```
+Sophie (super user) logs in
+→ Has: User Dashboard, Admin of 2 schools, Admin of 3 companies
+→ Default: User Dashboard
+→ Context switcher shows:
+  - Personal Dashboard
+  - École Primaire (Admin)
+  - Collège Central (Admin)
+  - Tech Corp (Owner)
+  - Innovation Assoc (Admin)
+  - Digital Partners (Member)
+→ Can switch between all 6 contexts instantly
+```
+
+---
+
+## 26. Ready to Implement!
+
+All documentation is complete. You now have:
+
+✅ **Complete Architecture Understanding** (ARCHITECTURE_DEEP_DIVE.md)  
+✅ **React Integration Strategy** (REACT_INTEGRATION_STRATEGY.md)  
+✅ **Context Switching Explanation** (CONTEXT_SWITCHING_EXPLANATION.md)  
+✅ **API Documentation** (swagger.yaml + postman_collection.json)  
+✅ **Working rswag Specs** (18 passing tests)  
+
+**Next Step:** Begin implementation with JWT Authentication
+
+**Shall we start implementing?** 🚀
 
