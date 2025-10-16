@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_16_105730) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -93,6 +93,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
     t.datetime "updated_at", null: false
     t.string "name", null: false
     t.integer "level", null: false
+    t.string "series", default: "Série TouKouLeur", null: false
+    t.index ["series"], name: "index_badges_on_series"
   end
 
   create_table "companies", force: :cascade do |t|

@@ -3,6 +3,7 @@ FactoryBot.define do
     name { Faker::Lorem.word }
     level { rand(0..3) }
     description { Faker::Lorem.sentence }
+    series { "Série TouKouLeur" }
 
     after(:build) do |badge|
       badge.icon.attach(io: File.open(Rails.root.join("spec", "factories", "files", "badge.webp")),

@@ -18,6 +18,8 @@ class Company < ApplicationRecord
   has_many :schools, through: :school_companies, dependent: :destroy
   belongs_to :company_type
 
+  has_one_attached :logo
+
   enum :status, {pending: 0, confirmed: 1}, default: :pending
 
   validates :name, :zip_code, :city, :referent_phone_number, :description, :company_type_id, presence: true
@@ -27,6 +29,7 @@ class Company < ApplicationRecord
   validates :email, format: {with: URI::MailTo::EMAIL_REGEXP}, allow_blank: true
   validates :website, format: {with: URI::DEFAULT_PARSER.make_regexp, message: "Url invalide, l'url doit commencer par http:// ou https://"}, allow_blank: true
   # validates :referent_phone_number, format: { with: /\A0[1-9]([-. ]?[0-9]{2}){4}\z/ }
+  validate :logo_format
 
   accepts_nested_attributes_for :company_skills, allow_destroy: true
   accepts_nested_attributes_for :company_sub_skills, allow_destroy: true
@@ -86,5 +89,25 @@ class Company < ApplicationRecord
 
   def user_can_create_project?(user)
     user_companies.find_by(user: user).can_create_project?
+  end
+
+  def logo_url
+    return nil unless logo.attached?
+    Rails.application.routes.url_helpers.rails_blob_url(logo, only_path: false)
+  end
+
+  private
+
+  def logo_format
+    return unless logo.attached?
+
+    acceptable_types = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"]
+    unless acceptable_types.include?(logo.content_type)
+      errors.add(:logo, "doit être une image JPEG, PNG, GIF, WebP ou SVG")
+    end
+
+    if logo.byte_size > 5.megabytes
+      errors.add(:logo, "doit être inférieure à 5 Mo")
+    end
   end
 end

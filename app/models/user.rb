@@ -268,6 +268,11 @@ class User < ApplicationRecord
     companies.confirmed
   end
 
+  def avatar_url
+    return nil unless avatar.attached?
+    Rails.application.routes.url_helpers.rails_blob_url(avatar, only_path: false)
+  end
+
   private
 
   def academic_email?

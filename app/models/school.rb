@@ -21,12 +21,15 @@ class School < ApplicationRecord
   has_many :companies, through: :school_companies
   has_many :contracts, dependent: :destroy
 
+  has_one_attached :logo
+
   accepts_nested_attributes_for :school_levels, allow_destroy: true
 
   enum :school_type, [:primaire, :college, :lycee, :erea, :medico_social, :service_administratif, :information_et_orientation, :autre], default: :primaire
   enum :status, {pending: 0, confirmed: 1}, default: :pending
 
   validates :name, :zip_code, :school_type, :city, :status, presence: true
+  validate :logo_format
 
   pg_search_scope :by_full_name, against: [:name, :city, :zip_code],
     using: {
@@ -76,5 +79,25 @@ class School < ApplicationRecord
 
   def active_contract
     contracts.find_by(active: true)
+  end
+
+  def logo_url
+    return nil unless logo.attached?
+    Rails.application.routes.url_helpers.rails_blob_url(logo, only_path: false)
+  end
+
+  private
+
+  def logo_format
+    return unless logo.attached?
+
+    acceptable_types = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"]
+    unless acceptable_types.include?(logo.content_type)
+      errors.add(:logo, "doit être une image JPEG, PNG, GIF, WebP ou SVG")
+    end
+
+    if logo.byte_size > 5.megabytes
+      errors.add(:logo, "doit être inférieure à 5 Mo")
+    end
   end
 end

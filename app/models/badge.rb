@@ -7,7 +7,13 @@ class Badge < ApplicationRecord
 
   enum :level, {level_1: 0, level_2: 1, level_3: 2, level_4: 3}
 
-  validates :name, :description, :level, :icon, presence: true
+  validates :name, :description, :level, :icon, :series, presence: true
+
+  scope :by_series, ->(series) { where(series: series) }
+
+  def self.available_series
+    distinct.pluck(:series).compact.sort
+  end
 
   def domains
     badge_skills.domain
