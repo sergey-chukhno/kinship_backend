@@ -80,6 +80,7 @@ RSpec.describe Partnership, type: :model do
     let(:company_b) { create(:company, :confirmed) }
     let(:partnership) do
       p = create(:partnership, initiator: company_a)
+      create(:partnership_member, partnership: p, participant: company_a)
       create(:partnership_member, partnership: p, participant: company_b)
       p
     end

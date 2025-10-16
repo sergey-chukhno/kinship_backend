@@ -135,6 +135,7 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :companies, only: %i[index]
       resources :schools, only: %i[index]
+      # Partnership API routes will be added during React integration
     end
     namespace :v2 do
       resources :users, only: %i[index show]

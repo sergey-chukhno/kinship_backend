@@ -5,12 +5,12 @@ This document tracks all model/schema changes made before React integration.
 
 ---
 
-## Change #5: Comprehensive Partnership System 🚧 PHASE 1 COMPLETED
+## Change #5: Comprehensive Partnership System ✅ COMPLETED
 
 **Date:** October 16, 2025  
-**Status:** ✅ Core System Implemented | 🚧 UI/Controllers Pending  
+**Status:** ✅ Production-Ready (Models + Policies Complete)  
 **Risk Level:** MEDIUM (Breaking changes to legacy associations, but preserved)  
-**Time Taken:** ~4 hours (Phase 1)
+**Time Taken:** ~5 hours (Phase 1 + Phase 2)
 
 ### What Changed
 
@@ -277,20 +277,23 @@ Traits:
 
 ### Files Created/Modified
 
-**Created (10 files):**
+**Created (12 files):**
 - `db/migrate/20251016131949_create_partnerships.rb`
 - `db/migrate/20251016132003_create_partnership_members.rb`
 - `db/migrate/20251016132227_migrate_existing_partnerships_to_new_system.rb`
 - `app/models/partnership.rb`
 - `app/models/partnership_member.rb`
+- `app/policies/partnership_policy.rb` ← NEW (Phase 2)
+- `app/policies/partnership_member_policy.rb` ← NEW (Phase 2)
 - `spec/models/partnership_spec.rb`
 - `spec/models/partnership_member_spec.rb`
 - `spec/factories/partnerships.rb`
 - `spec/factories/partnership_members.rb`
+- `CHANGE_LOG.md` (comprehensive documentation)
 
 **Modified (3 files):**
-- `app/models/company.rb` (added 13 methods + associations)
-- `app/models/school.rb` (added 11 methods + associations)
+- `app/models/company.rb` (added 13 methods + 3 associations)
+- `app/models/school.rb` (added 11 methods + 3 associations)
 - `db/schema.rb` (auto-updated)
 
 ### Benefits
@@ -306,22 +309,57 @@ Traits:
 9. **Well Tested**: 33 specs, 100% passing
 10. **Scalable**: Easy to add new organization types
 
-### What's NOT Done (Phase 2 - Pending)
+### Phase 2: Authorization Policies ✅ COMPLETED
 
-**Controllers & UI** (deferred for React dashboards):
-- ❌ Pundit policies for partnership authorization
-- ❌ Partnership CRUD controllers
-- ❌ Routes for partnership management
-- ❌ Request specs
+**Pundit Policies Created (2):**
 
-**Reason:** Moving to React dashboards anyway, so Rails views/controllers will be minimal. Core business logic is complete and tested.
+1. **PartnershipPolicy** (`app/policies/partnership_policy.rb`)
+   - **Scope**: Users see only partnerships their organizations participate in
+   - **index?**: Any authenticated user (filtered by scope)
+   - **show?**: User must be superadmin of participating organization
+   - **create?**: User must be superadmin of initiator organization
+   - **update?**: Only initiator superadmin
+   - **destroy?**: Only initiator superadmin
+   - **confirm?**: Only initiator superadmin (or auto via member confirmations)
+   - **reject?**: Any participating organization superadmin
 
-### Next Steps
+2. **PartnershipMemberPolicy** (`app/policies/partnership_member_policy.rb`)
+   - **Scope**: Users see only members from their partnerships
+   - **show?**: User must be in the partnership
+   - **create?**: Only initiator superadmin can add members
+   - **update?**: Member organization superadmin OR initiator superadmin
+   - **destroy?**: Only initiator superadmin
+   - **confirm?**: Member organization superadmin (for their own org)
+   - **decline?**: Member organization superadmin (for their own org)
 
-**Option A:** Complete Rails UI layer (policies/controllers/routes) - ~2 hours  
-**Option B:** Move directly to React integration, use new partnership system via API  
+**Authorization Matrix:**
 
-**Recommendation:** Option B - The partnership system is production-ready at the model layer. React dashboards will provide better UX for managing complex multi-party partnerships.
+| Action | Super Admin | Initiator Superadmin | Member Superadmin | Other Roles |
+|--------|-------------|----------------------|-------------------|-------------|
+| View partnerships | ✅ All | ✅ Their partnerships | ✅ Their partnerships | ❌ |
+| Create partnership | ❌ | ✅ | ❌ | ❌ |
+| Update settings | ❌ | ✅ | ❌ | ❌ |
+| Delete partnership | ❌ | ✅ | ❌ | ❌ |
+| Add members | ❌ | ✅ | ❌ | ❌ |
+| Remove members | ❌ | ✅ | ❌ | ❌ |
+| Confirm participation | ❌ | ✅ (auto) | ✅ (own org) | ❌ |
+| Decline participation | ❌ | ✅ | ✅ (own org) | ❌ |
+
+**Key Security Rules:**
+- Only organization **superadmins** can manage partnerships
+- Partnership **initiator** has full control
+- **Member organizations** can only confirm/decline their own participation
+- Regular admins/referents/intervenants **cannot** manage partnerships
+- Aligns perfectly with Change #3 (role system)
+
+### API Layer - Deferred to React Integration
+
+**Not implemented (by design):**
+- ❌ API controllers (will design based on React dashboard needs)
+- ❌ API routes (will add during API design phase)
+- ❌ Request specs (will create with proper API)
+
+**Reason:** Clean separation - models/business logic complete now, API endpoints will be designed properly when building React dashboards based on actual UI/UX requirements.
 
 ### Usage Examples
 
