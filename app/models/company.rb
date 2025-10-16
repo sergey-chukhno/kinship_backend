@@ -48,23 +48,28 @@ class Company < ApplicationRecord
   end
 
   def owner?
-    user_companies.where(owner: true).any?
+    user_companies.where(role: :superadmin).any?
   end
 
   def owner
-    user_companies.find_by(owner: true)
+    user_companies.find_by(role: :superadmin)
   end
 
   def admins?
-    user_companies.where(admin: true).any?
+    user_companies.where(role: [:admin, :superadmin]).any?
   end
 
   def admins
-    user_companies.where(admin: true)
+    user_companies.where(role: [:admin, :superadmin])
   end
 
   def admin_user?(user)
-    user_companies.find_by(user: user, admin: true).present?
+    uc = user_companies.find_by(user: user)
+    uc&.admin? || uc&.superadmin?
+  end
+
+  def superadmin_user?(user)
+    user_companies.find_by(user: user)&.superadmin?
   end
 
   def users_waiting_for_confirmation?

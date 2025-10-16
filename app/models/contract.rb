@@ -73,12 +73,12 @@ class Contract < ApplicationRecord
   def school_has_owner
     return if school&.owner?
 
-    errors.add(:school, "L'établissement doit avoir un propriétaire pour pouvoir signer un contrat")
+    errors.add(:school, "L'établissement doit avoir un superadmin pour pouvoir signer un contrat")
   end
 
   def company_has_owner
     return if company&.owner?
 
-    errors.add(:company, "L'association doit avoir un propriétaire pour pouvoir signer un contrat")
+    errors.add(:company, "L'association doit avoir un superadmin pour pouvoir signer un contrat")
   end
 end

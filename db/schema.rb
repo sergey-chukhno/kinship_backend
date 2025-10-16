@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_16_105730) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_16_121859) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -367,13 +367,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_16_105730) do
     t.bigint "user_id", null: false
     t.bigint "company_id", null: false
     t.integer "status", default: 0, null: false
-    t.boolean "admin", default: false, null: false
-    t.boolean "owner", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "can_access_badges", default: false
-    t.boolean "can_create_project", default: false
+    t.integer "role", default: 0, null: false
     t.index ["company_id"], name: "index_user_companies_on_company_id"
+    t.index ["role"], name: "index_user_companies_on_role"
     t.index ["user_id"], name: "index_user_companies_on_user_id"
   end
 
@@ -392,9 +390,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_16_105730) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "status", default: 0, null: false
-    t.boolean "owner", default: false, null: false
-    t.boolean "admin", default: false, null: false
-    t.boolean "can_access_badges", default: false
+    t.integer "role", default: 0, null: false
+    t.index ["role"], name: "index_user_schools_on_role"
     t.index ["school_id"], name: "index_user_schools_on_school_id"
     t.index ["user_id"], name: "index_user_schools_on_user_id"
   end

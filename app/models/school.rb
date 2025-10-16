@@ -46,19 +46,23 @@ class School < ApplicationRecord
   end
 
   def owner?
-    user_schools.where(owner: true).any?
+    user_schools.where(role: :superadmin).any?
   end
 
   def owner
-    user_schools.find_by(owner: true)
+    user_schools.find_by(role: :superadmin)
   end
 
   def admins?
-    user_schools.where(admin: true).any?
+    user_schools.where(role: [:admin, :superadmin]).any?
   end
 
   def admins
-    user_schools.where(admin: true)
+    user_schools.where(role: [:admin, :superadmin])
+  end
+
+  def superadmin_user?(user)
+    user_schools.find_by(user: user)&.superadmin?
   end
 
   def users_waiting_for_confirmation?

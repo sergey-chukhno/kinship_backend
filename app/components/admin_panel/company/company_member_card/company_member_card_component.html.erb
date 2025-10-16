@@ -8,7 +8,7 @@
     <% end %>
 
     <%= simple_form_for @company_member,
-                      url: company_admin_panel_company_members_update_admin_path(@company_member),
+                      url: company_admin_panel_company_members_update_role_path(@company_member),
                       method: :put,
                       data: {
                         controller: "submit",
@@ -16,17 +16,23 @@
                       },
                       html: {
                         class: "",
-                        id: "#{dom_id(@company_member)}_update_admin",
+                        id: "#{dom_id(@company_member)}_update_role",
                       } do |f| %>
 
-      <%= f.input :admin,
+      <%= f.input :role,
                 as: :select,
                 label: false,
                 include_blank: false,
-                collection: [["Administrateur", true], ["Utilisateur rattaché", false]],
+                collection: [
+                  ["Membre", "member"],
+                  ["Intervenant", "intervenant"],
+                  ["Référent", "referent"],
+                  ["Admin", "admin"],
+                  ["Superadmin", "superadmin"]
+                ],
                 input_html: {
                   class: "mini-select",
-                  disabled: @company_member.owner? || @company_member.pending?,
+                  disabled: @company_member.superadmin? || @company_member.pending?,
                   data: {
                     action: "change->submit#submit"
                   }
@@ -36,60 +42,10 @@
 
   <div class="admin-panel__member__card__actions">
     <% if contracted? %>
-      <%= simple_form_for @company_member,
-                      url: company_admin_panel_company_members_update_can_access_badges_path(@company_member),
-                      method: :put,
-                      data: {
-                        controller: "submit",
-                        submit_target: "form"
-                      },
-                      html: {
-                        class: "",
-                        id: "#{dom_id(@company_member)}_update_can_access_badges",
-                      } do |f| %>
-        <%= f.input :can_access_badges,
-                as: :boolean,
-                wrapper: :switch,
-                label: "Badges",
-                label_html: {
-                  for: "#{dom_id(@company_member)}_can_access_badges"
-                },
-                input_html: {
-                  id: "#{dom_id(@company_member)}_can_access_badges",
-                  disabled: @company_member.owner || @company_member.pending? || @company_member.admin?,
-                  data: {
-                    action: "change->submit#submit"
-                  }
-                } %>
-      <% end %>
-
-      <%= simple_form_for @company_member,
-                        url: company_admin_panel_company_members_update_create_project_path(@company_member),
-                        method: :put,
-                        data: {
-                          controller: "submit",
-                          submit_target: "form"
-                        },
-                        html: {
-                          class: "",
-                          id: "#{dom_id(@company_member)}_update_can_create_project",
-                        } do |f| %>
-
-        <%= f.input :can_create_project,
-                  as: :boolean,
-                  wrapper: :switch,
-                  label: "Projet",
-                  label_html: {
-                    for: "#{dom_id(@company_member)}_can_create_project"
-                  },
-                  input_html: {
-                    id: "#{dom_id(@company_member)}_can_create_project",
-                    disabled: @company_member.owner || @company_member.pending? || @company_member.admin?,
-                    data: {
-                      action: "change->submit#submit"
-                    }
-                  } %>
-      <% end %>
+      <div class="permissions-info">
+        <span><strong>Badges:</strong> <%= @company_member.can_assign_badges? ? "✓" : "✗" %></span>
+        <span><strong>Projets:</strong> <%= @company_member.can_manage_projects? ? "✓" : "✗" %></span>
+      </div>
     <% end %>
 
     <%= simple_form_for @company_member,
@@ -114,7 +70,7 @@
                 input_html: {
                   id: "#{dom_id(@company_member)}_status",
                   checked: @company_member.confirmed?,
-                  disabled: @company_member.owner?,
+                  disabled: @company_member.superadmin?,
                   data: {
                     action: "change->submit#submit"
                   }
@@ -124,7 +80,7 @@
     <%= button_to company_admin_panel_company_member_path(@company_member),
                 method: :delete,
                 class: "btn-trash grey-02",
-                disabled: @company_member.owner?,
+                disabled: @company_member.superadmin?,
                 form_class: "admin-panel__member__card__delete" do %>
       <%= helpers.show_svg "trash.svg" %>
     <% end %>

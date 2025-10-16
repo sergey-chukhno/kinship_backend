@@ -1,7 +1,7 @@
 class SchoolAdminPanel::SchoolMembersController < SchoolAdminPanel::BaseController
   skip_before_action :set_school, only: [:destroy]
   before_action :redirect_to_members_pending_path_if_wrong_status_param, only: [:show]
-  before_action :set_school_member, only: [:update_school_level, :update_confirmation, :update_admin, :update_can_access_badges, :destroy]
+  before_action :set_school_member, only: [:update_school_level, :update_confirmation, :update_role, :destroy]
 
   def show
     @school = authorize School.find(params[:id]), policy_class: SchoolAdminPanel::BasePolicy
@@ -26,12 +26,18 @@ class SchoolAdminPanel::SchoolMembersController < SchoolAdminPanel::BaseControll
     end
   end
 
-  def update_admin
-    @school_member.update(admin: !@school_member.admin?)
-  end
-
-  def update_can_access_badges
-    @school_member.update(can_access_badges: !@school_member.can_access_badges?)
+  def update_role
+    new_role = params[:role]
+    
+    # Prevent non-superadmin from creating/modifying superadmin
+    current_user_school = current_user.user_schools.find_by(school: @school_member.school)
+    if new_role == 'superadmin' && !current_user_school&.superadmin?
+      flash[:alert] = "Seul un superadmin peut nommer un autre superadmin"
+      return redirect_back(fallback_location: root_path)
+    end
+    
+    @school_member.update(role: new_role)
+    redirect_back(fallback_location: root_path, notice: "Rôle mis à jour")
   end
 
   def destroy

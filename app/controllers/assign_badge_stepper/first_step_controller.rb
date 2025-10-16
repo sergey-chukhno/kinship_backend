@@ -26,12 +26,12 @@ class AssignBadgeStepper::FirstStepController < ApplicationController
   def set_organizations_collection
     schools = UserSchool
       .includes(:school)
-      .where(user: current_user, can_access_badges: true)
+      .where(user: current_user, role: [:intervenant, :referent, :admin, :superadmin])
       .map(&:school)
       .map { |school| [school.full_name, {id: school.id, type: "School"}.to_json] }
     companies = UserCompany
       .includes(:company)
-      .where(user: current_user, can_access_badges: true)
+      .where(user: current_user, role: [:intervenant, :referent, :admin, :superadmin])
       .map(&:company)
       .map { |company| [company.full_name, {id: company.id, type: "Company"}.to_json] }
 

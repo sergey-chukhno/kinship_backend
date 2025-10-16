@@ -27,23 +27,23 @@ class CompanyAdminPanel::BasePolicy < ApplicationPolicy
   end
 
   def update_confirmation?
-    user.company_admin?(record.company) && !record.owner?
+    user.company_admin?(record.company) && !record.superadmin?
   end
 
-  def update_admin?
-    user.company_admin?(record.company) && !record.owner? && record.confirmed?
-  end
-
-  def update_can_access_badges?
-    user.company_admin?(record.company) && !record.owner? && record.confirmed? && !record.admin?
-  end
-
-  def update_create_project?
-    user.company_admin?(record.company) && !record.owner? && record.confirmed? && !record.admin?
+  def update_role?
+    current_user_company = user.user_company.find_by(company: record.company)
+    return false unless current_user_company&.can_manage_members?
+    return false if record.superadmin? && !current_user_company&.superadmin?
+    
+    record.confirmed?
   end
 
   def destroy?
-    user.company_admin?(record.company) && !record.owner?
+    current_user_company = user.user_company.find_by(company: record.company)
+    return false unless current_user_company&.can_manage_members?
+    return false if record.superadmin? && !current_user_company&.superadmin?
+    
+    true
   end
 
   def destroy_sponsor?

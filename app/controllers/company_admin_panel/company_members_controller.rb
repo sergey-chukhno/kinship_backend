@@ -1,7 +1,7 @@
 class CompanyAdminPanel::CompanyMembersController < CompanyAdminPanel::BaseController
   skip_before_action :set_company, only: [:destroy]
   before_action :redirect_to_members_pending_path_if_wrong_status_param, only: [:show]
-  before_action :set_company_member, only: [:update_confirmation, :update_admin, :update_can_access_badges, :update_create_project, :destroy]
+  before_action :set_company_member, only: [:update_confirmation, :update_role, :destroy]
 
   def show
     @company = authorize Company.find(params[:id]), policy_class: CompanyAdminPanel::BasePolicy
@@ -16,16 +16,18 @@ class CompanyAdminPanel::CompanyMembersController < CompanyAdminPanel::BaseContr
     end
   end
 
-  def update_admin
-    @company_member.update(admin: !@company_member.admin?)
-  end
-
-  def update_can_access_badges
-    @company_member.update(can_access_badges: !@company_member.can_access_badges?)
-  end
-
-  def update_create_project
-    @company_member.update(can_create_project: !@company_member.can_create_project?)
+  def update_role
+    new_role = params[:role]
+    
+    # Prevent non-superadmin from creating/modifying superadmin
+    current_user_company = current_user.user_company.find_by(company: @company_member.company)
+    if new_role == 'superadmin' && !current_user_company&.superadmin?
+      flash[:alert] = "Seul un superadmin peut nommer un autre superadmin"
+      return redirect_back(fallback_location: root_path)
+    end
+    
+    @company_member.update(role: new_role)
+    redirect_back(fallback_location: root_path, notice: "Rôle mis à jour")
   end
 
   def destroy

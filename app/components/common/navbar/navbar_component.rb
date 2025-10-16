@@ -6,10 +6,16 @@ class Common::Navbar::NavbarComponent < ViewComponent::Base
   end
 
   def render_schools_admin_panel?
-    @current_user.user_schools.where(can_access_badges: true, status: :confirmed).any?
+    @current_user.user_schools.where(
+      role: [:intervenant, :referent, :admin, :superadmin],
+      status: :confirmed
+    ).any?
   end
 
   def render_companies_admin_panel?
-    @current_user.user_company.where(can_access_badges: true, status: :confirmed).any?
+    @current_user.user_company.where(
+      role: [:intervenant, :referent, :admin, :superadmin],
+      status: :confirmed
+    ).any?
   end
 end

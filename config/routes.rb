@@ -91,9 +91,7 @@ Rails.application.routes.draw do
       as: "school_members_update_confirmation"
     put "school_members/update_school_level/:id", to: "school_members#update_school_level",
       as: "school_members_update_school_level"
-    put "school_members/update_can_access_badges/:id", to: "school_members#update_can_access_badges",
-      as: "school_members_update_can_access_badges"
-    put "school_members/update_admin/:id", to: "school_members#update_admin", as: "school_members_update_admin"
+    put "school_members/update_role/:id", to: "school_members#update_role", as: "school_members_update_role"
     resources :partnerships, only: %i[show update]
     delete "partnerships/destroy_partnership/:member_id", to: "partnerships#destroy_partnership", as: "partnership_destroy_partnership"
   end
@@ -102,11 +100,7 @@ Rails.application.routes.draw do
     resources :company_members, only: %i[show update destroy]
     put "company_members/update_confirmation/:id", to: "company_members#update_confirmation",
       as: "company_members_update_confirmation"
-    put "company_members/update_admin/:id", to: "company_members#update_admin", as: "company_members_update_admin"
-    put "company_members/update_can_access_badges/:id", to: "company_members#update_can_access_badges",
-      as: "company_members_update_can_access_badges"
-    put "company_members/update_create_project/:id", to: "company_members#update_create_project",
-      as: "company_members_update_create_project"
+    put "company_members/update_role/:id", to: "company_members#update_role", as: "company_members_update_role"
     resources :company, only: %i[edit update]
     resources :company_skills, only: %i[edit update]
     resources :partnerships, only: %i[edit update]

@@ -204,19 +204,25 @@ class User < ApplicationRecord
   end
 
   def schools_admin
-    user_schools.where(admin: true, status: :confirmed).map(&:school)
+    user_schools.where(role: [:admin, :superadmin], status: :confirmed).map(&:school)
   end
 
-  def schools_only_badges_access
-    user_schools.where(status: :confirmed, admin: false, can_access_badges: true).map(&:school)
+  def schools_with_badge_access
+    user_schools.where(
+      status: :confirmed,
+      role: [:intervenant, :referent, :admin, :superadmin]
+    ).map(&:school)
   end
 
   def companies_admin
-    user_company.where(admin: true, status: :confirmed).map(&:company)
+    user_company.where(role: [:admin, :superadmin], status: :confirmed).map(&:company)
   end
 
-  def companies_only_badges_access
-    user_company.where(status: :confirmed, admin: false, can_access_badges: true).map(&:company)
+  def companies_with_badge_access
+    user_company.where(
+      status: :confirmed,
+      role: [:intervenant, :referent, :admin, :superadmin]
+    ).map(&:company)
   end
 
   def projects_owner
@@ -227,11 +233,21 @@ class User < ApplicationRecord
   end
 
   def school_admin?(school)
-    user_schools.find_by(school:)&.admin
+    us = user_schools.find_by(school:)
+    us&.admin? || us&.superadmin?
   end
 
   def company_admin?(company)
-    user_company.find_by(company:)&.admin
+    uc = user_company.find_by(company:)
+    uc&.admin? || uc&.superadmin?
+  end
+
+  def school_superadmin?(school)
+    user_schools.find_by(school:)&.superadmin?
+  end
+
+  def company_superadmin?(company)
+    user_company.find_by(company:)&.superadmin?
   end
 
   def can_create_project?
@@ -244,8 +260,8 @@ class User < ApplicationRecord
   end
 
   def can_give_badges?
-    schools = user_schools.where(can_access_badges: true)
-    companies = user_company.where(can_access_badges: true)
+    schools = user_schools.where(role: [:intervenant, :referent, :admin, :superadmin])
+    companies = user_company.where(role: [:intervenant, :referent, :admin, :superadmin])
 
     schools.any? || companies.any?
   end

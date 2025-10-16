@@ -15,11 +15,12 @@ RSpec.describe UserSchool, type: :model do
 
     it { should validate_presence_of(:status) }
     it { should validate_uniqueness_of(:user_id).scoped_to(:school_id) }
-    it "should not being able to have more than one owner by school" do
+    it "should not being able to have more than one superadmin by school" do
       school = create(:school)
-      create(:user_school, school: school, owner: true)
-      user_school2 = build(:user_school, school: school, owner: true)
+      create(:user_school, school: school, role: :superadmin)
+      user_school2 = build(:user_school, school: school, role: :superadmin)
       expect(user_school2).to_not be_valid
+      expect(user_school2.errors.messages[:role]).to include("Il ne peut y avoir qu'un seul superadmin par établissement")
     end
   end
 
@@ -45,9 +46,9 @@ RSpec.describe UserSchool, type: :model do
           expect(user_school_voluntary.status).to eq("confirmed")
         end
 
-        it "sets status to pending if user is a teacher and school has an owner" do
+        it "sets status to pending if user is a teacher and school has a superadmin" do
           school = create(:school)
-          create(:user_school, user: create(:user, :tutor), school: school, owner: true)
+          create(:user_school, user: create(:user, :tutor), school: school, role: :superadmin)
 
           user_school_teacher = create(:user_school, user: create(:user, :teacher, email: "example@ac-nantes.fr"), school: school)
           expect(user_school_teacher.status).to eq("pending")

@@ -27,23 +27,27 @@ class SchoolAdminPanel::BasePolicy < ApplicationPolicy
   end
 
   def update_confirmation?
-    user.school_admin?(record.school) && !record.owner?
+    user.school_admin?(record.school) && !record.superadmin?
   end
 
   def update_school_level?
-    user.school_admin?(record.school) && !record.owner? && record.confirmed?
+    user.school_admin?(record.school) && !record.superadmin? && record.confirmed?
   end
 
-  def update_admin?
-    user.school_admin?(record.school) && !record.owner? && record.confirmed?
-  end
-
-  def update_can_access_badges?
-    user.school_admin?(record.school) && !record.owner? && record.confirmed? && !record.admin?
+  def update_role?
+    current_user_school = user.user_schools.find_by(school: record.school)
+    return false unless current_user_school&.can_manage_members?
+    return false if record.superadmin? && !current_user_school&.superadmin?
+    
+    record.confirmed?
   end
 
   def destroy?
-    user.school_admin?(record.school) && !record.owner?
+    current_user_school = user.user_schools.find_by(school: record.school)
+    return false unless current_user_school&.can_manage_members?
+    return false if record.superadmin? && !current_user_school&.superadmin?
+    
+    true
   end
 
   def destroy_partnership?
