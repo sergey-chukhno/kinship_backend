@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_16_121859) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_16_132227) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -201,6 +201,44 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_16_121859) do
     t.string "user_email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "partnership_members", force: :cascade do |t|
+    t.bigint "partnership_id", null: false
+    t.string "participant_type", null: false
+    t.bigint "participant_id", null: false
+    t.integer "member_status", default: 0, null: false
+    t.integer "role_in_partnership", default: 0, null: false
+    t.datetime "joined_at"
+    t.datetime "confirmed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["member_status"], name: "index_partnership_members_on_member_status"
+    t.index ["participant_type", "participant_id"], name: "idx_on_participant_type_participant_id_4f6c645201"
+    t.index ["participant_type", "participant_id"], name: "index_partnership_members_on_participant"
+    t.index ["partnership_id", "participant_id", "participant_type"], name: "index_partnership_members_unique", unique: true
+    t.index ["partnership_id"], name: "index_partnership_members_on_partnership_id"
+    t.index ["role_in_partnership"], name: "index_partnership_members_on_role_in_partnership"
+  end
+
+  create_table "partnerships", force: :cascade do |t|
+    t.string "initiator_type", null: false
+    t.bigint "initiator_id", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "partnership_type", default: 0, null: false
+    t.boolean "share_members", default: false, null: false
+    t.boolean "share_projects", default: true, null: false
+    t.boolean "has_sponsorship", default: false, null: false
+    t.string "name"
+    t.text "description"
+    t.datetime "confirmed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["confirmed_at"], name: "index_partnerships_on_confirmed_at"
+    t.index ["initiator_type", "initiator_id"], name: "index_partnerships_on_initiator"
+    t.index ["initiator_type", "initiator_id"], name: "index_partnerships_on_initiator_type_and_initiator_id"
+    t.index ["partnership_type"], name: "index_partnerships_on_partnership_type"
+    t.index ["status"], name: "index_partnerships_on_status"
   end
 
   create_table "project_companies", force: :cascade do |t|
@@ -470,6 +508,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_16_121859) do
   add_foreign_key "contracts", "schools"
   add_foreign_key "keywords", "projects"
   add_foreign_key "links", "projects"
+  add_foreign_key "partnership_members", "partnerships"
   add_foreign_key "project_companies", "companies"
   add_foreign_key "project_companies", "projects"
   add_foreign_key "project_members", "projects"

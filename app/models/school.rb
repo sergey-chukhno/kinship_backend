@@ -17,8 +17,22 @@ class School < ApplicationRecord
   has_many :school_levels, dependent: :destroy
   has_many :user_schools, dependent: :destroy
   has_many :users, through: :user_schools
+  
+  # Legacy partnership associations (kept for backward compatibility)
   has_many :school_companies, dependent: :destroy
   has_many :companies, through: :school_companies
+  
+  # New partnership system
+  has_many :partnership_members_as_participant, 
+           as: :participant, 
+           class_name: 'PartnershipMember',
+           dependent: :destroy
+  has_many :partnerships, through: :partnership_members_as_participant
+  has_many :initiated_partnerships, 
+           as: :initiator, 
+           class_name: 'Partnership',
+           dependent: :destroy
+  
   has_many :contracts, dependent: :destroy
 
   has_one_attached :logo
@@ -88,6 +102,83 @@ class School < ApplicationRecord
   def logo_url
     return nil unless logo.attached?
     Rails.application.routes.url_helpers.rails_blob_url(logo, only_path: false)
+  end
+
+  # ========================================
+  # NEW PARTNERSHIP SYSTEM METHODS
+  # ========================================
+  
+  def active_partnerships
+    partnerships.active
+  end
+  
+  def partner_companies
+    active_partnerships
+      .joins(:partnership_members)
+      .where(partnership_members: {participant_type: 'Company'})
+      .joins("INNER JOIN companies ON companies.id = partnership_members.participant_id")
+      .select('DISTINCT companies.*')
+  end
+  
+  def partner_schools
+    active_partnerships
+      .joins(:partnership_members)
+      .where(partnership_members: {participant_type: 'School'})
+      .where.not(partnership_members: {participant_id: id})
+      .joins("INNER JOIN schools ON schools.id = partnership_members.participant_id")
+      .select('DISTINCT schools.*')
+  end
+  
+  def all_partners
+    partner_companies.to_a + partner_schools.to_a
+  end
+  
+  def shared_member_companies
+    active_partnerships
+      .sharing_members
+      .joins(:partnership_members)
+      .where(partnership_members: {participant_type: 'Company'})
+      .joins("INNER JOIN companies ON companies.id = partnership_members.participant_id")
+      .select('DISTINCT companies.*')
+  end
+  
+  def shared_member_schools
+    active_partnerships
+      .sharing_members
+      .joins(:partnership_members)
+      .where(partnership_members: {participant_type: 'School'})
+      .where.not(partnership_members: {participant_id: id})
+      .joins("INNER JOIN schools ON schools.id = partnership_members.participant_id")
+      .select('DISTINCT schools.*')
+  end
+  
+  def shared_project_companies
+    active_partnerships
+      .sharing_projects
+      .joins(:partnership_members)
+      .where(partnership_members: {participant_type: 'Company'})
+      .joins("INNER JOIN companies ON companies.id = partnership_members.participant_id")
+      .select('DISTINCT companies.*')
+  end
+  
+  def shared_project_schools
+    active_partnerships
+      .sharing_projects
+      .joins(:partnership_members)
+      .where(partnership_members: {participant_type: 'School'})
+      .where.not(partnership_members: {participant_id: id})
+      .joins("INNER JOIN schools ON schools.id = partnership_members.participant_id")
+      .select('DISTINCT schools.*')
+  end
+  
+  def partnered_with?(organization)
+    active_partnerships.exists?(
+      partnership_members: {participant: organization, member_status: :confirmed}
+    )
+  end
+  
+  def partnership_with(organization)
+    active_partnerships.for_organization(organization).first
   end
 
   private

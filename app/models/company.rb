@@ -4,8 +4,22 @@ class Company < ApplicationRecord
   has_many :project_companies, dependent: :destroy
   has_many :projects, through: :project_companies
 
+  # Legacy partnership associations (kept for backward compatibility)
   has_many :company_partners, foreign_key: :company_sponsor_id, class_name: "CompanyCompany"
   has_many :reverse_company_partners, foreign_key: :company_id, class_name: "CompanyCompany"
+  has_many :school_companies, dependent: :destroy
+  has_many :schools, through: :school_companies, dependent: :destroy
+
+  # New partnership system
+  has_many :partnership_members_as_participant, 
+           as: :participant, 
+           class_name: 'PartnershipMember',
+           dependent: :destroy
+  has_many :partnerships, through: :partnership_members_as_participant
+  has_many :initiated_partnerships, 
+           as: :initiator, 
+           class_name: 'Partnership',
+           dependent: :destroy
 
   has_many :user_companies, dependent: :destroy
   has_many :users, through: :user_companies
@@ -14,8 +28,6 @@ class Company < ApplicationRecord
   has_many :skills, through: :company_skills
   has_many :company_sub_skills, dependent: :destroy
   has_many :sub_skills, through: :company_sub_skills
-  has_many :school_companies, dependent: :destroy
-  has_many :schools, through: :school_companies, dependent: :destroy
   belongs_to :company_type
 
   has_one_attached :logo
@@ -99,6 +111,99 @@ class Company < ApplicationRecord
   def logo_url
     return nil unless logo.attached?
     Rails.application.routes.url_helpers.rails_blob_url(logo, only_path: false)
+  end
+
+  # ========================================
+  # NEW PARTNERSHIP SYSTEM METHODS
+  # ========================================
+  
+  def active_partnerships
+    partnerships.active
+  end
+  
+  def partner_companies
+    active_partnerships
+      .joins(:partnership_members)
+      .where(partnership_members: {participant_type: 'Company'})
+      .where.not(partnership_members: {participant_id: id})
+      .joins("INNER JOIN companies ON companies.id = partnership_members.participant_id")
+      .select('DISTINCT companies.*')
+  end
+  
+  def partner_schools
+    active_partnerships
+      .joins(:partnership_members)
+      .where(partnership_members: {participant_type: 'School'})
+      .joins("INNER JOIN schools ON schools.id = partnership_members.participant_id")
+      .select('DISTINCT schools.*')
+  end
+  
+  def all_partners
+    partner_companies.to_a + partner_schools.to_a
+  end
+  
+  def shared_member_companies
+    active_partnerships
+      .sharing_members
+      .joins(:partnership_members)
+      .where(partnership_members: {participant_type: 'Company'})
+      .where.not(partnership_members: {participant_id: id})
+      .joins("INNER JOIN companies ON companies.id = partnership_members.participant_id")
+      .select('DISTINCT companies.*')
+  end
+  
+  def shared_member_schools
+    active_partnerships
+      .sharing_members
+      .joins(:partnership_members)
+      .where(partnership_members: {participant_type: 'School'})
+      .joins("INNER JOIN schools ON schools.id = partnership_members.participant_id")
+      .select('DISTINCT schools.*')
+  end
+  
+  def shared_project_companies
+    active_partnerships
+      .sharing_projects
+      .joins(:partnership_members)
+      .where(partnership_members: {participant_type: 'Company'})
+      .where.not(partnership_members: {participant_id: id})
+      .joins("INNER JOIN companies ON companies.id = partnership_members.participant_id")
+      .select('DISTINCT companies.*')
+  end
+  
+  def shared_project_schools
+    active_partnerships
+      .sharing_projects
+      .joins(:partnership_members)
+      .where(partnership_members: {participant_type: 'School'})
+      .joins("INNER JOIN schools ON schools.id = partnership_members.participant_id")
+      .select('DISTINCT schools.*')
+  end
+  
+  def partnered_with?(organization)
+    active_partnerships.exists?(
+      partnership_members: {participant: organization, member_status: :confirmed}
+    )
+  end
+  
+  def sponsoring?(company)
+    active_partnerships
+      .with_sponsorship
+      .joins(:partnership_members)
+      .where(partnership_members: {participant: self, role_in_partnership: :sponsor})
+      .exists?(partnership_members: {participant: company, role_in_partnership: :beneficiary})
+  end
+  
+  def sponsored_by?(company)
+    active_partnerships
+      .with_sponsorship
+      .joins(:partnership_members)
+      .where(partnership_members: {participant: self, role_in_partnership: :beneficiary})
+      .exists?(partnership_members: {participant: company, role_in_partnership: :sponsor})
+  end
+  
+  def partnership_with(organization)
+    active_partnerships.for_organization(organization).first
   end
 
   private
