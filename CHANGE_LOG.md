@@ -5,6 +5,292 @@ This document tracks all model/schema changes made before React integration.
 
 ---
 
+## Change #6: Project Co-Owners ✅ COMPLETED
+
+**Date:** October 17, 2025  
+**Status:** ✅ Production-Ready  
+**Risk Level:** MEDIUM (Breaking change to ProjectMember structure)  
+**Time Taken:** ~3 hours
+
+### What Changed
+
+**Transformed project membership from binary owner/admin to flexible role hierarchy with co-ownership support.**
+
+**Old System:**
+- Single `owner_id` (User) - immutable primary owner
+- `admin` boolean on ProjectMember - binary flag for project administration
+
+**New System:**
+- Single `owner_id` (User) - preserved as primary owner for accountability
+- `role` enum on ProjectMember: `{member: 0, admin: 1, co_owner: 2}`
+- **Co-owners**: Elevated members from affiliated org admins/referents/superadmins
+- **Auto-promotion**: Project owner automatically becomes co_owner in ProjectMember
+
+### Database Changes
+
+**Migration:** `20251017044902_add_role_to_project_members.rb`
+
+```ruby
+# Add role column
+add_column :project_members, :role, :integer, default: 0, null: false
+
+# Migrate existing data
+UPDATE project_members SET role = 1 WHERE admin = true
+
+# Remove old column
+remove_column :project_members, :admin, :boolean
+
+# Add index
+add_index :project_members, :role
+```
+
+**Schema Changes:**
+```ruby
+create_table "project_members" do |t|
+  t.integer "status", default: 0, null: false     # pending, confirmed
+  t.integer "role", default: 0, null: false       # ← NEW: member, admin, co_owner
+  t.bigint "user_id", null: false
+  t.bigint "project_id", null: false
+  # Removed: t.boolean "admin"                    # ← REMOVED
+  t.index ["role"], name: "index_project_members_on_role"  # ← NEW
+end
+```
+
+### Role Hierarchy
+
+| Role | Edit Project | Manage Members | Create Teams | Assign Badges* | Close Project | Delete Project |
+|------|--------------|----------------|--------------|----------------|---------------|----------------|
+| **Member** | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
+| **Admin** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ |
+| **Co-Owner** | ✅ | ✅ | ✅ | ✅ | ✅ | ❌** |
+| **Primary Owner** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+
+*Requires user has badge permission in affiliated organization  
+**Only primary owner can delete project
+
+### Co-Owner Eligibility Rules
+
+**Who Can Become Co-Owners:**
+```ruby
+✅ Organization Superadmins (from project's companies/schools)
+✅ Organization Admins (from project's companies/schools)
+✅ Organization Referents (from project's companies/schools)
+❌ Organization Intervenants
+❌ Organization Members
+❌ Users not affiliated with project
+```
+
+**Example:**
+```ruby
+# Project affiliated with School A and Company B
+project.schools # => [School A]
+project.companies # => [Company B]
+
+# User is admin of School A
+user.user_schools.find_by(school: school_a).role # => "admin"
+
+# User is eligible for co-ownership ✅
+project.user_eligible_for_co_ownership?(user) # => true
+
+# Add as co-owner
+project.add_co_owner(user, added_by: project.owner)
+# => {success: true, member: ProjectMember<role: co_owner>}
+
+# User now has co-ownership rights
+project.co_owners # => [original_owner, user]
+project.user_is_co_owner?(user) # => true
+```
+
+### Model Changes
+
+**ProjectMember** (`app/models/project_member.rb`)
+```ruby
+enum :role, {member: 0, admin: 1, co_owner: 2}, default: :member
+
+# Permission methods (NEW)
+def can_edit_project?          # admin? || co_owner?
+def can_manage_members?        # admin? || co_owner?
+def can_create_teams?          # admin? || co_owner?
+def can_assign_badges?         # (admin? || co_owner?) && user has org badge permission
+def can_close_project?         # co_owner?
+def can_delete_project?        # co_owner? && user == project.owner
+def can_add_co_owners?         # co_owner?
+def is_primary_owner?          # co_owner? && user == project.owner
+
+# Callbacks
+after_validation :set_co_owner_if_project_owner
+# Auto-promotes project owner to co_owner role (not just admin)
+```
+
+**Project** (`app/models/project.rb`)
+```ruby
+# New Associations
+has_many :co_owner_members, -> { where(role: :co_owner) }, class_name: 'ProjectMember'
+has_many :co_owners, through: :co_owner_members, source: :user
+has_many :admin_members, -> { where(role: [:admin, :co_owner]) }, class_name: 'ProjectMember'
+has_many :admins, through: :admin_members, source: :user
+
+# Business Logic Methods (NEW - 7 methods)
+def add_co_owner(user, added_by:)
+  # Validates: added_by is owner/co_owner
+  # Validates: user is eligible (org admin/referent/superadmin)
+  # Creates/updates ProjectMember with role: co_owner
+  
+def remove_co_owner(user, removed_by:)
+  # Cannot remove primary owner
+  # Demotes to member role
+  
+def user_is_co_owner?(user)
+def user_is_admin_or_co_owner?(user)
+def user_eligible_for_co_ownership?(user)
+  # Checks if user is admin/referent/superadmin in affiliated org
+
+# Updated Methods
+def can_edit?(user)
+  # NOW: owner == user || co_owner || admin
+  # WAS: owner == user || admin boolean
+  
+scope :my_administration_projects
+  # NOW: role: [:admin, :co_owner]
+  # WAS: admin: true
+```
+
+**User** (`app/models/user.rb`)
+```ruby
+# New Methods (3)
+def can_give_badges_in_project?(project)
+  # Checks if user has badge permission in ANY of project's orgs
+  
+def can_give_badges_in_company?(company)
+def can_give_badges_in_school?(school)
+```
+
+**ProjectPolicy** (`app/policies/project_policy.rb`)
+```ruby
+# Updated
+def update?
+  record.owner == user || record.user_is_co_owner?(user)  # ← co-owners can edit
+
+def destroy?
+  record.owner == user  # ← ONLY primary owner can delete
+
+# New
+def manage_members?
+  record.owner == user || record.user_is_admin_or_co_owner?(user)
+  
+def add_co_owner?, def remove_co_owner?, def close_project?
+  # Co-owners have these rights
+```
+
+### Controller Changes
+
+**project_admin_panel/project_members_controller.rb:**
+```ruby
+# Line 141: admin = false → role = :member
+# Line 152-154: admin = !admin? → role toggle logic
+```
+
+### Testing
+
+**New Specs: 32 examples added, 60 total in project/member specs**
+
+ProjectMember Specs (21 examples):
+- ✅ Enum validation for role
+- ✅ Auto-promotion callback (owner → co_owner)
+- ✅ Permission methods (12 examples)
+
+Project Specs (11 new examples):
+- ✅ Co-owner associations
+- ✅ add_co_owner with eligibility checks
+- ✅ remove_co_owner with protection
+- ✅ user_eligible_for_co_ownership logic
+
+**Full Suite: 354 examples, 0 failures, 6 pending** ✅
+
+### Backward Compatibility
+
+**Breaking Changes:**
+- ❌ `ProjectMember.admin` (boolean) → removed
+- ✅ Replaced with `ProjectMember.role` enum
+
+**Preserved:**
+- ✅ `Project.owner` (single User) - unchanged
+- ✅ `ProjectMember.admin?` method - still works (enum helper)
+- ✅ All permission logic enhanced, not broken
+
+**Migration is reversible** - rollback restores admin boolean from role >= 1
+
+### Files Modified
+
+**Created (1):**
+- `db/migrate/20251017044902_add_role_to_project_members.rb`
+
+**Modified (8):**
+- `app/models/project_member.rb` (role enum + permission methods)
+- `app/models/project.rb` (co-owner associations + 7 new methods)
+- `app/models/user.rb` (badge permission helpers)
+- `app/policies/project_policy.rb` (co-owner permissions)
+- `app/controllers/project_admin_panel/project_members_controller.rb` (role logic)
+- `spec/factories/project_members.rb` (role traits)
+- `spec/models/project_member_spec.rb` (21 examples)
+- `spec/models/project_spec.rb` (11 new examples)
+- `db/schema.rb` (auto-updated)
+
+### Benefits
+
+1. **Shared Ownership**: Multiple users from different orgs can co-manage projects
+2. **Fine-Grained Permissions**: Clear hierarchy (member < admin < co_owner < owner)
+3. **Org Integration**: Only eligible org members (admin/referent/superadmin) can be co-owners
+4. **Protection**: Primary owner always remains, cannot be demoted
+5. **Flexible**: Easy to extend (add viewer, moderator roles later)
+6. **Tested**: Comprehensive coverage including edge cases
+7. **Aligned**: Matches organization role system from Change #3
+
+### Usage Examples
+
+```ruby
+# Create project with school and company
+project = Project.create(
+  owner: teacher_user,
+  title: "Innovation Lab",
+  project_school_levels_attributes: [{school_level_id: level.id}],
+  project_companies_attributes: [{company_id: company.id}]
+)
+
+# Company admin wants to co-manage
+company_admin = company.owner.user
+company_admin.user_company.find_by(company: company).role # => "superadmin"
+
+# Add as co-owner
+result = project.add_co_owner(company_admin, added_by: teacher_user)
+# => {success: true, member: ProjectMember<role: co_owner>}
+
+# Now company admin can edit project
+project.can_edit?(company_admin) # => true
+project.user_is_co_owner?(company_admin) # => true
+
+# Co-owner can add other eligible users
+school_referent = school.users.find_by(...)
+school_referent.user_schools.find_by(school: school).role # => "referent"
+
+project.add_co_owner(school_referent, added_by: company_admin)
+# => {success: true} - co-owner can add other co-owners
+
+# But random user cannot be added
+project.add_co_owner(random_user, added_by: company_admin)
+# => {success: false, error: "User not eligible for co-ownership"}
+```
+
+### Ready For
+
+- ✅ Change #7: Partner Projects (builds on co-ownership)
+- ✅ React API integration
+- ✅ Advanced project collaboration features
+
+---
+
+
+
 ## Change #5: Comprehensive Partnership System ✅ COMPLETED
 
 **Date:** October 16, 2025  

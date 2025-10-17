@@ -40,6 +40,27 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def update?
+    record.owner == user || record.user_is_co_owner?(user)
+  end
+  
+  def destroy?
+    # Only primary owner can delete
     record.owner == user
+  end
+  
+  def manage_members?
+    record.owner == user || record.user_is_admin_or_co_owner?(user)
+  end
+  
+  def add_co_owner?
+    record.owner == user || record.user_is_co_owner?(user)
+  end
+  
+  def remove_co_owner?
+    record.owner == user || record.user_is_co_owner?(user)
+  end
+  
+  def close_project?
+    record.owner == user || record.user_is_co_owner?(user)
   end
 end

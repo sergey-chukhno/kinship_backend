@@ -138,7 +138,7 @@ class ProjectAdminPanel::ProjectMembersController < ApplicationController
       ProjectMemberMailer.notify_project_member_got_confirmed(@project_member).deliver_later
     else
       @project = Project.find(params.dig(:project_member, :project_id))
-      @project_member.admin = false
+      @project_member.role = :member
       @project_member.status = "pending"
       @project_teams = Team.where(project: @project)
       TeamMember.where(team: @project_teams, user: @project_member.user).destroy_all
@@ -149,8 +149,9 @@ class ProjectAdminPanel::ProjectMembersController < ApplicationController
 
   def update_admin_status
     @project_member = authorize ProjectMember.find(params[:id]), policy_class: ProjectAdminPanel::BasePolicy
-    @project_member.admin = !@project_member.admin?
-    @project_member.save!
+    # Toggle between member and admin
+    new_role = @project_member.admin? ? :member : :admin
+    @project_member.update!(role: new_role)
   end
 
   private

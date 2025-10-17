@@ -17,6 +17,18 @@ class Project < ApplicationRecord
   has_many :teams, dependent: :destroy
   has_many :team_members, through: :teams
   has_many :project_members, dependent: :destroy
+  
+  # Co-owner associations
+  has_many :co_owner_members, 
+           -> { where(role: :co_owner) }, 
+           class_name: 'ProjectMember'
+  has_many :co_owners, through: :co_owner_members, source: :user
+  
+  has_many :admin_members,
+           -> { where(role: [:admin, :co_owner]) },
+           class_name: 'ProjectMember'
+  has_many :admins, through: :admin_members, source: :user
+  
   has_many :user_badges, -> { where(status: :approved) }, dependent: :destroy
   has_one_attached :main_picture
   has_many_attached :pictures
@@ -64,7 +76,7 @@ class Project < ApplicationRecord
 
   scope :my_administration_projects, ->(user) {
     where(owner: user)
-      .or(Project.where(project_members: {user: user, admin: true}))
+      .or(Project.joins(:project_members).where(project_members: {user: user, role: [:admin, :co_owner]}))
   }
 
   scope :by_tags, ->(tag_ids) {
@@ -157,7 +169,7 @@ class Project < ApplicationRecord
   end
 
   def can_edit?(user)
-    owner == user || project_members.where(user: user, admin: true).any?
+    owner == user || project_members.where(user: user, role: [:admin, :co_owner]).any?
   end
 
   def companies_full_name_joined
@@ -166,5 +178,78 @@ class Project < ApplicationRecord
 
   def have_companies
     companies.present?
+  end
+
+  # ========================================
+  # CO-OWNER MANAGEMENT METHODS
+  # ========================================
+  
+  def add_co_owner(user, added_by:)
+    # Verify the person adding has permission
+    return {success: false, error: "Unauthorized"} unless can_add_co_owners?(added_by)
+    
+    # Verify user is eligible
+    return {success: false, error: "User not eligible for co-ownership"} unless user_eligible_for_co_ownership?(user)
+    
+    # Find or create project member
+    member = project_members.find_or_initialize_by(user: user)
+    
+    if member.update(role: :co_owner, status: :confirmed)
+      {success: true, member: member}
+    else
+      {success: false, error: member.errors.full_messages.join(", ")}
+    end
+  end
+  
+  def remove_co_owner(user, removed_by:)
+    # Cannot remove primary owner
+    return {success: false, error: "Cannot remove primary owner"} if user == owner
+    
+    # Verify the person removing has permission
+    return {success: false, error: "Unauthorized"} unless can_add_co_owners?(removed_by)
+    
+    member = co_owner_members.find_by(user: user)
+    return {success: false, error: "User is not a co-owner"} unless member
+    
+    if member.update(role: :member)
+      {success: true, member: member}
+    else
+      {success: false, error: member.errors.full_messages.join(", ")}
+    end
+  end
+  
+  def user_is_co_owner?(user)
+    co_owners.include?(user)
+  end
+  
+  def user_is_admin_or_co_owner?(user)
+    owner == user || admin_members.exists?(user: user)
+  end
+  
+  def user_eligible_for_co_ownership?(user)
+    # Must be admin/referent/superadmin of affiliated company or school
+    affiliated_companies = companies
+    affiliated_schools = schools
+    
+    affiliated_companies.any? { |c| user_has_elevated_role_in?(user, c) } ||
+    affiliated_schools.any? { |s| user_has_elevated_role_in?(user, s) }
+  end
+  
+  private
+  
+  def user_has_elevated_role_in?(user, organization)
+    if organization.is_a?(Company)
+      uc = user.user_company.find_by(company: organization)
+      uc&.referent? || uc&.admin? || uc&.superadmin?
+    elsif organization.is_a?(School)
+      us = user.user_schools.find_by(school: organization)
+      us&.referent? || us&.admin? || us&.superadmin?
+    else
+      false
+    end
+  end
+  
+  def can_add_co_owners?(user)
+    user == owner || user_is_co_owner?(user)
   end
 end

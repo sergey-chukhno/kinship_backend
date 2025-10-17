@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_16_132227) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_17_044902) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -252,12 +252,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_16_132227) do
 
   create_table "project_members", force: :cascade do |t|
     t.integer "status", default: 0, null: false
-    t.boolean "admin", default: false, null: false
     t.bigint "user_id", null: false
     t.bigint "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "role", default: 0, null: false
     t.index ["project_id"], name: "index_project_members_on_project_id"
+    t.index ["role"], name: "index_project_members_on_role"
     t.index ["user_id"], name: "index_project_members_on_user_id"
   end
 

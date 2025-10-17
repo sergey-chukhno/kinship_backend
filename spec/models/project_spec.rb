@@ -23,6 +23,11 @@ RSpec.describe Project, type: :model do
     it { should have_many(:keywords) }
     it { should have_many(:links) }
     it { should have_many(:teams) }
+    it { should have_many(:project_members) }
+    it { should have_many(:co_owner_members) }
+    it { should have_many(:co_owners).through(:co_owner_members) }
+    it { should have_many(:admin_members) }
+    it { should have_many(:admins).through(:admin_members) }
     it { should have_many_attached(:pictures) }
     it { should have_one_attached(:main_picture) }
     it { should have_many_attached(:documents) }
@@ -55,6 +60,82 @@ RSpec.describe Project, type: :model do
     it "should return a formatted date" do
       project = build(:project, end_date: DateTime.parse("2023-07-07 10:02:14"))
       expect(project.formatted_date_end).to eq("07/07/2023 10:02")
+    end
+  end
+
+  describe "co-owner functionality" do
+    let(:school) { create(:school, :confirmed, school_type: :college) }
+    let(:company) { create(:company, :confirmed) }
+    let(:school_level) { create(:school_level, school: school, level: :sixieme) }
+    let(:project) do
+      create(:project, 
+             project_school_levels_attributes: [{school_level_id: school_level.id}],
+             project_companies_attributes: [{company_id: company.id}])
+    end
+    let(:org_admin_user) { create(:user, :voluntary, confirmed_at: Time.current) }
+
+    before do
+      create(:user_company, user: org_admin_user, company: company, role: :admin, status: :confirmed)
+    end
+
+    describe "#add_co_owner" do
+      context "when user is eligible (org admin)" do
+        it "adds user as co-owner" do
+          result = project.add_co_owner(org_admin_user, added_by: project.owner)
+          expect(result[:success]).to be true
+          expect(project.co_owners).to include(org_admin_user)
+        end
+      end
+
+      context "when user is not eligible" do
+        let(:random_user) { create(:user, :voluntary, confirmed_at: Time.current) }
+
+        it "returns error" do
+          result = project.add_co_owner(random_user, added_by: project.owner)
+          expect(result[:success]).to be false
+          expect(result[:error]).to include("not eligible")
+        end
+      end
+
+      context "when added_by is not authorized" do
+        let(:random_user) { create(:user, :voluntary, confirmed_at: Time.current) }
+
+        it "returns error" do
+          result = project.add_co_owner(org_admin_user, added_by: random_user)
+          expect(result[:success]).to be false
+          expect(result[:error]).to eq("Unauthorized")
+        end
+      end
+    end
+
+    describe "#remove_co_owner" do
+      before do
+        project.add_co_owner(org_admin_user, added_by: project.owner)
+      end
+
+      it "demotes co-owner to member" do
+        result = project.remove_co_owner(org_admin_user, removed_by: project.owner)
+        expect(result[:success]).to be true
+        expect(project.co_owners).not_to include(org_admin_user)
+      end
+
+      it "cannot remove primary owner" do
+        result = project.remove_co_owner(project.owner, removed_by: project.owner)
+        expect(result[:success]).to be false
+        expect(result[:error]).to eq("Cannot remove primary owner")
+      end
+    end
+
+    describe "#user_eligible_for_co_ownership?" do
+      it "returns true for company admin" do
+        expect(project.user_eligible_for_co_ownership?(org_admin_user)).to be true
+      end
+
+      it "returns false for regular member" do
+        regular_user = create(:user, :voluntary, confirmed_at: Time.current)
+        create(:user_company, user: regular_user, company: company, role: :member, status: :confirmed)
+        expect(project.user_eligible_for_co_ownership?(regular_user)).to be false
+      end
     end
   end
 end

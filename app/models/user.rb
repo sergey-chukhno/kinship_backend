@@ -266,6 +266,25 @@ class User < ApplicationRecord
     schools.any? || companies.any?
   end
 
+  def can_give_badges_in_project?(project)
+    # Check if user has badge permission in any of project's affiliated organizations
+    project_companies = project.companies
+    project_schools = project.schools
+    
+    project_companies.any? { |c| can_give_badges_in_company?(c) } ||
+    project_schools.any? { |s| can_give_badges_in_school?(s) }
+  end
+  
+  def can_give_badges_in_company?(company)
+    uc = user_company.find_by(company: company)
+    uc&.can_assign_badges?
+  end
+  
+  def can_give_badges_in_school?(school)
+    us = user_schools.find_by(school: school)
+    us&.can_assign_badges?
+  end
+
   def generate_delete_token
     self.delete_token = SecureRandom.hex(90)
     self.delete_token_sent_at = DateTime.now
