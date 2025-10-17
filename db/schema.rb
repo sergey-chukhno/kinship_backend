@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_17_044902) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_17_074434) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -301,7 +301,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_17_044902) do
     t.integer "status"
     t.integer "time_spent"
     t.boolean "private", default: false
+    t.bigint "partnership_id"
     t.index ["owner_id"], name: "index_projects_on_owner_id"
+    t.index ["partnership_id"], name: "index_projects_on_partnership_id"
   end
 
   create_table "school_companies", force: :cascade do |t|
@@ -520,6 +522,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_17_044902) do
   add_foreign_key "project_skills", "skills"
   add_foreign_key "project_tags", "projects"
   add_foreign_key "project_tags", "tags"
+  add_foreign_key "projects", "partnerships"
   add_foreign_key "projects", "users", column: "owner_id"
   add_foreign_key "school_companies", "companies"
   add_foreign_key "school_companies", "schools"

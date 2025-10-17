@@ -3,6 +3,7 @@ class Partnership < ApplicationRecord
   has_many :partnership_members, dependent: :destroy
   has_many :companies, through: :partnership_members, source: :participant, source_type: 'Company'
   has_many :schools, through: :partnership_members, source: :participant, source_type: 'School'
+  has_many :projects, dependent: :nullify  # When partnership deleted, projects become regular
   
   enum :status, {pending: 0, confirmed: 1, rejected: 2}, default: :pending
   enum :partnership_type, {bilateral: 0, multilateral: 1}, default: :bilateral
@@ -77,6 +78,38 @@ class Partnership < ApplicationRecord
   
   def confirmed_members
     partnership_members.confirmed
+  end
+  
+  # ========================================
+  # PARTNER PROJECT METHODS
+  # ========================================
+  
+  def user_can_create_partner_project?(user)
+    # User must be admin/referent/superadmin of ANY participant organization
+    return false unless confirmed?
+    
+    all_participants.any? do |org|
+      if org.is_a?(Company)
+        uc = user.user_company.find_by(company: org)
+        uc&.referent? || uc&.admin? || uc&.superadmin?
+      elsif org.is_a?(School)
+        us = user.user_schools.find_by(school: org)
+        us&.referent? || us&.admin? || us&.superadmin?
+      else
+        false
+      end
+    end
+  end
+  
+  def projects_visible_to(organization)
+    return Project.none unless share_projects?
+    return Project.none unless includes?(organization)
+    
+    projects
+  end
+  
+  def partner_project_count
+    projects.count
   end
   
   private

@@ -1,5 +1,6 @@
 class Project < ApplicationRecord
   belongs_to :owner, class_name: "User"
+  belongs_to :partnership, optional: true
 
   has_many :project_companies, dependent: :destroy
   has_many :companies, through: :project_companies
@@ -47,7 +48,13 @@ class Project < ApplicationRecord
   validates :title, :description, :start_date, :end_date, :owner, :status, presence: true
   validate :start_date_before_end_date, if: -> { start_date.present? && end_date.present? }
   validate :school_levels_or_company_presence, unless: -> { owner&.admin? }
+  validate :partnership_organizations_must_include_project_orgs, if: :partnership_id?
 
+  # Partner project scopes
+  scope :partner_projects, -> { where.not(partnership_id: nil) }
+  scope :regular_projects, -> { where(partnership_id: nil) }
+  scope :for_partnership, ->(partnership) { where(partnership: partnership) }
+  
   scope :kinship, -> {
     Project
       .where(project_school_levels: {id: nil})
@@ -181,6 +188,75 @@ class Project < ApplicationRecord
   end
 
   # ========================================
+  # PARTNER PROJECT METHODS
+  # ========================================
+  
+  after_update :notify_partner_organizations, if: :saved_change_to_partnership_id?
+  
+  def partner_project?
+    partnership_id.present?
+  end
+  
+  def all_partner_organizations
+    return [] unless partner_project?
+    partnership.all_participants
+  end
+  
+  def user_from_partner_organization?(user)
+    return false unless partner_project?
+    
+    all_partner_organizations.any? do |org|
+      if org.is_a?(Company)
+        user.user_company.exists?(company: org, status: :confirmed)
+      elsif org.is_a?(School)
+        user.user_schools.exists?(school: org, status: :confirmed)
+      end
+    end
+  end
+  
+  def assign_to_partnership(partnership_to_assign, assigned_by:)
+    # Verify user has permission
+    return {success: false, error: "Unauthorized"} unless can_assign_to_partnership?(assigned_by)
+    
+    # Verify partnership is confirmed
+    return {success: false, error: "Partnership must be confirmed"} unless partnership_to_assign.confirmed?
+    
+    # Verify partnership includes project's organizations
+    return {success: false, error: "Partnership must include all project organizations"} unless eligible_for_partnership?(partnership_to_assign)
+    
+    if update(partnership: partnership_to_assign)
+      {success: true}
+    else
+      {success: false, error: errors.full_messages.join(", ")}
+    end
+  end
+  
+  def remove_from_partnership(removed_by:)
+    return {success: false, error: "Unauthorized"} unless can_assign_to_partnership?(removed_by)
+    return {success: false, error: "Not a partner project"} unless partner_project?
+    
+    if update(partnership: nil)
+      {success: true}
+    else
+      {success: false, error: errors.full_messages.join(", ")}
+    end
+  end
+  
+  def eligible_for_partnership?(partnership_to_check)
+    return false unless partnership_to_check.confirmed?
+    
+    project_orgs = (companies + schools).uniq
+    partnership_orgs = partnership_to_check.all_participants
+    
+    # All project orgs must be in partnership
+    project_orgs.all? { |org| partnership_orgs.include?(org) }
+  end
+  
+  def partner_organizations_can_see?
+    partner_project? && partnership.share_projects?
+  end
+  
+  # ========================================
   # CO-OWNER MANAGEMENT METHODS
   # ========================================
   
@@ -228,11 +304,15 @@ class Project < ApplicationRecord
   
   def user_eligible_for_co_ownership?(user)
     # Must be admin/referent/superadmin of affiliated company or school
-    affiliated_companies = companies
-    affiliated_schools = schools
+    # For partner projects: also eligible if from ANY partner organization
     
-    affiliated_companies.any? { |c| user_has_elevated_role_in?(user, c) } ||
-    affiliated_schools.any? { |s| user_has_elevated_role_in?(user, s) }
+    eligible_orgs = if partner_project?
+      all_partner_organizations  # ALL partner orgs
+    else
+      companies + schools  # Just directly affiliated orgs
+    end
+    
+    eligible_orgs.any? { |org| user_has_elevated_role_in?(user, org) }
   end
   
   private
@@ -251,5 +331,34 @@ class Project < ApplicationRecord
   
   def can_add_co_owners?(user)
     user == owner || user_is_co_owner?(user)
+  end
+  
+  def can_assign_to_partnership?(user)
+    user == owner || user_is_co_owner?(user)
+  end
+  
+  def partnership_organizations_must_include_project_orgs
+    return unless partnership
+    
+    unless eligible_for_partnership?(partnership)
+      errors.add(:partnership, "doit inclure toutes les organisations du projet")
+    end
+  end
+  
+  def notify_partner_organizations
+    return unless partnership && partnership_id_before_last_save.nil?
+    
+    # Notify all partner organization superadmins about new partner project
+    partnership.all_participants.each do |org|
+      superadmins = if org.is_a?(Company)
+        org.user_companies.where(role: :superadmin).map(&:user)
+      elsif org.is_a?(School)
+        org.user_schools.where(role: :superadmin).map(&:user)
+      end
+      
+      superadmins&.each do |admin|
+        PartnerProjectMailer.notify_new_partner_project(admin, self, org).deliver_later
+      end
+    end
   end
 end

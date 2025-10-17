@@ -125,4 +125,38 @@ RSpec.describe Partnership, type: :model do
       expect(partnership.beneficiaries.first).not_to eq(partnership.initiator)
     end
   end
+
+  describe "partner project methods" do
+    let(:company_a) { create(:company, :confirmed) }
+    let(:partnership) { create(:partnership, :with_two_companies, :confirmed, initiator: company_a) }
+    let(:admin_user) { create(:user, :voluntary, confirmed_at: Time.current) }
+
+    before do
+      create(:user_company, user: admin_user, company: company_a, role: :admin, status: :confirmed)
+    end
+
+    describe "#user_can_create_partner_project?" do
+      it "returns true for org admin" do
+        expect(partnership.user_can_create_partner_project?(admin_user)).to be true
+      end
+
+      it "returns false for non-member" do
+        other_user = create(:user, :voluntary, confirmed_at: Time.current)
+        expect(partnership.user_can_create_partner_project?(other_user)).to be false
+      end
+    end
+
+    describe "#projects association" do
+      let!(:project) { create(:project, partnership: partnership) }
+
+      it "returns partnership projects" do
+        expect(partnership.projects).to include(project)
+      end
+
+      it "nullifies partnership_id when partnership deleted" do
+        partnership.destroy
+        expect(project.reload.partnership_id).to be_nil
+      end
+    end
+  end
 end

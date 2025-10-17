@@ -63,4 +63,12 @@ class ProjectPolicy < ApplicationPolicy
   def close_project?
     record.owner == user || record.user_is_co_owner?(user)
   end
+  
+  def assign_to_partnership?
+    record.owner == user || record.user_is_co_owner?(user)
+  end
+  
+  def remove_from_partnership?
+    record.owner == user || record.user_is_co_owner?(user)
+  end
 end
