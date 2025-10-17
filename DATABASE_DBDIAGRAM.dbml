@@ -1,0 +1,548 @@
+// Kinship Database Schema - dbdiagram.io format
+// Paste this code into: https://dbdiagram.io/d
+// Click "Import" → "From DBML" and paste this entire file
+
+// ==========================================
+// CORE ENTITIES
+// ==========================================
+
+Table users {
+  id bigint [pk, increment]
+  email string [unique, not null]
+  first_name string
+  last_name string
+  role integer [not null, note: 'admin=0, teacher=1, tutor=2, voluntary=3']
+  confirmed_at timestamp
+  is_banned boolean [default: false]
+  phone_number string
+  parent_id bigint [ref: > users.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Note: 'Core user model. Has avatar attachment (ActiveStorage). Change #2'
+}
+
+Table companies {
+  id bigint [pk, increment]
+  name string [not null]
+  city string [not null]
+  zip_code string [not null]
+  siret_number string [unique, note: '14 digits']
+  status integer [not null, default: 0, note: 'pending=0, confirmed=1']
+  company_type_id bigint [not null, ref: > company_types.id]
+  description text [not null]
+  email string
+  website string
+  referent_phone_number string [not null]
+  job string
+  take_trainee boolean [default: false]
+  propose_workshop boolean [default: false]
+  propose_summer_job boolean [default: false]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Note: 'Companies/Organizations. Has logo attachment. Change #2'
+}
+
+Table schools {
+  id bigint [pk, increment]
+  name string [not null]
+  city string [not null]
+  zip_code string [not null]
+  school_type integer [not null, note: 'primaire=0, college=1, lycee=2, etc']
+  status integer [not null, default: 0, note: 'pending=0, confirmed=1']
+  referent_phone_number string
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Note: 'Educational institutions. Has logo attachment. Change #2'
+}
+
+Table projects {
+  id bigint [pk, increment]
+  title string [not null]
+  description text [not null]
+  start_date date [not null]
+  end_date date [not null]
+  owner_id bigint [not null, ref: > users.id]
+  partnership_id bigint [ref: > partnerships.id, note: 'NEW - Change #7: Partner Projects']
+  status integer [default: 0, note: 'coming=0, in_progress=1, ended=2']
+  private boolean [default: false]
+  participants_number integer
+  time_spent integer
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Indexes {
+    owner_id
+    partnership_id
+  }
+  
+  Note: 'Educational projects. Has main_picture + pictures + documents attachments'
+}
+
+Table badges {
+  id bigint [pk, increment]
+  name string [not null]
+  description text [not null]
+  level integer [not null, note: '1=novice, 2=intermediate, 3=advanced, 4=expert']
+  series string [not null, default: 'Série TouKouLeur', note: 'NEW - Change #1: Badge Series']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Indexes {
+    series
+  }
+  
+  Note: 'Achievement badges. Has icon attachment. Organized by series'
+}
+
+// ==========================================
+// MEMBERSHIP & ROLES (Change #3)
+// ==========================================
+
+Table user_companies {
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+  company_id bigint [not null, ref: > companies.id]
+  status integer [not null, default: 0, note: 'pending=0, confirmed=1']
+  role integer [not null, default: 0, note: 'member=0, intervenant=1, referent=2, admin=3, superadmin=4']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Indexes {
+    (user_id, company_id) [unique]
+    role
+  }
+  
+  Note: 'Company membership with role hierarchy. Change #3: Enhanced roles'
+}
+
+Table user_schools {
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+  school_id bigint [not null, ref: > schools.id]
+  status integer [not null, default: 0, note: 'pending=0, confirmed=1']
+  role integer [not null, default: 0, note: 'member=0, intervenant=1, referent=2, admin=3, superadmin=4']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Indexes {
+    (user_id, school_id) [unique]
+    role
+  }
+  
+  Note: 'School membership with role hierarchy. Change #3: Enhanced roles'
+}
+
+Table project_members {
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+  project_id bigint [not null, ref: > projects.id]
+  status integer [not null, default: 0, note: 'pending=0, confirmed=1']
+  role integer [not null, default: 0, note: 'member=0, admin=1, co_owner=2']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Indexes {
+    (user_id, project_id) [unique]
+    role
+  }
+  
+  Note: 'Project participation with co-owner support. Change #6: Co-owners'
+}
+
+// ==========================================
+// PARTNERSHIP SYSTEM (Change #5)
+// ==========================================
+
+Table partnerships {
+  id bigint [pk, increment]
+  initiator_type string [not null, note: 'Company or School']
+  initiator_id bigint [not null, note: 'polymorphic']
+  status integer [not null, default: 0, note: 'pending=0, confirmed=1, rejected=2']
+  partnership_type integer [not null, default: 0, note: 'bilateral=0, multilateral=1']
+  share_members boolean [not null, default: false]
+  share_projects boolean [not null, default: true]
+  has_sponsorship boolean [not null, default: false]
+  name string [note: 'required for multilateral']
+  description text
+  confirmed_at timestamp
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Indexes {
+    (initiator_type, initiator_id)
+    status
+    partnership_type
+    confirmed_at
+  }
+  
+  Note: 'Multi-party partnership system. Change #5: Bidirectional partnerships with sponsorship'
+}
+
+Table partnership_members {
+  id bigint [pk, increment]
+  partnership_id bigint [not null, ref: > partnerships.id]
+  participant_type string [not null, note: 'Company or School']
+  participant_id bigint [not null, note: 'polymorphic']
+  member_status integer [not null, default: 0, note: 'pending=0, confirmed=1, declined=2']
+  role_in_partnership integer [not null, default: 0, note: 'partner=0, sponsor=1, beneficiary=2']
+  joined_at timestamp
+  confirmed_at timestamp
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Indexes {
+    (participant_type, participant_id)
+    (partnership_id, participant_id, participant_type) [unique]
+    member_status
+    role_in_partnership
+  }
+  
+  Note: 'Partnership participants with flexible roles. Polymorphic to Company/School'
+}
+
+// ==========================================
+// BADGE & ACHIEVEMENT SYSTEM
+// ==========================================
+
+Table user_badges {
+  id bigint [pk, increment]
+  sender_id bigint [not null, ref: > users.id]
+  receiver_id bigint [not null, ref: > users.id]
+  badge_id bigint [not null, ref: > badges.id]
+  project_id bigint [ref: > projects.id, note: 'optional context']
+  organization_type string [note: 'Company or School']
+  organization_id bigint [note: 'polymorphic']
+  status integer [not null, default: 0, note: 'pending=0, approved=1, rejected=2']
+  level integer [not null, note: '1=auto-approve, 2-4=manual']
+  comment text
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Indexes {
+    sender_id
+    receiver_id
+    badge_id
+    project_id
+    (organization_type, organization_id)
+  }
+  
+  Note: 'Badge assignments. Has documents attachments for level 2+'
+}
+
+Table badge_skills {
+  id bigint [pk, increment]
+  badge_id bigint [not null, ref: > badges.id]
+  skill_id bigint [not null, ref: > skills.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Note: 'Skills required for badges'
+}
+
+// ==========================================
+// PROJECT ORGANIZATION
+// ==========================================
+
+Table teams {
+  id bigint [pk, increment]
+  name string [not null]
+  project_id bigint [not null, ref: > projects.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Note: 'Project sub-groups for organizing participants'
+}
+
+Table team_members {
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+  team_id bigint [not null, ref: > teams.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Indexes {
+    (user_id, team_id) [unique]
+  }
+}
+
+Table project_companies {
+  id bigint [pk, increment]
+  project_id bigint [not null, ref: > projects.id]
+  company_id bigint [not null, ref: > companies.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Indexes {
+    (project_id, company_id) [unique]
+  }
+  
+  Note: 'Links projects to companies'
+}
+
+Table project_school_levels {
+  id bigint [pk, increment]
+  project_id bigint [not null, ref: > projects.id]
+  school_level_id bigint [not null, ref: > school_levels.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Indexes {
+    (project_id, school_level_id) [unique]
+  }
+  
+  Note: 'Projects target specific school classes'
+}
+
+Table school_levels {
+  id bigint [pk, increment]
+  name string [note: 'A, B, 1, 2, etc']
+  school_id bigint [not null, ref: > schools.id]
+  level integer [note: 'enum validated by school_type']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Note: 'Specific classes within schools (e.g., 6ème A, Terminale B)'
+}
+
+// ==========================================
+// CONTRACTS & LEGAL
+// ==========================================
+
+Table contracts {
+  id bigint [pk, increment]
+  school_id bigint [ref: > schools.id, note: 'XOR with company_id']
+  company_id bigint [ref: > companies.id, note: 'XOR with school_id']
+  active boolean [not null]
+  start_date date [not null]
+  end_date date [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Indexes {
+    school_id
+    company_id
+  }
+  
+  Note: 'Legal contracts. ONE active per organization. XOR constraint: school OR company'
+}
+
+// ==========================================
+// SKILLS & TAXONOMY
+// ==========================================
+
+Table skills {
+  id bigint [pk, increment]
+  name string [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table sub_skills {
+  id bigint [pk, increment]
+  name string [not null]
+  skill_id bigint [not null, ref: > skills.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table company_skills {
+  id bigint [pk, increment]
+  company_id bigint [not null, ref: > companies.id]
+  skill_id bigint [not null, ref: > skills.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table project_skills {
+  id bigint [pk, increment]
+  project_id bigint [not null, ref: > projects.id]
+  skill_id bigint [not null, ref: > skills.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table user_skills {
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+  skill_id bigint [not null, ref: > skills.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ==========================================
+// TAGS & METADATA
+// ==========================================
+
+Table tags {
+  id bigint [pk, increment]
+  name string [not null]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table project_tags {
+  id bigint [pk, increment]
+  project_id bigint [not null, ref: > projects.id]
+  tag_id bigint [not null, ref: > tags.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table keywords {
+  id bigint [pk, increment]
+  word string [not null]
+  project_id bigint [not null, ref: > projects.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table links {
+  id bigint [pk, increment]
+  url string [not null]
+  project_id bigint [not null, ref: > projects.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ==========================================
+// SUPPORTING TABLES
+// ==========================================
+
+Table company_types {
+  id bigint [pk, increment]
+  name string [not null, note: 'Entreprise, Association, Collectivité']
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table availabilities {
+  id bigint [pk, increment]
+  user_id bigint [not null, ref: > users.id]
+  monday boolean [default: false]
+  tuesday boolean [default: false]
+  wednesday boolean [default: false]
+  thursday boolean [default: false]
+  friday boolean [default: false]
+  saturday boolean [default: false]
+  sunday boolean [default: false]
+  morning boolean [default: false]
+  afternoon boolean [default: false]
+  evening boolean [default: false]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ==========================================
+// LEGACY PARTNERSHIP TABLES (Preserved)
+// ==========================================
+
+Table school_companies {
+  id bigint [pk, increment]
+  school_id bigint [not null, ref: > schools.id]
+  company_id bigint [not null, ref: > companies.id]
+  status integer [not null, default: 0]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Note: 'LEGACY - Preserved for backward compatibility. Use partnerships instead'
+}
+
+Table company_companies {
+  id bigint [pk, increment]
+  company_sponsor_id bigint [not null, ref: > companies.id]
+  company_id bigint [not null, ref: > companies.id]
+  status integer [not null, default: 0]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+  
+  Note: 'LEGACY - Preserved for backward compatibility. Use partnerships instead'
+}
+
+// ==========================================
+// API & LOGGING
+// ==========================================
+
+Table api_accesses {
+  id bigint [pk, increment]
+  token string [not null, unique]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table company_api_accesses {
+  id bigint [pk, increment]
+  api_access_id bigint [not null, ref: > api_accesses.id]
+  company_id bigint [not null, ref: > companies.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+Table loggings {
+  id bigint [pk, increment]
+  ip_address string
+  request_path string
+  request_code integer
+  user_agent text
+  user_id bigint [ref: > users.id]
+  created_at timestamp [not null]
+  updated_at timestamp [not null]
+}
+
+// ==========================================
+// ENUMS REFERENCE
+// ==========================================
+
+// User.role: admin=0, teacher=1, tutor=2, voluntary=3
+// UserCompany.role: member=0, intervenant=1, referent=2, admin=3, superadmin=4 (Change #3)
+// UserSchool.role: member=0, intervenant=1, referent=2, admin=3, superadmin=4 (Change #3)
+// ProjectMember.role: member=0, admin=1, co_owner=2 (Change #6)
+// Partnership.status: pending=0, confirmed=1, rejected=2
+// Partnership.partnership_type: bilateral=0, multilateral=1
+// PartnershipMember.member_status: pending=0, confirmed=1, declined=2
+// PartnershipMember.role_in_partnership: partner=0, sponsor=1, beneficiary=2
+// Badge.level: 1=novice, 2=intermediate, 3=advanced, 4=expert
+// Project.status: coming=0, in_progress=1, ended=2
+
+// ==========================================
+// CHANGES IMPLEMENTED
+// ==========================================
+
+// Change #1: Badge Series
+//   - Added badges.series column with default and index
+//
+// Change #2: User Avatars & Organization Logos
+//   - Added ActiveStorage attachments (not shown in schema)
+//   - user.avatar, company.logo, school.logo
+//
+// Change #3: Enhanced Member Roles
+//   - Replaced boolean flags with role enum
+//   - user_companies.role, user_schools.role
+//   - 5-level hierarchy: member < intervenant < referent < admin < superadmin
+//
+// Change #5: Comprehensive Partnership System
+//   - Added partnerships table (polymorphic initiator)
+//   - Added partnership_members table (polymorphic participants)
+//   - Supports bilateral, multilateral, sponsorship
+//   - Visibility controls: share_members, share_projects
+//
+// Change #6: Project Co-Owners
+//   - Added project_members.role enum
+//   - Replaced admin boolean with role hierarchy
+//   - Enables multiple co-owners from org admins/referents
+//
+// Change #7: Partner Projects
+//   - Added projects.partnership_id (nullable FK)
+//   - Projects can belong to partnerships
+//   - Cross-org visibility and co-ownership
+
+// ==========================================
+// TOTAL TABLES: 47
+// ==========================================
+// Core: User, Company, School, Project, Badge, Partnership
+// Membership: user_companies, user_schools, project_members, partnership_members
+// Join: project_companies, project_school_levels, team_members, etc.
+// Supporting: skills, tags, contracts, school_levels, teams, etc.
+
