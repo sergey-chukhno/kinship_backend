@@ -16,5 +16,20 @@ FactoryBot.define do
     trait :confirmed do
       status { :confirmed }
     end
+    
+    # Branch traits (Change #4)
+    trait :branch do
+      parent_company { association :company }
+    end
+    
+    trait :with_branches do
+      after(:create) do |company|
+        create_list(:company, 2, parent_company: company)
+      end
+    end
+    
+    trait :sharing_members_with_branches do
+      share_members_with_branches { true }
+    end
   end
 end

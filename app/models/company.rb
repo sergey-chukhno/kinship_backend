@@ -21,6 +21,23 @@ class Company < ApplicationRecord
            class_name: 'Partnership',
            dependent: :destroy
 
+  # Branch system (Change #4)
+  belongs_to :parent_company, class_name: 'Company', optional: true
+  has_many :branch_companies, 
+           class_name: 'Company', 
+           foreign_key: :parent_company_id, 
+           dependent: :nullify
+  
+  # Branch requests (polymorphic)
+  has_many :sent_branch_requests_as_parent, 
+           as: :parent, 
+           class_name: 'BranchRequest',
+           dependent: :destroy
+  has_many :received_branch_requests_as_child, 
+           as: :child, 
+           class_name: 'BranchRequest',
+           dependent: :destroy
+
   has_many :user_companies, dependent: :destroy
   has_many :users, through: :user_companies
   has_many :contracts, dependent: :destroy
@@ -42,6 +59,11 @@ class Company < ApplicationRecord
   validates :website, format: {with: URI::DEFAULT_PARSER.make_regexp, message: "Url invalide, l'url doit commencer par http:// ou https://"}, allow_blank: true
   # validates :referent_phone_number, format: { with: /\A0[1-9]([-. ]?[0-9]{2}){4}\z/ }
   validate :logo_format
+  
+  # Branch validations (Change #4)
+  validate :cannot_be_own_branch
+  validate :cannot_have_circular_branch_reference
+  validate :branch_cannot_have_branches
 
   accepts_nested_attributes_for :company_skills, allow_destroy: true
   accepts_nested_attributes_for :company_sub_skills, allow_destroy: true
@@ -206,6 +228,90 @@ class Company < ApplicationRecord
     active_partnerships.for_organization(organization).first
   end
 
+  # ========================================
+  # BRANCH SYSTEM METHODS (Change #4)
+  # ========================================
+  
+  # Scopes
+  def self.main_companies
+    where(parent_company_id: nil)
+  end
+  
+  def self.branch_companies
+    where.not(parent_company_id: nil)
+  end
+  
+  # Status checks
+  def main_company?
+    parent_company_id.nil?
+  end
+  
+  def branch?
+    parent_company_id.present?
+  end
+  
+  # Branch management
+  def all_branch_companies
+    branch_companies
+  end
+  
+  def all_members_including_branches
+    if main_company?
+      User.joins(:user_company)
+          .where(user_companies: {company_id: [id] + branch_companies.pluck(:id), status: :confirmed})
+          .distinct
+    else
+      User.joins(:user_company)
+          .where(user_companies: {company_id: id, status: :confirmed})
+          .distinct
+    end
+  end
+  
+  def all_projects_including_branches
+    if main_company?
+      Project.joins(:project_companies)
+             .where(project_companies: {company_id: [id] + branch_companies.pluck(:id)})
+             .distinct
+    else
+      projects
+    end
+  end
+  
+  def members_visible_to_branch?(branch)
+    branch.parent_company == self && share_members_with_branches
+  end
+  
+  def projects_visible_to_branch?(branch)
+    branch.parent_company == self  # Parent can always see branch projects
+  end
+  
+  # Branch request management
+  def request_to_become_branch_of(parent_company)
+    BranchRequest.create!(
+      parent: parent_company,
+      child: self,
+      initiator: self
+    )
+  end
+  
+  def invite_as_branch(child_company)
+    BranchRequest.create!(
+      parent: self,
+      child: child_company,
+      initiator: self
+    )
+  end
+  
+  def detach_branch(branch)
+    return false unless branch.parent_company == self
+    branch.update(parent_company: nil)
+  end
+  
+  def detach_from_parent
+    return false unless parent_company.present?
+    update(parent_company: nil)
+  end
+
   private
 
   def logo_format
@@ -219,5 +325,37 @@ class Company < ApplicationRecord
     if logo.byte_size > 5.megabytes
       errors.add(:logo, "doit être inférieure à 5 Mo")
     end
+  end
+  
+  # Branch validation methods (Change #4)
+  def cannot_be_own_branch
+    return unless id.present? && parent_company_id.present?
+    
+    if id == parent_company_id
+      errors.add(:parent_company, "ne peut pas être elle-même")
+    end
+  end
+  
+  def cannot_have_circular_branch_reference
+    return unless parent_company_id.present? && parent_company_id_changed? && persisted?
+    
+    # Check if parent is already a branch of this company
+    current = Company.find_by(id: parent_company_id)
+    return unless current
+    
+    # Check one level up (sufficient for 1-level depth enforcement)
+    if current.parent_company_id == id
+      errors.add(:parent_company, "créerait une référence circulaire")
+    end
+  end
+  
+  def branch_cannot_have_branches
+    return unless parent_company_id.present?
+    
+    # Check if the parent is already a branch (has a parent itself)
+    parent = Company.find_by(id: parent_company_id)
+    return unless parent&.parent_company_id.present?
+    
+    errors.add(:base, "Une filiale ne peut pas avoir de sous-filiales (profondeur max: 1 niveau)")
   end
 end

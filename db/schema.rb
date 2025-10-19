@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_17_074434) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_19_143319) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -97,6 +97,25 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_17_074434) do
     t.index ["series"], name: "index_badges_on_series"
   end
 
+  create_table "branch_requests", force: :cascade do |t|
+    t.string "parent_type", null: false
+    t.bigint "parent_id", null: false
+    t.string "child_type", null: false
+    t.bigint "child_id", null: false
+    t.string "initiator_type", null: false
+    t.bigint "initiator_id", null: false
+    t.integer "status", default: 0, null: false
+    t.text "message"
+    t.datetime "confirmed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["child_type", "child_id"], name: "index_branch_requests_on_child_type_and_child_id"
+    t.index ["initiator_type", "initiator_id"], name: "index_branch_requests_on_initiator_type_and_initiator_id"
+    t.index ["parent_type", "parent_id", "child_type", "child_id"], name: "index_branch_requests_on_parent_and_child", unique: true
+    t.index ["parent_type", "parent_id"], name: "index_branch_requests_on_parent_type_and_parent_id"
+    t.index ["status"], name: "index_branch_requests_on_status"
+  end
+
   create_table "companies", force: :cascade do |t|
     t.string "name", null: false
     t.string "zip_code", null: false
@@ -115,7 +134,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_17_074434) do
     t.boolean "take_trainee", default: false
     t.boolean "propose_workshop", default: false
     t.boolean "propose_summer_job", default: false
+    t.bigint "parent_company_id"
+    t.boolean "share_members_with_branches", default: false, null: false
     t.index ["company_type_id"], name: "index_companies_on_company_type_id"
+    t.index ["parent_company_id"], name: "index_companies_on_parent_company_id"
   end
 
   create_table "company_api_accesses", force: :cascade do |t|
@@ -334,6 +356,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_17_074434) do
     t.string "city"
     t.integer "status", default: 0, null: false
     t.string "referent_phone_number"
+    t.bigint "parent_school_id"
+    t.boolean "share_members_with_branches", default: false, null: false
+    t.index ["parent_school_id"], name: "index_schools_on_parent_school_id"
   end
 
   create_table "skills", force: :cascade do |t|
@@ -498,6 +523,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_17_074434) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "availabilities", "users"
   add_foreign_key "badge_skills", "badges"
+  add_foreign_key "companies", "companies", column: "parent_company_id"
   add_foreign_key "companies", "company_types"
   add_foreign_key "company_api_accesses", "api_accesses"
   add_foreign_key "company_api_accesses", "companies"
@@ -527,6 +553,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_17_074434) do
   add_foreign_key "school_companies", "companies"
   add_foreign_key "school_companies", "schools"
   add_foreign_key "school_levels", "schools"
+  add_foreign_key "schools", "schools", column: "parent_school_id"
   add_foreign_key "sub_skills", "skills"
   add_foreign_key "team_members", "teams"
   add_foreign_key "team_members", "users"
