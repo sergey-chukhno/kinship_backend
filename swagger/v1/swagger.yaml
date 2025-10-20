@@ -1,9 +1,254 @@
 ---
 openapi: 3.0.1
 info:
-  title: API V1
+  title: Kinship API V1
   version: v1
+  description: REST API for Kinship React Dashboards - Authentication, Users, Projects,
+    Companies, Schools, and more
 paths:
+  "/api/v1/auth/login":
+    post:
+      summary: User login
+      tags:
+      - Authentication
+      description: Login with email and password, returns JWT token and user with
+        available contexts for dashboard switching
+      parameters: []
+      responses:
+        '200':
+          description: successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: JWT token valid for 24 hours
+                    example: eyJhbGciOiJIUzI1NiJ9...
+                  user:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      email:
+                        type: string
+                      first_name:
+                        type: string
+                      last_name:
+                        type: string
+                      full_name:
+                        type: string
+                      role:
+                        type: string
+                        enum:
+                        - teacher
+                        - tutor
+                        - voluntary
+                        - children
+                        description: User role in system
+                      avatar_url:
+                        type: string
+                        nullable: true
+                      available_contexts:
+                        type: object
+                        description: Available dashboards for context switching
+                        properties:
+                          user_dashboard:
+                            type: boolean
+                          teacher_dashboard:
+                            type: boolean
+                          schools:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                                role:
+                                  type: string
+                                  enum:
+                                  - member
+                                  - intervenant
+                                  - referent
+                                  - admin
+                                  - superadmin
+                                permissions:
+                                  type: object
+                          companies:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: integer
+                                name:
+                                  type: string
+                                role:
+                                  type: string
+                                  enum:
+                                  - member
+                                  - intervenant
+                                  - referent
+                                  - admin
+                                  - superadmin
+                                permissions:
+                                  type: object
+                required:
+                - token
+                - user
+        '401':
+          description: email not confirmed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.fr
+                  description: User email address
+                password:
+                  type: string
+                  example: password123
+                  description: User password
+              required:
+              - email
+              - password
+  "/api/v1/auth/me":
+    get:
+      summary: Get current user
+      tags:
+      - Authentication
+      security:
+      - Bearer: []
+      description: Get current authenticated user with full context, badges, skills,
+        and availability information
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  email:
+                    type: string
+                  first_name:
+                    type: string
+                  last_name:
+                    type: string
+                  full_name:
+                    type: string
+                  role:
+                    type: string
+                    enum:
+                    - teacher
+                    - tutor
+                    - voluntary
+                    - children
+                  job:
+                    type: string
+                    nullable: true
+                  birthday:
+                    type: string
+                    nullable: true
+                  certify:
+                    type: boolean
+                  admin:
+                    type: boolean
+                  avatar_url:
+                    type: string
+                    nullable: true
+                  take_trainee:
+                    type: boolean
+                  propose_workshop:
+                    type: boolean
+                  show_my_skills:
+                    type: boolean
+                  contact_email:
+                    type: string
+                    nullable: true
+                  confirmed_at:
+                    type: string
+                    format: date-time
+                  available_contexts:
+                    type: object
+                    description: Available dashboards for this user
+                  skills:
+                    type: array
+                  badges_received:
+                    type: array
+                  availability:
+                    type: object
+                    nullable: true
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  "/api/v1/auth/refresh":
+    post:
+      summary: Refresh JWT token
+      tags:
+      - Authentication
+      security:
+      - Bearer: []
+      description: Refresh JWT token to extend expiration by 24 hours
+      responses:
+        '200':
+          description: token refreshed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: New JWT token valid for 24 hours
+                required:
+                - token
+        '401':
+          description: unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  "/api/v1/auth/logout":
+    delete:
+      summary: User logout
+      tags:
+      - Authentication
+      security:
+      - Bearer: []
+      description: Logout current user (client-side token removal, server responds
+        with 204 No Content)
+      responses:
+        '204':
+          description: successful logout
+        '401':
+          description: unauthorized
   "/api/v1/companies":
     get:
       summary: List companies
@@ -340,14 +585,21 @@ paths:
                   error:
                     type: string
 servers:
-- url: https://{defaultHost}
-  variables:
-    defaultHost:
-      default: localhost:3000
+- url: http://localhost:3000
+  description: Development server
+- url: https://staging.kinship.fr
+  description: Staging server
+- url: https://kinship.fr
+  description: Production server
 components:
   securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from /api/v1/auth/login endpoint
     ApiKeyAuth:
       type: apiKey
       in: query
       name: token
-      description: API access token for V2 endpoints
+      description: API access token for legacy V2 endpoints

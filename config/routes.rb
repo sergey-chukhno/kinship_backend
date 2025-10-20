@@ -133,9 +133,16 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
+      # Authentication endpoints (React Integration )
+      post 'auth/login', to: 'auth#login'
+      delete 'auth/logout', to: 'auth#logout'
+      post 'auth/refresh', to: 'auth#refresh'
+      get 'auth/me', to: 'auth#me'
+      
+      # Existing API endpoints
       resources :companies, only: %i[index]
       resources :schools, only: %i[index]
-      # Partnership API routes will be added during React integration
+      # Additional API routes will be added during React integration
     end
     namespace :v2 do
       resources :users, only: %i[index show]
