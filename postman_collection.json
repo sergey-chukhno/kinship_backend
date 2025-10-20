@@ -1,477 +1,217 @@
 {
-  "info": {
-    "name": "Kinship API v1",
-    "description": "Complete API collection for Kinship React Dashboards. Includes authentication, user management, and multi-dashboard context switching.\n\n**Authentication Flow:**\n1. Login to get JWT token\n2. Use token in Authorization header for all subsequent requests\n3. Refresh token when needed (24-hour expiration)\n\n**Context Switching:**\nUsers can access multiple dashboards (User, Teacher, School, Company) with a single JWT token. The `available_contexts` in the login response shows which dashboards are accessible.",
-    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "version": "1.0.0"
-  },
-  "auth": {
-    "type": "bearer",
-    "bearer": [
-      {
-        "key": "token",
-        "value": "{{jwt_token}}",
-        "type": "string"
-      }
-    ]
-  },
-  "variable": [
-    {
-      "key": "base_url",
-      "value": "http://localhost:3000",
-      "type": "string"
-    },
-    {
-      "key": "jwt_token",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "user_id",
-      "value": "",
-      "type": "string"
-    }
-  ],
-  "item": [
-    {
-      "name": "Authentication",
-      "description": "Authentication endpoints for login, logout, token refresh, and current user retrieval.",
-      "item": [
-        {
-          "name": "Login",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// Save JWT token and user ID to environment variables",
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
-                  "    pm.collectionVariables.set('user_id', jsonData.user.id);",
-                  "    ",
-                  "    pm.test('Status code is 200', function () {",
-                  "        pm.response.to.have.status(200);",
-                  "    });",
-                  "    ",
-                  "    pm.test('Response has token', function () {",
-                  "        pm.expect(jsonData.token).to.be.a('string');",
-                  "    });",
-                  "    ",
-                  "    pm.test('Response has user with available_contexts', function () {",
-                  "        pm.expect(jsonData.user).to.have.property('available_contexts');",
-                  "    });",
-                  "    ",
-                  "    console.log('JWT Token saved:', jsonData.token);",
-                  "    console.log('User ID:', jsonData.user.id);",
-                  "    console.log('Available Contexts:', JSON.stringify(jsonData.user.available_contexts, null, 2));",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "auth": {
-              "type": "noauth"
-            },
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"admin@drakkar.io\",\n  \"password\": \"password\"\n}"
-            },
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "auth", "login"]
-            },
-            "description": "Login with email and password. Returns JWT token and user object with available contexts for dashboard switching.\n\n**Response includes:**\n- JWT token (valid for 24 hours)\n- User profile with all details\n- available_contexts object showing which dashboards user can access\n\n**Example Response:**\n```json\n{\n  \"token\": \"eyJhbGciOiJIUzI1NiJ9...\",\n  \"user\": {\n    \"id\": 1,\n    \"email\": \"user@example.fr\",\n    \"full_name\": \"John Doe\",\n    \"available_contexts\": {\n      \"user_dashboard\": true,\n      \"teacher_dashboard\": true,\n      \"schools\": [{...}],\n      \"companies\": [{...}]\n    }\n  }\n}\n```"
-          },
-          "response": [
-            {
-              "name": "Successful Login",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"admin@drakkar.io\",\n  \"password\": \"password\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/api/v1/auth/login",
-                  "host": ["{{base_url}}"],
-                  "path": ["api", "v1", "auth", "login"]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NjEwNDc1ODF9.spVqCe1Dex5JWSm6QBgkcgJBKzecCOaE-F7qg3ePSh8\",\n  \"user\": {\n    \"id\": 1,\n    \"email\": \"admin@drakkar.io\",\n    \"first_name\": \"Admin\",\n    \"last_name\": \"Admin\",\n    \"full_name\": \"Admin Admin\",\n    \"role\": \"tutor\",\n    \"avatar_url\": null,\n    \"available_contexts\": {\n      \"user_dashboard\": true,\n      \"teacher_dashboard\": false,\n      \"schools\": [\n        {\n          \"id\": 1,\n          \"name\": \"Lycée du test\",\n          \"city\": \"Paris\",\n          \"school_type\": \"lycee\",\n          \"role\": \"admin\",\n          \"permissions\": {\n            \"superadmin\": false,\n            \"admin\": true,\n            \"can_manage_members\": true,\n            \"can_manage_projects\": true,\n            \"can_assign_badges\": true,\n            \"can_manage_partnerships\": false,\n            \"can_manage_branches\": false\n          }\n        }\n      ],\n      \"companies\": []\n    }\n  }\n}"
-            },
-            {
-              "name": "Invalid Credentials",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"wrong@example.fr\",\n  \"password\": \"wrong\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/api/v1/auth/login",
-                  "host": ["{{base_url}}"],
-                  "path": ["api", "v1", "auth", "login"]
-                }
-              },
-              "status": "Unauthorized",
-              "code": 401,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n  \"error\": \"Invalid credentials\",\n  \"message\": \"Email or password is incorrect\"\n}"
-            },
-            {
-              "name": "Email Not Confirmed",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Content-Type",
-                    "value": "application/json"
-                  }
-                ],
-                "body": {
-                  "mode": "raw",
-                  "raw": "{\n  \"email\": \"unconfirmed@example.fr\",\n  \"password\": \"password\"\n}"
-                },
-                "url": {
-                  "raw": "{{base_url}}/api/v1/auth/login",
-                  "host": ["{{base_url}}"],
-                  "path": ["api", "v1", "auth", "login"]
-                }
-              },
-              "status": "Unauthorized",
-              "code": 401,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n  \"error\": \"Email not confirmed\",\n  \"message\": \"Please confirm your email address before logging in\"\n}"
-            }
-          ]
-        },
-        {
-          "name": "Get Current User (Me)",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 200', function () {",
-                  "    pm.response.to.have.status(200);",
-                  "});",
-                  "",
-                  "pm.test('Response has user data', function () {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.expect(jsonData).to.have.property('id');",
-                  "    pm.expect(jsonData).to.have.property('email');",
-                  "    pm.expect(jsonData).to.have.property('available_contexts');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwt_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/me",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "auth", "me"]
-            },
-            "description": "Get current authenticated user with full profile, skills, badges, availability, and context information.\n\n**Requires:** JWT token in Authorization header\n\n**Response includes:**\n- Complete user profile\n- Skills array\n- Badges received array\n- Availability object\n- Available contexts for dashboard switching"
-          },
-          "response": [
-            {
-              "name": "Successful Response",
-              "originalRequest": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{jwt_token}}",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/api/v1/auth/me",
-                  "host": ["{{base_url}}"],
-                  "path": ["api", "v1", "auth", "me"]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n  \"id\": 1,\n  \"email\": \"admin@drakkar.io\",\n  \"first_name\": \"Admin\",\n  \"last_name\": \"Admin\",\n  \"full_name\": \"Admin Admin\",\n  \"role\": \"tutor\",\n  \"job\": \"Developpeur\",\n  \"birthday\": \"1989-08-08\",\n  \"certify\": false,\n  \"admin\": true,\n  \"avatar_url\": null,\n  \"take_trainee\": false,\n  \"propose_workshop\": false,\n  \"show_my_skills\": true,\n  \"contact_email\": \"\",\n  \"confirmed_at\": \"2025-08-05T12:17:59.291Z\",\n  \"available_contexts\": {\n    \"user_dashboard\": true,\n    \"teacher_dashboard\": false,\n    \"schools\": [\n      {\n        \"id\": 1,\n        \"name\": \"Lycée du test\",\n        \"city\": \"Paris\",\n        \"school_type\": \"lycee\",\n        \"role\": \"admin\",\n        \"permissions\": {\n          \"superadmin\": false,\n          \"admin\": true,\n          \"referent\": false,\n          \"intervenant\": false,\n          \"can_manage_members\": true,\n          \"can_manage_projects\": true,\n          \"can_assign_badges\": true,\n          \"can_manage_partnerships\": false,\n          \"can_manage_branches\": false\n        }\n      }\n    ],\n    \"companies\": []\n  },\n  \"skills\": [],\n  \"badges_received\": [],\n  \"availability\": null\n}"
-            },
-            {
-              "name": "Unauthorized (Invalid Token)",
-              "originalRequest": {
-                "method": "GET",
-                "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer invalid_token",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/api/v1/auth/me",
-                  "host": ["{{base_url}}"],
-                  "path": ["api", "v1", "auth", "me"]
-                }
-              },
-              "status": "Unauthorized",
-              "code": 401,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n  \"error\": \"Unauthorized\"\n}"
-            }
-          ]
-        },
-        {
-          "name": "Refresh Token",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "// Update JWT token with refreshed token",
-                  "if (pm.response.code === 200) {",
-                  "    var jsonData = pm.response.json();",
-                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
-                  "    ",
-                  "    pm.test('Status code is 200', function () {",
-                  "        pm.response.to.have.status(200);",
-                  "    });",
-                  "    ",
-                  "    pm.test('Response has new token', function () {",
-                  "        pm.expect(jsonData.token).to.be.a('string');",
-                  "    });",
-                  "    ",
-                  "    console.log('Token refreshed and saved');",
-                  "}"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwt_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/refresh",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "auth", "refresh"]
-            },
-            "description": "Refresh JWT token to extend expiration by 24 hours.\n\n**Requires:** Valid JWT token in Authorization header\n\n**Response:**\n- New JWT token with extended expiration\n\n**Use Case:** Call this endpoint when token is about to expire to maintain user session without re-login."
-          },
-          "response": [
-            {
-              "name": "Token Refreshed",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{jwt_token}}",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/api/v1/auth/refresh",
-                  "host": ["{{base_url}}"],
-                  "path": ["api", "v1", "auth", "refresh"]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n  \"token\": \"eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJleHAiOjE3NjEwNDc1ODF9.spVqCe1Dex5JWSm6QBgkcgJBKzecCOaE-F7qg3ePSh8\"\n}"
-            },
-            {
-              "name": "Unauthorized (Expired Token)",
-              "originalRequest": {
-                "method": "POST",
-                "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer expired_token",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/api/v1/auth/refresh",
-                  "host": ["{{base_url}}"],
-                  "path": ["api", "v1", "auth", "refresh"]
-                }
-              },
-              "status": "Unauthorized",
-              "code": 401,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n  \"error\": \"Unauthorized\"\n}"
-            }
-          ]
-        },
-        {
-          "name": "Logout",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 204', function () {",
-                  "    pm.response.to.have.status(204);",
-                  "});",
-                  "",
-                  "// Optionally clear the saved token",
-                  "// pm.collectionVariables.set('jwt_token', '');",
-                  "",
-                  "console.log('Logged out successfully');"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "DELETE",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{jwt_token}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url}}/api/v1/auth/logout",
-              "host": ["{{base_url}}"],
-              "path": ["api", "v1", "auth", "logout"]
-            },
-            "description": "Logout current user.\n\n**Note:** Currently implements client-side token removal (server responds with 204 No Content). Client should delete the stored JWT token.\n\n**Future Enhancement:** Server-side token blacklist using Redis for revoked tokens."
-          },
-          "response": [
-            {
-              "name": "Successful Logout",
-              "originalRequest": {
-                "method": "DELETE",
-                "header": [
-                  {
-                    "key": "Authorization",
-                    "value": "Bearer {{jwt_token}}",
-                    "type": "text"
-                  }
-                ],
-                "url": {
-                  "raw": "{{base_url}}/api/v1/auth/logout",
-                  "host": ["{{base_url}}"],
-                  "path": ["api", "v1", "auth", "logout"]
-                }
-              },
-              "status": "No Content",
-              "code": 204,
-              "_postman_previewlanguage": "json",
-              "header": [],
-              "body": ""
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "User Dashboard API",
-      "description": "Endpoints for User Dashboard (Coming in Phase 2)",
-      "item": []
-    },
-    {
-      "name": "Teacher Dashboard API",
-      "description": "Endpoints for Teacher Dashboard (Coming in Phase 2)",
-      "item": []
-    },
-    {
-      "name": "School Dashboard API",
-      "description": "Endpoints for School Dashboard (Coming in Phase 2)",
-      "item": []
-    },
-    {
-      "name": "Company Dashboard API",
-      "description": "Endpoints for Company Dashboard (Coming in Phase 2)",
-      "item": []
-    }
-  ]
+	"info": {
+		"_postman_id": "kinship-api-v1",
+		"name": "Kinship API v1",
+		"description": "Complete API collection for Kinship React Dashboards\n\n**How to use:**\n1. Run 'Login' request first\n2. Token will be auto-saved to {{jwt_token}} variable\n3. All other requests use this token automatically\n\n**Authentication Flow:**\n- Login → Get JWT token\n- Use token for all subsequent requests\n- Refresh token when needed (24h expiration)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('jwt_token', jsonData.token);",
+									"    console.log('Token saved:', jsonData.token);",
+									"    console.log('Available contexts:', JSON.stringify(jsonData.user.available_contexts, null, 2));",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@drakkar.io\",\n  \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Login with email and password. Returns JWT token and user with available contexts."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Has user data', function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.exist;",
+									"    pm.expect(jsonData.email).to.exist;",
+									"    pm.expect(jsonData.available_contexts).to.exist;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Get current authenticated user with full profile, skills, badges, and contexts."
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('jwt_token', jsonData.token);",
+									"    console.log('Token refreshed and saved');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/refresh",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "Refresh JWT token to extend expiration by 24 hours."
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status is 204', function () {",
+									"    pm.response.to.have.status(204);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Logout current user (client-side token removal)."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Dashboard",
+			"item": [],
+			"description": "User Dashboard API endpoints (Phase 2)"
+		},
+		{
+			"name": "Teacher Dashboard",
+			"item": [],
+			"description": "Teacher Dashboard API endpoints (Phase 2)"
+		},
+		{
+			"name": "School Dashboard",
+			"item": [],
+			"description": "School Dashboard API endpoints (Phase 2)"
+		},
+		{
+			"name": "Company Dashboard",
+			"item": [],
+			"description": "Company Dashboard API endpoints (Phase 2)"
+		}
+	]
 }
-
