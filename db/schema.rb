@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_19_143319) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_20_054807) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -340,7 +340,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_19_143319) do
 
   create_table "school_levels", force: :cascade do |t|
     t.string "name"
-    t.bigint "school_id", null: false
+    t.bigint "school_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "level"
@@ -380,6 +380,18 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_19_143319) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "teacher_school_levels", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "school_level_id", null: false
+    t.boolean "is_creator", default: false, null: false
+    t.datetime "assigned_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["school_level_id"], name: "index_teacher_school_levels_on_school_level_id"
+    t.index ["user_id", "school_level_id"], name: "index_teacher_school_levels_on_user_and_school_level", unique: true
+    t.index ["user_id"], name: "index_teacher_school_levels_on_user_id"
   end
 
   create_table "team_members", force: :cascade do |t|
@@ -555,6 +567,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_19_143319) do
   add_foreign_key "school_levels", "schools"
   add_foreign_key "schools", "schools", column: "parent_school_id"
   add_foreign_key "sub_skills", "skills"
+  add_foreign_key "teacher_school_levels", "school_levels"
+  add_foreign_key "teacher_school_levels", "users"
   add_foreign_key "team_members", "teams"
   add_foreign_key "team_members", "users"
   add_foreign_key "teams", "projects"

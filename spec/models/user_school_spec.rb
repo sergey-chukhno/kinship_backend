@@ -61,5 +61,84 @@ RSpec.describe UserSchool, type: :model do
         end
       end
     end
+    
+    # Teacher-class unassignment callback (Change #8)
+    context "after_destroy" do
+      describe "#unassign_teacher_from_school_classes" do
+        let(:school) { create(:school, school_type: :college) }
+        let(:teacher) { create(:user, :teacher, :confirmed) }
+        let!(:user_school) { create(:user_school, user: teacher, school: school, status: :confirmed) }
+        
+        context "teacher leaves school with school-owned classes" do
+          let!(:created_and_transferred) { create(:school_level, name: "6ème A", level: :sixieme, school: school) }
+          let!(:school_assigned) { create(:school_level, name: "5ème B", level: :cinquieme, school: school) }
+          
+          before do
+            created_and_transferred.assign_teacher(teacher, is_creator: true)
+            school_assigned.assign_teacher(teacher, is_creator: false)
+          end
+          
+          it "removes teacher from ALL school-owned classes" do
+            expect {
+              user_school.destroy
+            }.to change { teacher.assigned_classes.count }.from(2).to(0)
+          end
+          
+          it "removes both created and assigned classes" do
+            user_school.destroy
+            
+            expect(teacher.reload.assigned_classes).to be_empty
+            expect(created_and_transferred.reload.teachers).not_to include(teacher)
+            expect(school_assigned.reload.teachers).not_to include(teacher)
+          end
+        end
+        
+        context "teacher leaves school with independent classes" do
+          let!(:independent_class) { create(:school_level, :independent) }
+          
+          before do
+            independent_class.teacher_school_levels.first.update!(user: teacher, is_creator: true)
+          end
+          
+          it "keeps independent classes" do
+            expect {
+              user_school.destroy
+            }.not_to change { teacher.assigned_classes.count }
+            
+            expect(teacher.reload.assigned_classes).to include(independent_class)
+          end
+        end
+        
+        context "mixed scenario: independent + school classes" do
+          let!(:independent_class) { create(:school_level, :independent) }
+          let!(:school_class) { create(:school_level, name: "4ème C", level: :quatrieme, school: school) }
+          
+          before do
+            independent_class.teacher_school_levels.first.update!(user: teacher, is_creator: true)
+            school_class.assign_teacher(teacher, is_creator: false)
+          end
+          
+          it "removes only school classes, keeps independent" do
+            expect {
+              user_school.destroy
+            }.to change { teacher.assigned_classes.count }.from(2).to(1)
+            
+            expect(teacher.reload.assigned_classes).to contain_exactly(independent_class)
+            expect(teacher.assigned_classes).not_to include(school_class)
+          end
+        end
+        
+        context "when user is not a teacher" do
+          let(:student) { create(:user, :tutor, :confirmed) }
+          let(:user_school_student) { create(:user_school, user: student, school: school, status: :confirmed) }
+          
+          it "does not raise error" do
+            expect {
+              user_school_student.destroy
+            }.not_to raise_error
+          end
+        end
+      end
+    end
   end
 end

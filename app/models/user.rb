@@ -33,6 +33,10 @@ class User < ApplicationRecord
   has_many :user_school_levels, dependent: :destroy
   has_many :school_levels, through: :user_school_levels
   has_one :availability, dependent: :destroy
+  
+  # Teacher-class assignments (NEW - Change #8)
+  has_many :teacher_school_levels, dependent: :destroy
+  has_many :assigned_classes, through: :teacher_school_levels, source: :school_level
 
   has_many :user_company, dependent: :destroy
   has_many :companies, through: :user_company
@@ -306,6 +310,23 @@ class User < ApplicationRecord
   def avatar_url
     return nil unless avatar.attached?
     Rails.application.routes.url_helpers.rails_blob_url(avatar, only_path: false)
+  end
+  
+  # ========================================
+  # TEACHER-CLASS ASSIGNMENT METHODS (Change #8)
+  # ========================================
+  
+  def assigned_to_class?(school_level)
+    assigned_classes.include?(school_level)
+  end
+  
+  def created_classes
+    assigned_classes.joins(:teacher_school_levels)
+                   .where(teacher_school_levels: {user_id: id, is_creator: true})
+  end
+  
+  def all_teaching_classes
+    assigned_classes  # All classes where teacher is assigned
   end
 
   private

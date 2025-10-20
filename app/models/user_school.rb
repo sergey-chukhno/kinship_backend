@@ -1,5 +1,6 @@
 class UserSchool < ApplicationRecord
   after_create :set_status
+  after_destroy :unassign_teacher_from_school_classes  # NEW - Change #8
 
   belongs_to :school
   belongs_to :user
@@ -59,5 +60,25 @@ class UserSchool < ApplicationRecord
     return update(status: :confirmed) unless user.teacher?
 
     update(status: :pending)
+  end
+  
+  # Callback: Remove teacher from school-owned classes when leaving (Change #8)
+  def unassign_teacher_from_school_classes
+    return unless user.teacher?
+    
+    # Remove teacher from ALL classes belonging to this school
+    # This includes:
+    # - Classes created by teacher but transferred to school ✅
+    # - Classes created by school and assigned to teacher ✅
+    # But NOT:
+    # - Independent classes (school_id: nil) ❌ (these remain visible)
+    
+    removed_count = user.teacher_school_levels
+                        .joins(:school_level)
+                        .where(school_levels: {school_id: school_id})
+                        .destroy_all
+                        .count
+    
+    Rails.logger.info "Removed #{removed_count} class assignments for teacher #{user.id} leaving school #{school_id}"
   end
 end
