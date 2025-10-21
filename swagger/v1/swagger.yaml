@@ -249,6 +249,52 @@ paths:
           description: successful logout
         '401':
           description: unauthorized
+  "/api/v1/badges/assign":
+    post:
+      summary: Assign badge to users
+      tags:
+      - Badges
+      security:
+      - Bearer: []
+      description: Assign badge to one or more users (requires badge permission in
+        organization)
+      parameters: []
+      responses:
+        '201':
+          description: badges assigned
+        '403':
+          description: forbidden - no active contract
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                badge_assignment:
+                  type: object
+                  properties:
+                    badge_id:
+                      type: integer
+                    recipient_ids:
+                      type: array
+                      items:
+                        type: integer
+                    organization_id:
+                      type: integer
+                    organization_type:
+                      type: string
+                      enum:
+                      - School
+                      - Company
+                    badge_skill_ids:
+                      type: array
+                      items:
+                        type: integer
+                  required:
+                  - badge_id
+                  - recipient_ids
+                  - organization_id
+                  - organization_type
   "/api/v1/companies":
     get:
       summary: List companies
@@ -290,6 +336,190 @@ paths:
                     full_name:
                       type: string
                       description: Full company name
+  "/api/v1/projects":
+    get:
+      summary: Get all available projects
+      tags:
+      - Projects
+      description: Get all public projects and private projects from user organizations
+        (if authenticated)
+      parameters:
+      - name: status
+        in: query
+        required: false
+        enum:
+        - pending
+        - in_progress
+        - finished
+        schema:
+          type: string
+        description: ":\n * `pending` \n * `in_progress` \n * `finished` \n "
+      - name: parcours
+        in: query
+        required: false
+        description: Tag ID for parcours filter
+        schema:
+          type: integer
+      - name: start_date_from
+        in: query
+        required: false
+        format: date
+        schema:
+          type: string
+      - name: start_date_to
+        in: query
+        required: false
+        format: date
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: 'Default: 12'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: projects found
+    post:
+      summary: Create new project
+      tags:
+      - Projects
+      security:
+      - Bearer: []
+      description: 'Create new project (defaults: private=false, status=in_progress)'
+      parameters: []
+      responses:
+        '201':
+          description: project created
+        '403':
+          description: forbidden - no org permission
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                project:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    start_date:
+                      type: string
+                      format: date
+                    end_date:
+                      type: string
+                      format: date
+                    participants_number:
+                      type: integer
+                    private:
+                      type: boolean
+                    school_level_ids:
+                      type: array
+                      items:
+                        type: integer
+                    skill_ids:
+                      type: array
+                      items:
+                        type: integer
+                    tag_ids:
+                      type: array
+                      items:
+                        type: integer
+                    company_ids:
+                      type: array
+                      items:
+                        type: integer
+                  required:
+                  - title
+                  - description
+                  - start_date
+                  - end_date
+  "/api/v1/projects/{id}":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    get:
+      summary: Get project details
+      tags:
+      - Projects
+      description: Get single project with all associations
+      responses:
+        '200':
+          description: project found
+        '404':
+          description: project not found
+    patch:
+      summary: Update project
+      tags:
+      - Projects
+      security:
+      - Bearer: []
+      parameters: []
+      responses:
+        '200':
+          description: project updated
+        '403':
+          description: forbidden - not owner
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                project:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    status:
+                      type: string
+                      enum:
+                      - pending
+                      - in_progress
+                      - finished
+    delete:
+      summary: Delete project
+      tags:
+      - Projects
+      security:
+      - Bearer: []
+      description: Delete project (owner only)
+      responses:
+        '204':
+          description: project deleted
+  "/api/v1/projects/{id}/join":
+    parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    post:
+      summary: Join project
+      tags:
+      - Projects
+      security:
+      - Bearer: []
+      description: Request to join project (may require organization membership)
+      responses:
+        '201':
+          description: join request created
+        '409':
+          description: already a member
   "/api/v1/schools":
     get:
       summary: List schools
@@ -361,6 +591,387 @@ paths:
                     school_type:
                       type: string
                       description: Type of school (e.g., lycee, college)
+  "/api/v1/users/me":
+    patch:
+      summary: Update current user profile
+      tags:
+      - Users
+      security:
+      - Bearer: []
+      description: Update current user profile information
+      parameters: []
+      responses:
+        '200':
+          description: profile updated
+        '401':
+          description: unauthorized
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user:
+                  type: object
+                  properties:
+                    first_name:
+                      type: string
+                    last_name:
+                      type: string
+                    job:
+                      type: string
+                    birthday:
+                      type: string
+                      format: date
+                    contact_email:
+                      type: string
+                      format: email
+                    take_trainee:
+                      type: boolean
+                    propose_workshop:
+                      type: boolean
+                    show_my_skills:
+                      type: boolean
+                    skill_ids:
+                      type: array
+                      items:
+                        type: integer
+                    sub_skill_ids:
+                      type: array
+                      items:
+                        type: integer
+  "/api/v1/users/me/projects":
+    get:
+      summary: Get my projects
+      tags:
+      - Users
+      - Projects
+      security:
+      - Bearer: []
+      description: Get projects owned by or participated in by current user (NOT all
+        org projects)
+      parameters:
+      - name: status
+        in: query
+        required: false
+        description: "Filter by status:\n * `pending` \n * `in_progress` \n * `finished`
+          \n "
+        enum:
+        - pending
+        - in_progress
+        - finished
+        schema:
+          type: string
+      - name: by_company
+        in: query
+        required: false
+        description: Filter by company ID
+        schema:
+          type: integer
+      - name: by_school
+        in: query
+        required: false
+        description: Filter by school ID
+        schema:
+          type: integer
+      - name: by_role
+        in: query
+        required: false
+        description: Filter by user role in project
+        enum:
+        - owner
+        - co_owner
+        - admin
+        - member
+        schema:
+          type: string
+      - name: start_date_from
+        in: query
+        required: false
+        format: date
+        schema:
+          type: string
+      - name: start_date_to
+        in: query
+        required: false
+        format: date
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: 'Default: 12'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: projects found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                  meta:
+                    type: object
+                    properties:
+                      current_page:
+                        type: integer
+                      total_pages:
+                        type: integer
+                      total_count:
+                        type: integer
+                      per_page:
+                        type: integer
+        '401':
+          description: unauthorized
+  "/api/v1/users/me/badges":
+    get:
+      summary: Get my badges
+      tags:
+      - Users
+      - Badges
+      security:
+      - Bearer: []
+      description: Get badges received by current user with filtering
+      parameters:
+      - name: series
+        in: query
+        required: false
+        description: Filter by badge series
+        schema:
+          type: string
+      - name: level
+        in: query
+        required: false
+        description: Filter by badge level
+        schema:
+          type: integer
+      - name: organization_type
+        in: query
+        required: false
+        enum:
+        - School
+        - Company
+        schema:
+          type: string
+        description: ":\n * `School` \n * `Company` \n "
+      - name: organization_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        description: 'Default: 12'
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: badges found
+  "/api/v1/users/me/organizations":
+    get:
+      summary: Get my organizations
+      tags:
+      - Users
+      - Organizations
+      security:
+      - Bearer: []
+      description: Get schools and companies user is member of, with role and permissions
+      parameters:
+      - name: type
+        in: query
+        required: false
+        enum:
+        - School
+        - Company
+        schema:
+          type: string
+        description: ":\n * `School` \n * `Company` \n "
+      - name: status
+        in: query
+        required: false
+        enum:
+        - pending
+        - confirmed
+        schema:
+          type: string
+      - name: role
+        in: query
+        required: false
+        enum:
+        - member
+        - intervenant
+        - referent
+        - admin
+        - superadmin
+        schema:
+          type: string
+      responses:
+        '200':
+          description: organizations found
+  "/api/v1/users/me/network":
+    get:
+      summary: Get my network
+      tags:
+      - Users
+      - Network
+      security:
+      - Bearer: []
+      description: Get users from my organizations (respects branch and partnership
+        visibility rules)
+      parameters:
+      - name: organization_id
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: organization_type
+        in: query
+        required: false
+        enum:
+        - School
+        - Company
+        schema:
+          type: string
+        description: ":\n * `School` \n * `Company` \n "
+      - name: role
+        in: query
+        required: false
+        enum:
+        - teacher
+        - tutor
+        - voluntary
+        - children
+        schema:
+          type: string
+      - name: has_skills
+        in: query
+        required: false
+        description: Comma-separated skill IDs
+        schema:
+          type: string
+      - name: search
+        in: query
+        required: false
+        description: Search by name or email
+        schema:
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        required: false
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: network found
+  "/api/v1/users/me/skills":
+    patch:
+      summary: Update my skills
+      tags:
+      - Users
+      - Skills
+      security:
+      - Bearer: []
+      parameters: []
+      responses:
+        '200':
+          description: skills updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skill_ids:
+                  type: array
+                  items:
+                    type: integer
+                sub_skill_ids:
+                  type: array
+                  items:
+                    type: integer
+  "/api/v1/users/me/availability":
+    patch:
+      summary: Update my availability
+      tags:
+      - Users
+      - Availability
+      security:
+      - Bearer: []
+      parameters: []
+      responses:
+        '200':
+          description: availability updated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                availability:
+                  type: object
+                  properties:
+                    monday:
+                      type: boolean
+                    tuesday:
+                      type: boolean
+                    wednesday:
+                      type: boolean
+                    thursday:
+                      type: boolean
+                    friday:
+                      type: boolean
+                    other:
+                      type: boolean
+  "/api/v1/users/me/avatar":
+    post:
+      summary: Upload avatar
+      tags:
+      - Users
+      - Avatar
+      security:
+      - Bearer: []
+      description: Upload user avatar (max 5MB, JPEG/PNG/GIF/WebP/SVG)
+      parameters: []
+      responses:
+        '201':
+          description: avatar uploaded
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: file
+        required: true
+    delete:
+      summary: Delete avatar
+      tags:
+      - Users
+      - Avatar
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: avatar deleted
+        '404':
+          description: no avatar to delete
   "/api/v2/users/{id}":
     get:
       summary: Get user details

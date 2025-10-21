@@ -133,16 +133,40 @@ Rails.application.routes.draw do
 
   namespace :api do
     namespace :v1 do
-      # Authentication endpoints (React Integration )
+      # Authentication endpoints (Phase 1)
       post 'auth/login', to: 'auth#login'
       delete 'auth/logout', to: 'auth#logout'
       post 'auth/refresh', to: 'auth#refresh'
       get 'auth/me', to: 'auth#me'
       
+      # User Dashboard endpoints (Phase 3)
+      patch 'users/me', to: 'users#update'
+      get 'users/me/projects', to: 'users#my_projects'
+      get 'users/me/badges', to: 'users#my_badges'
+      get 'users/me/organizations', to: 'users#my_organizations'
+      get 'users/me/network', to: 'users#my_network'
+      patch 'users/me/skills', to: 'users#update_skills'
+      patch 'users/me/availability', to: 'users#update_availability'
+      
+      # User avatar management
+      namespace :users do
+        post 'me/avatar', to: 'avatars#create'
+        delete 'me/avatar', to: 'avatars#destroy'
+      end
+      
+      # Projects (Phase 3)
+      resources :projects, only: [:index, :show, :create, :update, :destroy] do
+        member do
+          post :join
+        end
+      end
+      
+      # Badges (Phase 3)
+      post 'badges/assign', to: 'badges#assign'
+      
       # Existing API endpoints
       resources :companies, only: %i[index]
       resources :schools, only: %i[index]
-      # Additional API routes will be added during React integration
     end
     namespace :v2 do
       resources :users, only: %i[index show]
