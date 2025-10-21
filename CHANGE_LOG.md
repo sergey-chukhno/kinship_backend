@@ -1,7 +1,456 @@
 # Kinship Backend - Change Log
-## Pre-React Integration Model Changes
+## React Integration & Model Changes
 
-This document tracks all model/schema changes made before React integration.
+This document tracks all model/schema changes and React integration progress.
+
+---
+
+## **React Integration - Phase 2: Core Resource Serializers** ✅ COMPLETED
+
+**Date:** October 20, 2025  
+**Status:** ✅ Production-Ready  
+**Risk Level:** LOW (No schema changes, purely additive)  
+**Time Taken:** ~3 hours  
+**Phase:** 2 of 5 (Serialization Layer)
+
+### **What Changed**
+
+**Created comprehensive serialization layer for all core resources:**
+
+- 14 new serializers covering projects, organizations, relationships, and memberships
+- Integrated with ALL previous model changes (Changes #1-#8)
+- Circular reference prevention (2-level depth limit)
+- Public file URLs for ActiveStorage attachments
+- Simple polymorphic association format
+- N+1 query prevention with proper eager loading
+
+### **Why This Change**
+
+Before building dashboard-specific API endpoints, we need a complete serialization layer that:
+1. Converts ActiveRecord models to consistent JSON
+2. Handles complex associations (partnerships, branches, teacher assignments)
+3. Prevents circular references and infinite loops
+4. Optimizes query performance (no N+1)
+5. Provides foundation for all 4 React dashboards
+
+### **Serializers Created (14 total)**
+
+#### **Part 1: Project Ecosystem (4 serializers)**
+
+1. **ProjectSerializer** (`app/serializers/project_serializer.rb`)
+   - Attributes: title, description, status, dates, picture URL
+   - Associations: owner, skills, tags, teams, school_levels
+   - Change #6: Co-owners support
+   - Change #7: Partner project flag (partnership_id)
+   - Computed: members_count, teams_count, company_ids, school_level_ids
+
+2. **TeamSerializer** (`app/serializers/team_serializer.rb`)
+   - Attributes: title, description, created_at
+   - Computed: members_count
+
+3. **ProjectMemberSerializer** (`app/serializers/project_member_serializer.rb`)
+   - Attributes: status, role, confirmed_at
+   - Change #6: Co-owner role support (is_co_owner, is_admin)
+   - Simple user/team objects (avoid circular refs)
+
+4. **TagSerializer** (`app/serializers/tag_serializer.rb`)
+   - Attributes: id, name
+
+#### **Part 2: Organization Serializers (3 serializers)**
+
+5. **CompanySerializer** (`app/serializers/company_serializer.rb`)
+   - Attributes: name, city, description, email, website, status
+   - Change #2: logo_url (ActiveStorage)
+   - Change #5: partnerships_count
+   - Change #7: Branch support (parent_company, branch_companies, is_branch)
+   - Associations: company_type, skills, sub_skills
+   - Computed: members_count, projects_count, has_active_contract
+
+6. **SchoolSerializer** (`app/serializers/school_serializer.rb`)
+   - Attributes: name, city, school_type, status
+   - Change #2: logo_url (ActiveStorage)
+   - Change #5: partnerships_count
+   - Change #7: Branch support (parent_school, branch_schools, is_branch)
+   - Associations: school_levels
+   - Computed: teachers_count, students_count, levels_count, projects_count
+
+7. **SchoolLevelSerializer** (`app/serializers/school_level_serializer.rb`)
+   - Attributes: name, level, school_id
+   - Change #8: Teacher assignments (teachers, creator, is_independent)
+   - Associations: teachers, students
+   - Computed: is_independent, is_school_owned, is_school_created
+
+#### **Part 3: Relationship Serializers (3 serializers)**
+
+8. **PartnershipSerializer** (`app/serializers/partnership_serializer.rb`)
+   - Change #5: Multi-party partnerships
+   - Attributes: status, partnership_type, name, share_members, share_projects, has_sponsorship
+   - Polymorphic: initiator (Company or School)
+   - Associations: partnership_members
+   - Computed: sponsors, beneficiaries, partners_only
+
+9. **PartnershipMemberSerializer** (`app/serializers/partnership_member_serializer.rb`)
+   - Attributes: member_status, role_in_partnership, joined_at
+   - Polymorphic: participant (Company or School)
+   - Computed: is_sponsor, is_beneficiary, is_partner
+
+10. **BranchRequestSerializer** (`app/serializers/branch_request_serializer.rb`)
+    - Change #7: Branch requests
+    - Attributes: status, share_members, confirmed_at
+    - Polymorphic: parent, child, initiator
+    - Computed: parent_initiated, child_initiated
+
+#### **Part 4: Membership Serializers (2 serializers)**
+
+11. **UserCompanySerializer** (`app/serializers/user_company_serializer.rb`)
+    - Attributes: role, status, confirmed_at
+    - Change #3: Member roles with permissions object
+    - Computed: Full permissions matrix (superadmin, admin, can_manage_*)
+
+12. **UserSchoolSerializer** (`app/serializers/user_school_serializer.rb`)
+    - Attributes: role, status, confirmed_at
+    - Change #3: Member roles with permissions object
+    - Associations: school_levels
+    - Computed: Full permissions matrix
+
+#### **Part 5: Supporting Serializers (2 serializers)**
+
+13. **CompanyTypeSerializer** (`app/serializers/company_type_serializer.rb`)
+    - Attributes: id, name
+
+14. **SubSkillSerializer** (`app/serializers/sub_skill_serializer.rb`)
+    - Attributes: id, name, skill_id
+    - Association: skill
+
+### **Circular Reference Prevention Strategy**
+
+**Problem:** ActiveModel::Serializers can cause infinite loops with bidirectional associations.
+
+**Solution Implemented:**
+
+1. **2-Level Depth Limit**: Nested serializers stop at 2 levels deep
+2. **Simple Object Format**: Polymorphic associations use `{id, name, type}` instead of full serializers
+3. **Strategic Omissions**: Removed circular associations:
+   - Team → Project (omitted, use project_id)
+   - ProjectMember → Project (omitted, use project_id)
+   - SchoolLevel → School (omitted, use school_id)
+   - PartnershipMember → Partnership (omitted, use partnership_id)
+   - UserCompany → User/Company (omitted, use user_id/company_id)
+   - UserSchool → User/School (omitted, use user_id/school_id)
+
+4. **Counts Over Collections**: Use `members_count` instead of full `members` array where appropriate
+
+**Example:**
+```ruby
+# Instead of:
+belongs_to :school, serializer: SchoolSerializer  # Would cause SchoolLevel → School → SchoolLevel loop
+
+# We use:
+attributes :school_id  # Just the ID, fetch school separately if needed
+```
+
+### **Integration with Previous Changes**
+
+| Change | Integration in Serializers |
+|--------|---------------------------|
+| **#1: Badge Series** | BadgeSerializer includes `series` attribute |
+| **#2: Avatars/Logos** | UserSerializer: `avatar_url`, CompanySerializer/SchoolSerializer: `logo_url` |
+| **#3: Member Roles** | UserCompanySerializer/UserSchoolSerializer: Full `permissions` object with all role-based permissions |
+| **#5: Partnership System** | PartnershipSerializer: Multi-party, sponsorship, visibility; PartnershipMemberSerializer: Roles |
+| **#6: Project Co-Owners** | ProjectSerializer: `co_owners` array, ProjectMemberSerializer: `is_co_owner` flag |
+| **#7: Branch System** | CompanySerializer/SchoolSerializer: `parent_*`, `branch_*`, `is_branch`; BranchRequestSerializer |
+| **#7: Partner Projects** | ProjectSerializer: `partnership_id`, `is_partner_project` |
+| **#8: Teacher-Class Assignments** | SchoolLevelSerializer: `teachers`, `creator`, `is_independent`, `is_school_created` |
+
+### **Files Created (14 new serializers)**
+
+**Project Ecosystem:**
+- `app/serializers/project_serializer.rb`
+- `app/serializers/team_serializer.rb`
+- `app/serializers/project_member_serializer.rb`
+- `app/serializers/tag_serializer.rb`
+
+**Organizations:**
+- `app/serializers/company_serializer.rb`
+- `app/serializers/school_serializer.rb`
+- `app/serializers/school_level_serializer.rb`
+
+**Relationships:**
+- `app/serializers/partnership_serializer.rb`
+- `app/serializers/partnership_member_serializer.rb`
+- `app/serializers/branch_request_serializer.rb`
+
+**Memberships:**
+- `app/serializers/user_company_serializer.rb`
+- `app/serializers/user_school_serializer.rb`
+
+**Supporting:**
+- `app/serializers/company_type_serializer.rb`
+- `app/serializers/sub_skill_serializer.rb`
+
+### **Files Modified (1)**
+
+- `app/serializers/skill_serializer.rb` - Added sub_skills association
+
+### **Testing Results**
+
+**Serializer Tests: All Passing ✅**
+
+```
+1. TagSerializer: ✅
+2. CompanyTypeSerializer: ✅
+3. SubSkillSerializer: ✅
+4. SchoolSerializer: ✅ (with branch support, counts)
+5. CompanySerializer: ✅ (with branch support, counts)
+6. ProjectSerializer: ✅ (with co-owners, partner flag)
+7. SchoolLevelSerializer: ✅ (with teacher assignments)
+8. PartnershipSerializer: ✅ (with multi-party support)
+9. TeamSerializer: ✅
+10. ProjectMemberSerializer: ✅ (with co-owner support)
+```
+
+**Complex Scenario Tests: All Passing ✅**
+- User with multiple contexts (schools + companies): ✅
+- Project with full associations (skills, tags, teams, levels): ✅
+- School with levels and counts: ✅
+
+**N+1 Query Detection: All Passing ✅**
+- UserSerializer with contexts: No N+1
+- ProjectSerializer with associations: No N+1
+- SchoolSerializer: No N+1
+
+### **Example Serializer Output**
+
+#### **ProjectSerializer Example:**
+```json
+{
+  "id": 1,
+  "title": "Innovation Project 2025",
+  "description": "A collaborative STEM project",
+  "status": "in_progress",
+  "start_date": "2025-09-01",
+  "end_date": "2026-06-30",
+  "main_picture_url": "https://res.cloudinary.com/...",
+  "is_partner_project": true,
+  "partnership_id": 5,
+  "members_count": 15,
+  "teams_count": 3,
+  "company_ids": [1, 2],
+  "school_level_ids": [3, 4, 5],
+  "owner": {
+    "id": 10,
+    "full_name": "Marie Dupont",
+    "email": "marie@ac-nantes.fr"
+  },
+  "skills": [
+    {"id": 1, "name": "Programming", "official": true}
+  ],
+  "tags": [
+    {"id": 1, "name": "STEM"}
+  ],
+  "teams": [
+    {"id": 1, "title": "Team Alpha", "members_count": 5}
+  ],
+  "school_levels": [
+    {
+      "id": 3,
+      "name": "3ème A",
+      "level": "troisieme",
+      "school_id": 1,
+      "is_independent": false,
+      "teachers_count": 2,
+      "students_count": 25
+    }
+  ],
+  "co_owners": [
+    {
+      "id": 15,
+      "full_name": "Jean Martin",
+      "email": "jean@company.fr"
+    }
+  ]
+}
+```
+
+#### **CompanySerializer Example:**
+```json
+{
+  "id": 1,
+  "name": "Tech Education Inc",
+  "city": "Paris",
+  "logo_url": "https://res.cloudinary.com/...",
+  "has_active_contract": true,
+  "members_count": 25,
+  "projects_count": 10,
+  "partnerships_count": 3,
+  "is_branch": false,
+  "has_parent": false,
+  "has_branches": true,
+  "company_type": {
+    "id": 1,
+    "name": "Entreprise"
+  },
+  "skills": [...],
+  "parent_company": null,
+  "branch_companies": [
+    {
+      "id": 5,
+      "name": "Tech Education - Lyon Branch",
+      "city": "Lyon",
+      "logo_url": "..."
+    }
+  ]
+}
+```
+
+#### **SchoolLevelSerializer Example (with Teacher Assignments):**
+```json
+{
+  "id": 3,
+  "name": "3ème A",
+  "level": "troisieme",
+  "school_id": 1,
+  "is_independent": false,
+  "is_school_owned": true,
+  "is_school_created": false,
+  "students_count": 25,
+  "teachers_count": 2,
+  "creator": {
+    "id": 8,
+    "full_name": "Marie Professeur",
+    "email": "marie@ac-nantes.fr"
+  },
+  "teachers": [
+    {
+      "id": 8,
+      "full_name": "Marie Professeur",
+      "role": "teacher"
+    },
+    {
+      "id": 12,
+      "full_name": "Pierre Enseignant",
+      "role": "teacher"
+    }
+  ],
+  "students": [...]
+}
+```
+
+### **Key Design Decisions**
+
+1. **Full by Default**: Per user preference (Option C)
+   - Most associations included automatically
+   - Easier for frontend development
+   - Controllers can exclude if needed
+
+2. **Circular Reference Prevention**:
+   - 2-level depth limit
+   - Strategic association omissions
+   - Simple object format for polymorphic associations
+   - Prevents infinite loops
+
+3. **Public File URLs**:
+   - Uses `rails_blob_url` for ActiveStorage
+   - Works with Cloudinary CDN
+   - No expiration (simpler for frontend)
+
+4. **Simple Polymorphic Format**:
+   - `{id, name, type}` for polymorphic associations
+   - Consistent across all serializers
+   - Prevents deep nesting
+
+### **Performance Optimizations**
+
+**N+1 Query Prevention:**
+```ruby
+# Controllers should eager load associations
+@projects = Project.includes(:owner, :skills, :tags, :teams, :school_levels)
+render json: @projects, each_serializer: ProjectSerializer
+```
+
+**Tested Scenarios:**
+- ✅ User with contexts (includes schools + companies): No N+1
+- ✅ Project with associations (skills, tags, teams): No N+1
+- ✅ School with levels: No N+1
+
+**Bullet gem verified all scenarios** ✅
+
+### **Serializer Dependency Graph**
+
+```
+Level 1 (No dependencies):
+  - TagSerializer
+  - CompanyTypeSerializer
+  - BadgeSerializer (Phase 1)
+  - SkillSerializer (Phase 1)
+  - AvailabilitySerializer (Phase 1)
+
+Level 2 (Simple dependencies):
+  - SubSkillSerializer → SkillSerializer
+  - TeamSerializer (standalone with counts)
+  - UserBadgeSerializer (Phase 1) → BadgeSerializer
+
+Level 3 (Complex dependencies):
+  - UserSerializer (Phase 1) → Skills, Badges, Availability
+  - ProjectMemberSerializer → simple user/team objects
+  - CompanySerializer → CompanyType, Skills, SubSkills, branch objects
+  - SchoolSerializer → SchoolLevels, branch objects
+  - SchoolLevelSerializer → teachers, students (simple objects)
+
+Level 4 (Top-level):
+  - ProjectSerializer → Owner, Skills, Tags, Teams, SchoolLevels, co-owners
+  - PartnershipSerializer → initiator, members
+  - PartnershipMemberSerializer → participant
+  - BranchRequestSerializer → parent, child, initiator
+  - UserCompanySerializer → permissions
+  - UserSchoolSerializer → permissions, school_levels
+```
+
+### **Benefits**
+
+1. **Complete Coverage**: All core resources can be serialized
+2. **No Circular References**: Strategic depth limiting prevents infinite loops
+3. **Performance Optimized**: No N+1 queries when properly eager loaded
+4. **Integration Complete**: All 8 previous changes integrated
+5. **Frontend Ready**: Consistent JSON for React dashboards
+6. **Maintainable**: Clear patterns for future serializers
+7. **Tested**: Console tests + Bullet verification
+
+### **Next Steps (Phase 3)**
+
+**Week 3-4: User Dashboard API**
+- GET /api/v1/users/me/projects (ProjectSerializer)
+- GET /api/v1/users/me/badges (UserBadgeSerializer)
+- PATCH /api/v1/users/me (UserSerializer)
+- POST /api/v1/users/me/avatar (file upload)
+- PATCH /api/v1/users/me/skills
+- PATCH /api/v1/users/me/availability
+
+**Week 4-5: Teacher Dashboard API**
+- GET /api/v1/teachers/classes (SchoolLevelSerializer with teacher assignments)
+- GET /api/v1/teachers/students
+- POST /api/v1/teachers/classes/:id/students
+- Projects management endpoints
+
+**Week 5-8: School & Company Dashboard APIs**
+- School/Company CRUD with all new features
+- Partnership management
+- Branch management
+- Member management with new role system
+
+### **Summary**
+
+**Phase 2 COMPLETE** - Comprehensive serialization layer ready! 🚀
+
+**Stats:**
+- 14 serializers created
+- 1 serializer modified
+- 0 schema changes
+- All integration tests passing
+- No N+1 queries
+- ~3 hours implementation time
+
+**Ready for Phase 3:** User Dashboard API endpoints
 
 ---
 
