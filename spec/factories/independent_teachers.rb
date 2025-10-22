@@ -1,14 +1,19 @@
 FactoryBot.define do
   factory :independent_teacher do
-    association :user, factory: [:user, :teacher, :confirmed]
-    organization_name { "#{user.full_name} - Enseignant Indépendant" }
+    user { nil }  # Must be provided explicitly
+    organization_name { "Enseignant Indépendant" }
     city { "Paris" }
     description { "Cours particuliers et soutien scolaire" }
     status { :active }
     
     trait :with_contract do
       after(:create) do |independent_teacher|
-        create(:contract, contractable: independent_teacher, active: true)
+        Contract.create!(
+          contractable: independent_teacher,
+          active: true,
+          start_date: 1.month.ago,
+          end_date: 1.year.from_now
+        )
       end
     end
     
