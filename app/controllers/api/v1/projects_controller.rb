@@ -111,6 +111,13 @@ class Api::V1::ProjectsController < Api::V1::BaseController
         project_member: result[:project_member]
       }, status: :created
       
+    when :owner_cannot_join
+      render json: {
+        error: 'Forbidden',
+        message: 'Project owner cannot join their own project',
+        detail: result[:detail]
+      }, status: :forbidden
+      
     when :pending_org_approval
       render json: {
         message: 'Pending organization approval',

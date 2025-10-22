@@ -9,6 +9,14 @@ class ProjectJoinService < ApplicationService
   end
   
   def call
+    # Prevent owner from joining their own project
+    if project.owner_id == user.id
+      return {
+        status: :owner_cannot_join,
+        detail: 'Project owner cannot join their own project as a member'
+      }
+    end
+    
     # For PRIVATE projects: User can see it = already org member
     # For PUBLIC projects: Check org membership if required
     
