@@ -286,6 +286,10 @@ paths:
                       enum:
                       - School
                       - Company
+                    project_title:
+                      type: string
+                    project_description:
+                      type: string
                     badge_skill_ids:
                       type: array
                       items:

@@ -20,6 +20,8 @@ RSpec.describe 'API V1 Badges', type: :request do
               recipient_ids: { type: :array, items: { type: :integer } },
               organization_id: { type: :integer },
               organization_type: { type: :string, enum: ['School', 'Company'] },
+              project_title: { type: :string },
+              project_description: { type: :string },
               badge_skill_ids: { type: :array, items: { type: :integer } }
             },
             required: ['badge_id', 'recipient_ids', 'organization_id', 'organization_type']
@@ -43,7 +45,9 @@ RSpec.describe 'API V1 Badges', type: :request do
               badge_id: badge.id,
               recipient_ids: [recipient.id],
               organization_id: school.id,
-              organization_type: 'School'
+              organization_type: 'School',
+              project_title: 'Great Achievement',
+              project_description: 'Excellent work on the project'
             }
           } 
         }
@@ -68,7 +72,9 @@ RSpec.describe 'API V1 Badges', type: :request do
               badge_id: badge.id,
               recipient_ids: [recipient.id],
               organization_id: school.id,
-              organization_type: 'School'
+              organization_type: 'School',
+              project_title: 'Great Achievement',
+              project_description: 'Excellent work on the project'
             }
           } 
         }
@@ -90,7 +96,9 @@ RSpec.describe 'API V1 Badges', type: :request do
               badge_id: badge.id,
               recipient_ids: [recipient.id],
               organization_id: school.id,
-              organization_type: 'School'
+              organization_type: 'School',
+              project_title: 'Great Achievement',
+              project_description: 'Excellent work on the project'
             }
           } 
         }

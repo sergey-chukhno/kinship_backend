@@ -687,10 +687,10 @@
 								"value": "application/json"
 							}
 						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"badge_assignment\": {\n    \"badge_id\": 1,\n    \"recipient_ids\": [2, 3, 4],\n    \"organization_id\": 1,\n    \"organization_type\": \"School\",\n    \"badge_skill_ids\": []\n  }\n}"
-						},
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"badge_assignment\": {\n    \"badge_id\": 1,\n    \"recipient_ids\": [2, 3, 4],\n    \"organization_id\": 1,\n    \"organization_type\": \"School\",\n    \"project_title\": \"Great Achievement\",\n    \"project_description\": \"Excellent work on the project\",\n    \"badge_skill_ids\": []\n  }\n}"
+								},
 						"url": {
 							"raw": "{{base_url}}/api/v1/badges/assign",
 							"host": [

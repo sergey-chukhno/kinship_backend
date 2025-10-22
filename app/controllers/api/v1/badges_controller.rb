@@ -58,10 +58,12 @@ class Api::V1::BadgesController < Api::V1::BaseController
         recipient = User.find(recipient_id)
         
         user_badge = UserBadge.create!(
-          user: recipient,
+          receiver: recipient,
           badge: badge,
           sender: current_user,
-          organization: organization
+          organization: organization,
+          project_title: params[:badge_assignment][:project_title] || "Badge assigned via API",
+          project_description: params[:badge_assignment][:project_description] || "Badge assigned by #{current_user.full_name}"
         )
         
         # Add badge skills if provided
