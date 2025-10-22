@@ -19,6 +19,10 @@ RSpec.describe User, type: :model do
     it { should have_many(:school_levels).through(:user_school_levels) }
     it { should have_one_attached(:avatar) }
     it { should have_one(:availability) }
+    
+    # Teacher-class assignment associations (Change #8)
+    it { should have_many(:teacher_school_levels).dependent(:destroy) }
+    it { should have_many(:assigned_classes).through(:teacher_school_levels).source(:school_level) }
   end
 
   describe "validations" do
@@ -91,6 +95,45 @@ RSpec.describe User, type: :model do
     let(:user) { create(:user, :tutor) }
     it "should have the proper role" do
       expect(user.role).to eq("tutor")
+    end
+  end
+  
+  # ========================================
+  # TEACHER-CLASS ASSIGNMENT SPECS (Change #8)
+  # ========================================
+  
+  describe "teacher-class assignment methods" do
+    let(:teacher) { create(:user, :teacher, :confirmed) }
+    let(:independent_class) { create(:school_level, :independent) }
+    let(:school_class) { create(:school_level) }
+    
+    before do
+      independent_class.teacher_school_levels.first.update!(user: teacher, is_creator: true)
+      school_class.assign_teacher(teacher, is_creator: false)
+    end
+    
+    describe "#assigned_to_class?" do
+      it "returns true for assigned class" do
+        expect(teacher.assigned_to_class?(independent_class)).to be true
+        expect(teacher.assigned_to_class?(school_class)).to be true
+      end
+      
+      it "returns false for non-assigned class" do
+        other_class = create(:school_level)
+        expect(teacher.assigned_to_class?(other_class)).to be false
+      end
+    end
+    
+    describe "#created_classes" do
+      it "returns only classes where teacher is creator" do
+        expect(teacher.created_classes).to contain_exactly(independent_class)
+      end
+    end
+    
+    describe "#all_teaching_classes" do
+      it "returns all assigned classes" do
+        expect(teacher.all_teaching_classes).to contain_exactly(independent_class, school_class)
+      end
     end
   end
 end

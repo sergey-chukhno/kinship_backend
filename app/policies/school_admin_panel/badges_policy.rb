@@ -6,6 +6,7 @@ class SchoolAdminPanel::BadgesPolicy < ApplicationPolicy
   end
 
   def index?
-    UserSchool.find_by(user: user, school: record).can_access_badges?
+    user_school = UserSchool.find_by(user: user, school: record)
+    user_school&.can_assign_badges?
   end
 end

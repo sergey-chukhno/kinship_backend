@@ -33,6 +33,10 @@ class User < ApplicationRecord
   has_many :user_school_levels, dependent: :destroy
   has_many :school_levels, through: :user_school_levels
   has_one :availability, dependent: :destroy
+  
+  # Teacher-class assignments (NEW - Change #8)
+  has_many :teacher_school_levels, dependent: :destroy
+  has_many :assigned_classes, through: :teacher_school_levels, source: :school_level
 
   has_many :user_company, dependent: :destroy
   has_many :companies, through: :user_company
@@ -204,19 +208,25 @@ class User < ApplicationRecord
   end
 
   def schools_admin
-    user_schools.where(admin: true, status: :confirmed).map(&:school)
+    user_schools.where(role: [:admin, :superadmin], status: :confirmed).map(&:school)
   end
 
-  def schools_only_badges_access
-    user_schools.where(status: :confirmed, admin: false, can_access_badges: true).map(&:school)
+  def schools_with_badge_access
+    user_schools.where(
+      status: :confirmed,
+      role: [:intervenant, :referent, :admin, :superadmin]
+    ).map(&:school)
   end
 
   def companies_admin
-    user_company.where(admin: true, status: :confirmed).map(&:company)
+    user_company.where(role: [:admin, :superadmin], status: :confirmed).map(&:company)
   end
 
-  def companies_only_badges_access
-    user_company.where(status: :confirmed, admin: false, can_access_badges: true).map(&:company)
+  def companies_with_badge_access
+    user_company.where(
+      status: :confirmed,
+      role: [:intervenant, :referent, :admin, :superadmin]
+    ).map(&:company)
   end
 
   def projects_owner
@@ -227,11 +237,21 @@ class User < ApplicationRecord
   end
 
   def school_admin?(school)
-    user_schools.find_by(school:)&.admin
+    us = user_schools.find_by(school:)
+    us&.admin? || us&.superadmin?
   end
 
   def company_admin?(company)
-    user_company.find_by(company:)&.admin
+    uc = user_company.find_by(company:)
+    uc&.admin? || uc&.superadmin?
+  end
+
+  def school_superadmin?(school)
+    user_schools.find_by(school:)&.superadmin?
+  end
+
+  def company_superadmin?(company)
+    user_company.find_by(company:)&.superadmin?
   end
 
   def can_create_project?
@@ -244,10 +264,29 @@ class User < ApplicationRecord
   end
 
   def can_give_badges?
-    schools = user_schools.where(can_access_badges: true)
-    companies = user_company.where(can_access_badges: true)
+    schools = user_schools.where(role: [:intervenant, :referent, :admin, :superadmin])
+    companies = user_company.where(role: [:intervenant, :referent, :admin, :superadmin])
 
     schools.any? || companies.any?
+  end
+
+  def can_give_badges_in_project?(project)
+    # Check if user has badge permission in any of project's affiliated organizations
+    project_companies = project.companies
+    project_schools = project.schools
+    
+    project_companies.any? { |c| can_give_badges_in_company?(c) } ||
+    project_schools.any? { |s| can_give_badges_in_school?(s) }
+  end
+  
+  def can_give_badges_in_company?(company)
+    uc = user_company.find_by(company: company)
+    uc&.can_assign_badges?
+  end
+  
+  def can_give_badges_in_school?(school)
+    us = user_schools.find_by(school: school)
+    us&.can_assign_badges?
   end
 
   def generate_delete_token
@@ -266,6 +305,28 @@ class User < ApplicationRecord
 
   def confirmed_companies
     companies.confirmed
+  end
+
+  def avatar_url
+    return nil unless avatar.attached?
+    Rails.application.routes.url_helpers.rails_blob_url(avatar, only_path: false)
+  end
+  
+  # ========================================
+  # TEACHER-CLASS ASSIGNMENT METHODS (Change #8)
+  # ========================================
+  
+  def assigned_to_class?(school_level)
+    assigned_classes.include?(school_level)
+  end
+  
+  def created_classes
+    assigned_classes.joins(:teacher_school_levels)
+                   .where(teacher_school_levels: {user_id: id, is_creator: true})
+  end
+  
+  def all_teaching_classes
+    assigned_classes  # All classes where teacher is assigned
   end
 
   private

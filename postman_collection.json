@@ -1,0 +1,727 @@
+{
+	"info": {
+		"_postman_id": "kinship-api-v1",
+		"name": "Kinship API v1 - Complete",
+		"description": "Complete API collection for Kinship React Dashboards\n\n**Phase 1: Authentication** ✅\n**Phase 2: Core Serializers** ✅\n**Phase 3: User Dashboard** ✅\n\n**How to use:**\n1. Run 'Login' request first\n2. Token will be auto-saved to {{jwt_token}} variable\n3. All other requests use this token automatically\n\n**Authentication Flow:**\n- Login → Get JWT token (24h expiration)\n- Use token for all subsequent requests\n- Refresh token when needed",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{jwt_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "jwt_token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('jwt_token', jsonData.token);",
+									"    console.log('Token saved:', jsonData.token);",
+									"    console.log('Available contexts:', JSON.stringify(jsonData.user.available_contexts, null, 2));",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"admin@drakkar.io\",\n  \"password\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/me",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"me"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set('jwt_token', jsonData.token);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/refresh",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"refresh"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/logout",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Dashboard",
+			"item": [
+				{
+					"name": "Profile",
+					"item": [
+						{
+							"name": "Update Profile",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"user\": {\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"job\": \"Software Engineer\",\n    \"take_trainee\": true,\n    \"propose_workshop\": true,\n    \"show_my_skills\": true\n  }\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/users/me",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"me"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Upload Avatar",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "formdata",
+									"formdata": [
+										{
+											"key": "avatar",
+											"type": "file",
+											"src": []
+										}
+									]
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/users/me/avatar",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"me",
+										"avatar"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Avatar",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/users/me/avatar",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"me",
+										"avatar"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "My Projects",
+					"item": [
+						{
+							"name": "Get My Projects",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/users/me/projects?per_page=12",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"me",
+										"projects"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "in_progress",
+											"disabled": true
+										},
+										{
+											"key": "by_company",
+											"value": "1",
+											"disabled": true
+										},
+										{
+											"key": "by_school",
+											"value": "1",
+											"disabled": true
+										},
+										{
+											"key": "by_role",
+											"value": "owner",
+											"disabled": true
+										},
+										{
+											"key": "per_page",
+											"value": "12"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "My Badges",
+					"item": [
+						{
+							"name": "Get My Badges",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/users/me/badges?per_page=12",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"me",
+										"badges"
+									],
+									"query": [
+										{
+											"key": "series",
+											"value": "Série TouKouLeur",
+											"disabled": true
+										},
+										{
+											"key": "level",
+											"value": "1",
+											"disabled": true
+										},
+										{
+											"key": "organization_type",
+											"value": "School",
+											"disabled": true
+										},
+										{
+											"key": "per_page",
+											"value": "12"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "My Organizations",
+					"item": [
+						{
+							"name": "Get My Organizations",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/users/me/organizations",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"me",
+										"organizations"
+									],
+									"query": [
+										{
+											"key": "type",
+											"value": "School",
+											"disabled": true
+										},
+										{
+											"key": "status",
+											"value": "confirmed",
+											"disabled": true
+										},
+										{
+											"key": "role",
+											"value": "admin",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "My Network",
+					"item": [
+						{
+							"name": "Get My Network",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/users/me/network?per_page=12",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"me",
+										"network"
+									],
+									"query": [
+										{
+											"key": "organization_id",
+											"value": "1",
+											"disabled": true
+										},
+										{
+											"key": "organization_type",
+											"value": "School",
+											"disabled": true
+										},
+										{
+											"key": "role",
+											"value": "teacher",
+											"disabled": true
+										},
+										{
+											"key": "search",
+											"value": "john",
+											"disabled": true
+										},
+										{
+											"key": "per_page",
+											"value": "12"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Skills & Availability",
+					"item": [
+						{
+							"name": "Update Skills",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"skill_ids\": [1, 2, 3],\n  \"sub_skill_ids\": [5, 6]\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/users/me/skills",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"me",
+										"skills"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Availability",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"availability\": {\n    \"monday\": true,\n    \"tuesday\": true,\n    \"wednesday\": false,\n    \"thursday\": true,\n    \"friday\": false,\n    \"other\": false\n  }\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/users/me/availability",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users",
+										"me",
+										"availability"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Projects",
+			"item": [
+				{
+					"name": "Get All Projects",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects?per_page=12",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"projects"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "in_progress",
+									"disabled": true
+								},
+								{
+									"key": "parcours",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "start_date_from",
+									"value": "2025-01-01",
+									"disabled": true
+								},
+								{
+									"key": "per_page",
+									"value": "12"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Project Details",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"projects",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Project",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"project\": {\n    \"title\": \"My New Project\",\n    \"description\": \"Project description\",\n    \"start_date\": \"2025-02-01\",\n    \"end_date\": \"2025-06-30\",\n    \"participants_number\": 20,\n    \"private\": false,\n    \"school_level_ids\": [1, 2],\n    \"skill_ids\": [1, 2],\n    \"tag_ids\": [1],\n    \"company_ids\": []\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"projects"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Project",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"project\": {\n    \"title\": \"Updated Title\",\n    \"status\": \"finished\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"projects",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Project",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"projects",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Join Project",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/projects/1/join",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"projects",
+								"1",
+								"join"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Badges",
+			"item": [
+				{
+					"name": "Assign Badge",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"badge_assignment\": {\n    \"badge_id\": 1,\n    \"recipient_ids\": [2, 3, 4],\n    \"organization_id\": 1,\n    \"organization_type\": \"School\",\n    \"project_title\": \"Great Achievement\",\n    \"project_description\": \"Excellent work on the project\",\n    \"badge_skill_ids\": []\n  }\n}"
+								},
+						"url": {
+							"raw": "{{base_url}}/api/v1/badges/assign",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"badges",
+								"assign"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Teacher Dashboard",
+			"item": [],
+			"description": "Teacher Dashboard API endpoints (Phase 4)"
+		},
+		{
+			"name": "School Dashboard",
+			"item": [],
+			"description": "School Dashboard API endpoints (Phase 4-5)"
+		},
+		{
+			"name": "Company Dashboard",
+			"item": [],
+			"description": "Company Dashboard API endpoints (Phase 4-5)"
+		}
+	]
+}

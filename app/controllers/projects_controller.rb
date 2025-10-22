@@ -73,15 +73,14 @@ class ProjectsController < ApplicationController
   def companies_ids_where_user_is_confirmed_or_admin_or_owner
     current_user.user_company
       .where(status: "confirmed")
-      .or(current_user.user_company.where(admin: true))
-      .or(current_user.user_company.where(owner: true))
+      .or(current_user.user_company.where(role: [:admin, :superadmin, :referent]))
       .pluck(:company_id)
   end
 
   def school_ids_where_user_is_confirmed_or_admin_or_owner
-    current_user.user_schools.where(status: "confirmed")
-      .or(current_user.user_schools.where(admin: true))
-      .or(current_user.user_schools.where(owner: true))
+    current_user.user_schools
+      .where(status: "confirmed")
+      .or(current_user.user_schools.where(role: [:admin, :superadmin, :referent]))
       .pluck(:school_id)
   end
 

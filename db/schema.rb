@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_20_054807) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -93,6 +93,27 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
     t.datetime "updated_at", null: false
     t.string "name", null: false
     t.integer "level", null: false
+    t.string "series", default: "Série TouKouLeur", null: false
+    t.index ["series"], name: "index_badges_on_series"
+  end
+
+  create_table "branch_requests", force: :cascade do |t|
+    t.string "parent_type", null: false
+    t.bigint "parent_id", null: false
+    t.string "child_type", null: false
+    t.bigint "child_id", null: false
+    t.string "initiator_type", null: false
+    t.bigint "initiator_id", null: false
+    t.integer "status", default: 0, null: false
+    t.text "message"
+    t.datetime "confirmed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["child_type", "child_id"], name: "index_branch_requests_on_child_type_and_child_id"
+    t.index ["initiator_type", "initiator_id"], name: "index_branch_requests_on_initiator_type_and_initiator_id"
+    t.index ["parent_type", "parent_id", "child_type", "child_id"], name: "index_branch_requests_on_parent_and_child", unique: true
+    t.index ["parent_type", "parent_id"], name: "index_branch_requests_on_parent_type_and_parent_id"
+    t.index ["status"], name: "index_branch_requests_on_status"
   end
 
   create_table "companies", force: :cascade do |t|
@@ -113,7 +134,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
     t.boolean "take_trainee", default: false
     t.boolean "propose_workshop", default: false
     t.boolean "propose_summer_job", default: false
+    t.bigint "parent_company_id"
+    t.boolean "share_members_with_branches", default: false, null: false
     t.index ["company_type_id"], name: "index_companies_on_company_type_id"
+    t.index ["parent_company_id"], name: "index_companies_on_parent_company_id"
   end
 
   create_table "company_api_accesses", force: :cascade do |t|
@@ -201,6 +225,44 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "partnership_members", force: :cascade do |t|
+    t.bigint "partnership_id", null: false
+    t.string "participant_type", null: false
+    t.bigint "participant_id", null: false
+    t.integer "member_status", default: 0, null: false
+    t.integer "role_in_partnership", default: 0, null: false
+    t.datetime "joined_at"
+    t.datetime "confirmed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["member_status"], name: "index_partnership_members_on_member_status"
+    t.index ["participant_type", "participant_id"], name: "idx_on_participant_type_participant_id_4f6c645201"
+    t.index ["participant_type", "participant_id"], name: "index_partnership_members_on_participant"
+    t.index ["partnership_id", "participant_id", "participant_type"], name: "index_partnership_members_unique", unique: true
+    t.index ["partnership_id"], name: "index_partnership_members_on_partnership_id"
+    t.index ["role_in_partnership"], name: "index_partnership_members_on_role_in_partnership"
+  end
+
+  create_table "partnerships", force: :cascade do |t|
+    t.string "initiator_type", null: false
+    t.bigint "initiator_id", null: false
+    t.integer "status", default: 0, null: false
+    t.integer "partnership_type", default: 0, null: false
+    t.boolean "share_members", default: false, null: false
+    t.boolean "share_projects", default: true, null: false
+    t.boolean "has_sponsorship", default: false, null: false
+    t.string "name"
+    t.text "description"
+    t.datetime "confirmed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["confirmed_at"], name: "index_partnerships_on_confirmed_at"
+    t.index ["initiator_type", "initiator_id"], name: "index_partnerships_on_initiator"
+    t.index ["initiator_type", "initiator_id"], name: "index_partnerships_on_initiator_type_and_initiator_id"
+    t.index ["partnership_type"], name: "index_partnerships_on_partnership_type"
+    t.index ["status"], name: "index_partnerships_on_status"
+  end
+
   create_table "project_companies", force: :cascade do |t|
     t.bigint "project_id", null: false
     t.bigint "company_id", null: false
@@ -212,12 +274,13 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
 
   create_table "project_members", force: :cascade do |t|
     t.integer "status", default: 0, null: false
-    t.boolean "admin", default: false, null: false
     t.bigint "user_id", null: false
     t.bigint "project_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "role", default: 0, null: false
     t.index ["project_id"], name: "index_project_members_on_project_id"
+    t.index ["role"], name: "index_project_members_on_role"
     t.index ["user_id"], name: "index_project_members_on_user_id"
   end
 
@@ -260,7 +323,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
     t.integer "status"
     t.integer "time_spent"
     t.boolean "private", default: false
+    t.bigint "partnership_id"
     t.index ["owner_id"], name: "index_projects_on_owner_id"
+    t.index ["partnership_id"], name: "index_projects_on_partnership_id"
   end
 
   create_table "school_companies", force: :cascade do |t|
@@ -275,7 +340,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
 
   create_table "school_levels", force: :cascade do |t|
     t.string "name"
-    t.bigint "school_id", null: false
+    t.bigint "school_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "level"
@@ -291,6 +356,9 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
     t.string "city"
     t.integer "status", default: 0, null: false
     t.string "referent_phone_number"
+    t.bigint "parent_school_id"
+    t.boolean "share_members_with_branches", default: false, null: false
+    t.index ["parent_school_id"], name: "index_schools_on_parent_school_id"
   end
 
   create_table "skills", force: :cascade do |t|
@@ -312,6 +380,18 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "teacher_school_levels", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "school_level_id", null: false
+    t.boolean "is_creator", default: false, null: false
+    t.datetime "assigned_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["school_level_id"], name: "index_teacher_school_levels_on_school_level_id"
+    t.index ["user_id", "school_level_id"], name: "index_teacher_school_levels_on_user_and_school_level", unique: true
+    t.index ["user_id"], name: "index_teacher_school_levels_on_user_id"
   end
 
   create_table "team_members", force: :cascade do |t|
@@ -365,13 +445,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
     t.bigint "user_id", null: false
     t.bigint "company_id", null: false
     t.integer "status", default: 0, null: false
-    t.boolean "admin", default: false, null: false
-    t.boolean "owner", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.boolean "can_access_badges", default: false
-    t.boolean "can_create_project", default: false
+    t.integer "role", default: 0, null: false
     t.index ["company_id"], name: "index_user_companies_on_company_id"
+    t.index ["role"], name: "index_user_companies_on_role"
     t.index ["user_id"], name: "index_user_companies_on_user_id"
   end
 
@@ -390,9 +468,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.integer "status", default: 0, null: false
-    t.boolean "owner", default: false, null: false
-    t.boolean "admin", default: false, null: false
-    t.boolean "can_access_badges", default: false
+    t.integer "role", default: 0, null: false
+    t.index ["role"], name: "index_user_schools_on_role"
     t.index ["school_id"], name: "index_user_schools_on_school_id"
     t.index ["user_id"], name: "index_user_schools_on_user_id"
   end
@@ -458,6 +535,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "availabilities", "users"
   add_foreign_key "badge_skills", "badges"
+  add_foreign_key "companies", "companies", column: "parent_company_id"
   add_foreign_key "companies", "company_types"
   add_foreign_key "company_api_accesses", "api_accesses"
   add_foreign_key "company_api_accesses", "companies"
@@ -471,6 +549,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
   add_foreign_key "contracts", "schools"
   add_foreign_key "keywords", "projects"
   add_foreign_key "links", "projects"
+  add_foreign_key "partnership_members", "partnerships"
   add_foreign_key "project_companies", "companies"
   add_foreign_key "project_companies", "projects"
   add_foreign_key "project_members", "projects"
@@ -481,11 +560,15 @@ ActiveRecord::Schema[7.1].define(version: 2025_04_28_090409) do
   add_foreign_key "project_skills", "skills"
   add_foreign_key "project_tags", "projects"
   add_foreign_key "project_tags", "tags"
+  add_foreign_key "projects", "partnerships"
   add_foreign_key "projects", "users", column: "owner_id"
   add_foreign_key "school_companies", "companies"
   add_foreign_key "school_companies", "schools"
   add_foreign_key "school_levels", "schools"
+  add_foreign_key "schools", "schools", column: "parent_school_id"
   add_foreign_key "sub_skills", "skills"
+  add_foreign_key "teacher_school_levels", "school_levels"
+  add_foreign_key "teacher_school_levels", "users"
   add_foreign_key "team_members", "teams"
   add_foreign_key "team_members", "users"
   add_foreign_key "teams", "projects"

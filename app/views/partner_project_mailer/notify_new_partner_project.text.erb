@@ -1,0 +1,29 @@
+Nouveau projet partenaire créé !
+
+Bonjour <%= @admin_user.full_name %>,
+
+Un nouveau projet partenaire a été créé dans le cadre du partenariat <%= @partnership.name || "entre vos organisations" %>.
+
+Détails du projet :
+- Titre : <%= @project.title %>
+- Description : <%= @project.description %>
+- Période : <%= @project.formatted_date_start %> - <%= @project.formatted_date_end %>
+- Créé par : <%= @project.owner.full_name %>
+
+Organisations partenaires :
+<% @partnership.all_participants.each do |org| %>
+- <%= org.full_name %>
+<% end %>
+
+En tant que superadmin de <%= @organization.full_name %>, vous pouvez :
+- Consulter et participer au projet
+- Demander à devenir co-propriétaire du projet
+- Ajouter des membres de votre organisation
+<% if @admin_user.can_give_badges_in_project?(@project) %>
+- Assigner des badges aux participants
+<% end %>
+
+Voir le projet : <%= @project_url %>
+
+Cordialement,
+L'équipe Kinship

@@ -1,0 +1,45 @@
+<h2>Nouveau projet partenaire créé !</h2>
+
+<p>Bonjour <%= @admin_user.full_name %>,</p>
+
+<p>
+  Un nouveau projet partenaire a été créé dans le cadre du partenariat 
+  <strong><%= @partnership.name || "entre vos organisations" %></strong>.
+</p>
+
+<h3>Détails du projet :</h3>
+<ul>
+  <li><strong>Titre :</strong> <%= @project.title %></li>
+  <li><strong>Description :</strong> <%= @project.description %></li>
+  <li><strong>Période :</strong> <%= @project.formatted_date_start %> - <%= @project.formatted_date_end %></li>
+  <li><strong>Créé par :</strong> <%= @project.owner.full_name %></li>
+</ul>
+
+<h3>Organisations partenaires :</h3>
+<ul>
+  <% @partnership.all_participants.each do |org| %>
+    <li><%= org.full_name %></li>
+  <% end %>
+</ul>
+
+<p>
+  En tant que <strong>superadmin de <%= @organization.full_name %></strong>, 
+  vous pouvez :
+</p>
+<ul>
+  <li>Consulter et participer au projet</li>
+  <li>Demander à devenir co-propriétaire du projet</li>
+  <li>Ajouter des membres de votre organisation</li>
+  <% if @admin_user.can_give_badges_in_project?(@project) %>
+    <li>Assigner des badges aux participants</li>
+  <% end %>
+</ul>
+
+<p>
+  <%= link_to "Voir le projet", @project_url, class: "button" %>
+</p>
+
+<p>
+  Cordialement,<br>
+  L'équipe Kinship
+</p>

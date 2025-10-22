@@ -12,7 +12,7 @@ FactoryBot.define do
 
     trait :teacher do
       role { "teacher" }
-      email { "example@ac-nantes.fr" }
+      sequence(:email) { |n| "teacher#{n}@ac-nantes.fr" }
     end
 
     trait :voluntary do

@@ -18,23 +18,38 @@ RSpec.configure do |config|
     'v1/swagger.yaml' => {
       openapi: '3.0.1',
       info: {
-        title: 'API V1',
-        version: 'v1'
+        title: 'Kinship API V1',
+        version: 'v1',
+        description: 'REST API for Kinship React Dashboards - Authentication, Users, Projects, Companies, Schools, and more'
       },
       paths: {},
       servers: [
         {
           url: 'http://localhost:3000',
           description: 'Development server'
+        },
+        {
+          url: 'https://staging.kinship.fr',
+          description: 'Staging server'
+        },
+        {
+          url: 'https://kinship.fr',
+          description: 'Production server'
         }
       ],
       components: {
         securitySchemes: {
+          Bearer: {
+            type: :http,
+            scheme: :bearer,
+            bearerFormat: 'JWT',
+            description: 'JWT token obtained from /api/v1/auth/login endpoint'
+          },
           ApiKeyAuth: {
             type: :apiKey,
             in: :query,
             name: 'token',
-            description: 'API access token for V2 endpoints'
+            description: 'API access token for legacy V2 endpoints'
           }
         }
       }

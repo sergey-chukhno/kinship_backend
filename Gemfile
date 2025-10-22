@@ -70,3 +70,8 @@ end
 gem "wicked_pdf", "~> 2.8"
 gem "wkhtmltopdf-binary", "~> 0.12.6"
 gem 'rswag'
+
+# API & React Integration
+gem 'jwt'                           # JWT token generation/validation
+gem 'rack-cors'                     # CORS support for React apps
+gem 'active_model_serializers'     # JSON API responses

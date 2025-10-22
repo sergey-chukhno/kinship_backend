@@ -6,6 +6,7 @@ class CompanyAdminPanel::BadgesPolicy < ApplicationPolicy
   end
 
   def index?
-    UserCompany.find_by(user: user, company: record).can_access_badges?
+    user_company = UserCompany.find_by(user: user, company: record)
+    user_company&.can_assign_badges?
   end
 end

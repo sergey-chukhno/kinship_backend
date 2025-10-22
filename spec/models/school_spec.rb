@@ -59,8 +59,8 @@ RSpec.describe School, type: :model do
         expect(school.owner?).to eq(false)
       end
 
-      it "returns true if the school have owner" do
-        create(:user_school, school: school, owner: true)
+      it "returns true if the school have superadmin" do
+        create(:user_school, school: school, role: :superadmin)
         expect(school.owner?).to eq(true)
       end
     end
@@ -68,8 +68,8 @@ RSpec.describe School, type: :model do
     context "#owner" do
       let(:school) { create(:school) }
 
-      it "returns the owner of the school" do
-        user_school = create(:user_school, school: school, owner: true)
+      it "returns the superadmin of the school" do
+        user_school = create(:user_school, school: school, role: :superadmin)
         expect(school.owner).to eq(user_school)
       end
     end

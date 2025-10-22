@@ -18,12 +18,15 @@ RSpec.describe UserCompany, type: :model do
 
     it "should have valid factory with :admin trait" do
       expect(build(:user_company, :admin)).to be_valid
-      expect(build(:user_company, :admin).admin).to eq(true)
+      expect(build(:user_company, :admin).role).to eq("admin")
+      expect(build(:user_company, :admin).admin?).to eq(true)
     end
 
     it "should have valid factory with :owner trait" do
       expect(build(:user_company, :owner)).to be_valid
-      expect(build(:user_company, :owner).owner).to eq(true)
+      expect(build(:user_company, :owner).role).to eq("superadmin")
+      expect(build(:user_company, :owner).superadmin?).to eq(true)
+      expect(build(:user_company, :owner).owner?).to eq(true)
     end
 
     it "should have valid factory with :pending_company trait" do
@@ -54,6 +57,7 @@ RSpec.describe UserCompany, type: :model do
 
   describe "enums" do
     it { should define_enum_for(:status).with_values({pending: 0, confirmed: 1}) }
+    it { should define_enum_for(:role).with_values({member: 0, intervenant: 1, referent: 2, admin: 3, superadmin: 4}) }
   end
 
   describe "validations" do
@@ -66,11 +70,11 @@ RSpec.describe UserCompany, type: :model do
     #   expect(subject).not_to be_valid
     #   expect(subject.errors.messages[:user]).to include("Un enseignant ne peut pas être associé à une association")
     # end
-    it "should not being valid if company have two owner" do
-      subject.owner = true
-      create(:user_company, :confirmed, :owner, company: subject.company)
+    it "should not being valid if company have two superadmin" do
+      subject.role = :superadmin
+      create(:user_company, :confirmed, :superadmin, company: subject.company)
       expect(subject).not_to be_valid
-      expect(subject.errors.messages[:owner]).to include("Il ne peut y avoir qu'un seul propriétaire par association")
+      expect(subject.errors.messages[:role]).to include("Il ne peut y avoir qu'un seul superadmin par entreprise")
     end
   end
 end

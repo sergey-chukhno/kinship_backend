@@ -8,7 +8,7 @@
     <% end %>
 
     <%= simple_form_for @school_member,
-                      url: school_admin_panel_school_members_update_admin_path(@school_member),
+                      url: school_admin_panel_school_members_update_role_path(@school_member),
                       method: :put,
                       data: {
                         controller: "submit",
@@ -16,17 +16,23 @@
                       },
                       html: {
                         class: "",
-                        id: "#{dom_id(@school_member)}_update_admin",
+                        id: "#{dom_id(@school_member)}_update_role",
                       } do |f| %>
 
-      <%= f.input :admin,
+      <%= f.input :role,
                 as: :select,
                 label: false,
                 include_blank: false,
-                collection: [["Administrateur", true], ["Utilisateur rattaché", false]],
+                collection: [
+                  ["Membre", "member"],
+                  ["Intervenant", "intervenant"],
+                  ["Référent", "referent"],
+                  ["Admin", "admin"],
+                  ["Superadmin", "superadmin"]
+                ],
                 input_html: {
                   class: "mini-select",
-                  disabled: @school_member.owner? || @school_member.pending?,
+                  disabled: @school_member.superadmin? || @school_member.pending?,
                   data: {
                     action: "change->submit#submit"
                   }
@@ -38,32 +44,10 @@
   </div>
 
   <div class="admin-panel__member__card__actions">
-    <%= simple_form_for @school_member,
-                      url: school_admin_panel_school_members_update_can_access_badges_path(@school_member),
-                      method: :put,
-                      data: {
-                        controller: "submit",
-                        submit_target: "form"
-                      },
-                      html: {
-                        class: "",
-                        id: "#{dom_id(@school_member)}_update_can_access_badges",
-                      } do |f| %>
-      <%= f.input :can_access_badges,
-                as: :boolean,
-                wrapper: :switch,
-                label: "Badges",
-                label_html: {
-                  for: "#{dom_id(@school_member)}_can_access_badges"
-                },
-                input_html: {
-                  id: "#{dom_id(@school_member)}_can_access_badges",
-                  disabled: @school_member.owner || @school_member.pending? || @school_member.admin?,
-                  data: {
-                    action: "change->submit#submit"
-                  }
-                } %>
-    <% end %>
+    <div class="permissions-info">
+      <span><strong>Badges:</strong> <%= @school_member.can_assign_badges? ? "✓" : "✗" %></span>
+      <span><strong>Projets:</strong> <%= @school_member.can_manage_projects? ? "✓" : "✗" %></span>
+    </div>
 
     <%= simple_form_for @school_member,
                       url: school_admin_panel_school_members_update_confirmation_path(@school_member),
@@ -87,7 +71,7 @@
                 input_html: {
                   id: "#{dom_id(@school_member)}_confirmation",
                   checked: @school_member.confirmed?,
-                  disabled: @school_member.owner?,
+                  disabled: @school_member.superadmin?,
                   data: {
                     action: "change->submit#submit"
                   }
@@ -97,7 +81,7 @@
     <%= button_to school_admin_panel_school_member_path(@school_member),
                 method: :delete,
                 class: "btn-trash grey-02",
-                disabled: @school_member.owner?,
+                disabled: @school_member.superadmin?,
                 form_class: "admin-panel__member__card__delete" do %>
       <%= helpers.show_svg "trash.svg" %>
     <% end %>
