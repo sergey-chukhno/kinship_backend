@@ -33,6 +33,7 @@ class UserSerializer < ActiveModel::Serializer
     {
       user_dashboard: has_personal_dashboard?,
       teacher_dashboard: object.teacher?,
+      independent_teacher: serialize_independent_teacher,
       schools: serialize_schools,
       companies: serialize_companies
     }
@@ -93,6 +94,21 @@ class UserSerializer < ActiveModel::Serializer
         }
       }
     end
+  end
+  
+  # Serialize independent teacher status (Change #9)
+  def serialize_independent_teacher
+    return nil unless object.independent_teacher
+    
+    it = object.independent_teacher
+    {
+      id: it.id,
+      organization_name: it.organization_name,
+      status: it.status,
+      is_active: it.active?,
+      has_contract: it.active_contract?,
+      can_assign_badges: it.can_assign_badges?
+    }
   end
 end
 

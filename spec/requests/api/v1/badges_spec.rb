@@ -105,6 +105,32 @@ RSpec.describe 'API V1 Badges', type: :request do
         
         run_test!
       end
+      
+      response '201', 'badges assigned via independent teacher' do
+        let(:teacher_user) { create(:user, :teacher, :confirmed) }
+        let!(:independent_teacher) { create(:independent_teacher, user: teacher_user) }
+        let!(:contract) { Contract.create!(contractable: independent_teacher, active: true, start_date: 1.month.ago, end_date: 1.year.from_now) }
+        let(:badge) { create(:badge) }
+        let(:recipient) { create(:user, :confirmed) }
+        let(:Authorization) { "Bearer #{JsonWebToken.encode(user_id: teacher_user.id)}" }
+        let(:badge_data) { 
+          { 
+            badge_assignment: {
+              badge_id: badge.id,
+              recipient_ids: [recipient.id],
+              organization_id: independent_teacher.id,
+              organization_type: 'IndependentTeacher',
+              project_title: 'Independent Achievement',
+              project_description: 'Great work in private tutoring'
+            }
+          } 
+        }
+        
+        run_test! do |response|
+          json = JSON.parse(response.body)
+          expect(json['assigned_count']).to eq(1)
+        end
+      end
     end
   end
 end

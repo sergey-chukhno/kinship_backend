@@ -3,6 +3,7 @@ class User < ApplicationRecord
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable]
   # ! SET THIS AFTER CREATE FOR SPRINT 2
   after_create :create_availability
+  after_create :create_independent_teacher_if_teacher  # Change #9
   before_validation :set_admin_if_super_admin
   attr_accessor :skip_password_validation, :role_additional_information_custom
 
@@ -34,9 +35,12 @@ class User < ApplicationRecord
   has_many :school_levels, through: :user_school_levels
   has_one :availability, dependent: :destroy
   
-  # Teacher-class assignments (NEW - Change #8)
+  # Teacher-class assignments (Change #8)
   has_many :teacher_school_levels, dependent: :destroy
   has_many :assigned_classes, through: :teacher_school_levels, source: :school_level
+  
+  # Independent teacher status (Change #9)
+  has_one :independent_teacher, dependent: :destroy
 
   has_many :user_company, dependent: :destroy
   has_many :companies, through: :user_company
@@ -57,9 +61,10 @@ class User < ApplicationRecord
   enum :role, {teacher: 0, tutor: 1, voluntary: 2, children: 3}, default: :voluntary
 
   validates :first_name, :last_name, :role, :role_additional_information, presence: true
-  validates :email, presence: true
+  validates :email, presence: true, uniqueness: true
+  validates :email, format: {with: Devise.email_regexp}, unless: :has_temporary_email?
   validates :contact_email, uniqueness: true, allow_blank: true, format: {with: Devise.email_regexp}
-  validate :academic_email?, if: -> { role == "teacher" && email.present? }
+  validate :academic_email?, if: -> { role == "teacher" && email.present? && !has_temporary_email? }
   validate :check_for_circular_reference, if: -> { parent_id.present? }
   validate :privacy_policy_accepted?, if: -> { accept_privacy_policy == false }
 
@@ -288,6 +293,105 @@ class User < ApplicationRecord
     us = user_schools.find_by(school: school)
     us&.can_assign_badges?
   end
+  
+  # Change #9: Independent Teacher & Temporary Email Support
+  
+  # Check if user has any active contract (school, company, or independent)
+  def active_contract?
+    has_school_contract? || has_company_contract? || has_independent_contract?
+  end
+  
+  def has_school_contract?
+    user_schools.confirmed.any? { |us| us.school.active_contract? }
+  end
+  
+  def has_company_contract?
+    user_company.confirmed.any? { |uc| uc.company.active_contract? }
+  end
+  
+  def has_independent_contract?
+    independent_teacher&.active? && independent_teacher&.active_contract?
+  end
+  
+  # Get all organizations where user can assign badges
+  def badge_assignment_contexts
+    contexts = []
+    
+    # Schools with badge permission
+    user_schools.where(role: [:intervenant, :referent, :admin, :superadmin], status: :confirmed).each do |us|
+      next unless us.school.active_contract?
+      contexts << {
+        type: 'School',
+        id: us.school_id,
+        name: us.school.name,
+        has_contract: true
+      }
+    end
+    
+    # Companies with badge permission
+    user_company.where(role: [:intervenant, :referent, :admin, :superadmin], status: :confirmed).each do |uc|
+      next unless uc.company.active_contract?
+      contexts << {
+        type: 'Company',
+        id: uc.company_id,
+        name: uc.company.name,
+        has_contract: true
+      }
+    end
+    
+    # Independent teacher (if active and has contract)
+    if independent_teacher&.active? && independent_teacher&.active_contract?
+      contexts << {
+        type: 'IndependentTeacher',
+        id: independent_teacher.id,
+        name: independent_teacher.name,
+        has_contract: true
+      }
+    end
+    
+    contexts
+  end
+  
+  # Generate temporary email for students created without email
+  def self.generate_temporary_email(first_name, last_name)
+    base = "#{first_name}.#{last_name}".parameterize.gsub('-', '.')
+    unique_id = SecureRandom.hex(6)
+    "#{base}.pending#{unique_id}@kinship.temp"
+  end
+  
+  # Generate claim token for account claiming
+  def generate_claim_token!
+    self.claim_token = SecureRandom.urlsafe_base64(32)
+    self.has_temporary_email = true
+    save!
+  end
+  
+  # Check if account can be claimed
+  def claimable?
+    has_temporary_email? && claim_token.present?
+  end
+  
+  # Claim account with real email (student activates their account)
+  def claim_account!(real_email, password, birthday_verification)
+    return false unless claimable?
+    
+    # Verify birthday for security
+    return false unless birthday == birthday_verification
+    
+    self.email = real_email
+    self.password = password
+    self.password_confirmation = password
+    self.has_temporary_email = false
+    self.claim_token = nil
+    self.confirmed_at = nil  # Will need to confirm new email
+    
+    if save
+      send_confirmation_instructions if respond_to?(:send_confirmation_instructions)
+      true
+    else
+      false
+    end
+  end
 
   def generate_delete_token
     self.delete_token = SecureRandom.hex(90)
@@ -353,5 +457,18 @@ class User < ApplicationRecord
     return if Rails.env.development? || Rails.env.test?
 
     UserMailer.send_welcome_email(self).deliver_later if self && email
+  end
+  
+  # Auto-create IndependentTeacher for new teachers (Change #9)
+  def create_independent_teacher_if_teacher
+    return unless teacher?
+    
+    IndependentTeacher.create!(
+      user: self,
+      organization_name: "#{full_name} - Enseignant Indépendant",
+      status: :active
+    )
+  rescue ActiveRecord::RecordInvalid => e
+    Rails.logger.warn "Failed to create IndependentTeacher for user #{id}: #{e.message}"
   end
 end

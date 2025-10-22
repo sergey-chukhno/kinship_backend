@@ -123,6 +123,8 @@ class Api::V1::BadgesController < Api::V1::BaseController
       School.find_by(id: org_id)
     when 'Company'
       Company.find_by(id: org_id)
+    when 'IndependentTeacher'
+      IndependentTeacher.find_by(id: org_id)
     end
   end
   
@@ -141,6 +143,9 @@ class Api::V1::BadgesController < Api::V1::BaseController
         role: [:intervenant, :referent, :admin, :superadmin],
         status: :confirmed
       )
+    when IndependentTeacher
+      # User must own this IndependentTeacher record
+      organization.user_id == current_user.id && organization.active?
     else
       false
     end

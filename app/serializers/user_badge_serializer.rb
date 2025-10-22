@@ -6,7 +6,7 @@ class UserBadgeSerializer < ActiveModel::Serializer
   belongs_to :badge
   belongs_to :sender, serializer: UserSerializer
   
-  # Polymorphic organization (Company or School) with name
+  # Polymorphic organization (Company, School, or IndependentTeacher) with name
   attribute :organization
   
   def organization

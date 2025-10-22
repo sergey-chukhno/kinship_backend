@@ -16,7 +16,7 @@ class UserBadge < ApplicationRecord
   before_validation :set_status, if: :status
 
   validates :project_title, :project_description, :status, presence: true
-  validates :organization_type, inclusion: {in: %w[School Company]}
+  validates :organization_type, inclusion: {in: %w[School Company IndependentTeacher]}
   validate :validate_documents
 
   before_save :notify_badge_approved, if: :badge_got_approved?

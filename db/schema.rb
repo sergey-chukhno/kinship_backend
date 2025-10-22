@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_20_054807) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_22_112539) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -191,8 +191,23 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_20_054807) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "company_id"
+    t.string "contractable_type"
+    t.bigint "contractable_id"
     t.index ["company_id"], name: "index_contracts_on_company_id"
+    t.index ["contractable_type", "contractable_id"], name: "index_contracts_on_contractable"
     t.index ["school_id"], name: "index_contracts_on_school_id"
+  end
+
+  create_table "independent_teachers", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "organization_name", null: false
+    t.string "city"
+    t.text "description"
+    t.integer "status", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["status"], name: "index_independent_teachers_on_status"
+    t.index ["user_id"], name: "index_independent_teachers_on_user_id", unique: true
   end
 
   create_table "keywords", force: :cascade do |t|
@@ -526,7 +541,11 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_20_054807) do
     t.boolean "show_my_skills", default: false, null: false
     t.string "badges_token"
     t.string "company_name"
+    t.boolean "has_temporary_email", default: false, null: false
+    t.string "claim_token"
+    t.index ["claim_token"], name: "index_users_on_claim_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["has_temporary_email"], name: "index_users_on_has_temporary_email"
     t.index ["parent_id"], name: "index_users_on_parent_id"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -547,6 +566,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_20_054807) do
   add_foreign_key "company_sub_skills", "sub_skills"
   add_foreign_key "contracts", "companies"
   add_foreign_key "contracts", "schools"
+  add_foreign_key "independent_teachers", "users"
   add_foreign_key "keywords", "projects"
   add_foreign_key "links", "projects"
   add_foreign_key "partnership_members", "partnerships"
