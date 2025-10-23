@@ -18,7 +18,7 @@ RSpec.describe "SchoolAdminPanel::ShowSchoolDetails", type: :system do
       visit edit_school_admin_panel_school_path(school)
       expect(page).to have_content("Vous n'êtes pas autorisé.e à effectuer cette action.")
 
-      user_school.update(admin: true)
+      user_school.update(role: :admin)
       visit edit_school_admin_panel_school_path(school)
       expect(page).to have_content(I18n.t(:title, scope: [:layouts, :school_admin_panel, :school]))
       within("#edit_school_#{school.id}") do

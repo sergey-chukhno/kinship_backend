@@ -1220,22 +1220,22 @@ end
 
 ## 4. Implementation Roadmap
 
-### Week 1-2: Foundation
-- [ ] Add JWT gem (devise-jwt or jwt)
-- [ ] Add CORS gem and configure
-- [ ] Add active_model_serializers gem
-- [ ] Create Api::V1::BaseController
-- [ ] Implement JWT authentication
-- [ ] Create AuthController (login, logout, refresh, me)
-- [ ] Write rswag specs for auth endpoints
-- [ ] Test authentication flow
+### Week 1-2: Foundation ✅ COMPLETED
+- [x] Add JWT gem (devise-jwt or jwt)
+- [x] Add CORS gem and configure
+- [x] Add active_model_serializers gem
+- [x] Create Api::V1::BaseController
+- [x] Implement JWT authentication
+- [x] Create AuthController (login, logout, refresh, me)
+- [x] Write rswag specs for auth endpoints
+- [x] Test authentication flow
 
-### Week 3: Serialization Layer
-- [ ] Create all core serializers (User, Project, Company, School, Badge)
-- [ ] Create supporting serializers (Skill, Tag, Team, etc.)
-- [ ] Add conditional includes
-- [ ] Handle file attachments (URLs)
-- [ ] Test serializer output
+### Week 3: Serialization Layer ✅ COMPLETED
+- [x] Create all core serializers (User, Project, Company, School, Badge)
+- [x] Create supporting serializers (Skill, Tag, Team, etc.)
+- [x] Add conditional includes
+- [x] Handle file attachments (URLs)
+- [x] Test serializer output
 
 ### Week 4: Company Dashboard API
 - [ ] CompaniesController (show, update, stats)
@@ -1255,12 +1255,14 @@ end
 - [ ] Write rswag specs
 - [ ] Test with Postman
 
-### Week 6: User & Teacher Dashboard API
-- [ ] UsersController (me, update, projects, badges, participants)
-- [ ] TeachersController (dashboard, students, my_classes)
-- [ ] Projects::ParticipationController (request, approve, reject)
-- [ ] Write rswag specs
-- [ ] Test with Postman
+### Week 6: User & Teacher Dashboard API ✅ COMPLETED
+- [x] UsersController (me, update, projects, badges, participants)
+- [x] TeachersController (dashboard, students, my_classes)
+- [x] Teachers::ProjectsController (CRUD, member management)
+- [x] Teachers::BadgesController (attribution tracking)
+- [x] BadgesController (index, assign)
+- [x] Write rswag specs
+- [x] Test with Postman
 
 ### Week 7-8: Advanced Features
 - [ ] File upload API (avatar, project images)

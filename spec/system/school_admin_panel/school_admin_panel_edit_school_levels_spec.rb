@@ -19,14 +19,14 @@ RSpec.describe "SchoolAdminPanel::EditSchoolLevels", type: :system do
       visit edit_school_admin_panel_school_level_path(school)
       expect(page).to have_current_path(root_path) # user est redirigé vers la page d'accueil car il n'est pas autorisé à effectuer cette action
 
-      user_school.update(admin: true)
+      user_school.update(role: :admin)
       sleep(0.01)
       visit edit_school_admin_panel_school_level_path(school)
       expect(page).to have_content(I18n.t(:title, scope: [:layouts, :school_admin_panel, :school_level]))
     end
 
     it "edit school levels" do
-      user.user_schools.create(school: school, admin: true)
+      user.user_schools.create(school: school, role: :admin)
       Availability.create(user: user)
       user.confirm
       sign_in user

@@ -1,7 +1,7 @@
 require "rails_helper"
 
 describe "Users can see projects", type: :feature, javascript: true do
-  let(:user) { create(:user, :tutor, last_name: "TOTO", admin: true) }
+  let(:user) { create(:user, :tutor, last_name: "TOTO") }
   let(:school) { create(:school, name: "Lycée du test", zip_code: "44000", city: "Nantes", school_type: "primaire") }
   let(:school_level) { create(:school_level, name: "Paquerette", level: "cm1", school: school) }
   let(:tag_1) { create(:tag, name: "Tag") }

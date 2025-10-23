@@ -47,7 +47,7 @@ class Project < ApplicationRecord
 
   validates :title, :description, :start_date, :end_date, :owner, :status, presence: true
   validate :start_date_before_end_date, if: -> { start_date.present? && end_date.present? }
-  validate :school_levels_or_company_presence, unless: -> { owner&.admin? }
+  validate :school_levels_or_company_presence, if: -> { owner&.teacher? }
   validate :partnership_organizations_must_include_project_orgs, if: :partnership_id?
 
   # Partner project scopes
@@ -82,8 +82,9 @@ class Project < ApplicationRecord
   }
 
   scope :my_administration_projects, ->(user) {
-    where(owner: user)
-      .or(Project.joins(:project_members).where(project_members: {user: user, role: [:admin, :co_owner]}))
+    left_joins(:project_members)
+      .where('projects.owner_id = ? OR project_members.user_id = ? AND project_members.role IN (?)', 
+             user.id, user.id, [:admin, :co_owner])
   }
 
   scope :by_tags, ->(tag_ids) {

@@ -108,7 +108,7 @@ RSpec.describe 'API V1 Badges', type: :request do
       
       response '201', 'badges assigned via independent teacher' do
         let(:teacher_user) { create(:user, :teacher, :confirmed) }
-        let!(:independent_teacher) { create(:independent_teacher, user: teacher_user) }
+        let!(:independent_teacher) { teacher_user.independent_teacher }
         let!(:contract) { Contract.create!(contractable: independent_teacher, active: true, start_date: 1.month.ago, end_date: 1.year.from_now) }
         let(:badge) { create(:badge) }
         let(:recipient) { create(:user, :confirmed) }

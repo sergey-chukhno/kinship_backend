@@ -50,7 +50,7 @@ class School < ApplicationRecord
            class_name: 'BranchRequest',
            dependent: :destroy
   
-  has_many :contracts, dependent: :destroy
+  has_many :contracts, as: :contractable, dependent: :destroy
 
   has_one_attached :logo
 

@@ -235,7 +235,7 @@ class User < ApplicationRecord
   end
 
   def projects_owner
-    project_ids_where_user_is_admin = project_members.where(admin: true).pluck(:project_id)
+    project_ids_where_user_is_admin = project_members.where(role: [:admin, :co_owner]).pluck(:project_id)
     project_ids_where_user_is_owner = projects.pluck(:id)
 
     Project.where(id: project_ids_where_user_is_admin + project_ids_where_user_is_owner)

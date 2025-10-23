@@ -2,6 +2,26 @@
 # Handles badge assignment with permission checks
 class Api::V1::BadgesController < Api::V1::BaseController
   
+  # GET /api/v1/badges
+  # List all available badges
+  def index
+    @badges = Badge.all
+    
+    render json: {
+      data: @badges.map do |badge|
+        {
+          id: badge.id,
+          name: badge.name,
+          description: badge.description,
+          series: badge.series,
+          level: badge.level,
+          created_at: badge.created_at,
+          updated_at: badge.updated_at
+        }
+      end
+    }
+  end
+  
   # POST /api/v1/badges/assign
   # Assign badge to user(s)
   def assign

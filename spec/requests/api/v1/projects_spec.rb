@@ -16,7 +16,12 @@ RSpec.describe 'API V1 Projects', type: :request do
       parameter name: :per_page, in: :query, type: :integer, required: false, description: 'Default: 12'
       
       response '200', 'projects found' do
-        let!(:project) { create(:project, private: false) }
+        let!(:school_level) { create(:school_level) }
+        let!(:project) { 
+          p = create(:project, private: false, start_date: Date.current, end_date: Date.current + 1.month, description: 'Test project')
+          p.project_school_levels.create!(school_level: school_level)
+          p
+        }
         
         run_test! do |response|
           json = JSON.parse(response.body)
@@ -111,7 +116,13 @@ RSpec.describe 'API V1 Projects', type: :request do
       description 'Get single project with all associations'
       
       response '200', 'project found' do
-        let(:project) { create(:project, private: false) }
+        let!(:school_level) { create(:school_level) }
+        let(:project) { 
+          p = build(:project, private: false, start_date: Date.current, end_date: Date.current + 1.month, description: 'Test project')
+          p.project_school_levels.build(school_level: school_level)
+          p.save!
+          p
+        }
         let(:id) { project.id }
         
         run_test! do |response|
@@ -205,7 +216,13 @@ RSpec.describe 'API V1 Projects', type: :request do
       
       response '201', 'join request created' do
         let(:user_record) { create(:user, :confirmed) }
-        let(:project) { create(:project, private: false) }
+        let!(:school_level) { create(:school_level) }
+        let(:project) { 
+          p = build(:project, private: false, start_date: Date.current, end_date: Date.current + 1.month, description: 'Test project')
+          p.project_school_levels.build(school_level: school_level)
+          p.save!
+          p
+        }
         let(:id) { project.id }
         let(:Authorization) { "Bearer #{JsonWebToken.encode(user_id: user_record.id)}" }
         
@@ -217,7 +234,13 @@ RSpec.describe 'API V1 Projects', type: :request do
       
       response '409', 'already a member' do
         let(:user_record) { create(:user, :confirmed) }
-        let(:project) { create(:project, private: false) }
+        let!(:school_level) { create(:school_level) }
+        let(:project) { 
+          p = build(:project, private: false, start_date: Date.current, end_date: Date.current + 1.month, description: 'Test project')
+          p.project_school_levels.build(school_level: school_level)
+          p.save!
+          p
+        }
         let!(:membership) { create(:project_member, user: user_record, project: project) }
         let(:id) { project.id }
         let(:Authorization) { "Bearer #{JsonWebToken.encode(user_id: user_record.id)}" }

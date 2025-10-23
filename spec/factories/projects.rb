@@ -6,7 +6,7 @@ FactoryBot.define do
     description { "the description of my project" }
     start_date { DateTime.parse("2023-07-07 10:02:14") }
     end_date { DateTime.parse("2023-07-10 10:02:14") }
-    owner { create(:user, admin: true) }
+    owner { create(:user) }
     partnership { nil }  # Regular project by default
     
     trait :partner_project do
