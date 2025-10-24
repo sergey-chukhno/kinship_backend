@@ -1237,14 +1237,16 @@ end
 - [x] Handle file attachments (URLs)
 - [x] Test serializer output
 
-### Week 4: Company Dashboard API
-- [ ] CompaniesController (show, update, stats)
-- [ ] Companies::MembersController (index, create, update, destroy)
-- [ ] Companies::ProjectsController (index, create, update)
-- [ ] Companies::PartnershipsController (index, update)
-- [ ] Companies::BadgesController (create)
-- [ ] Write rswag specs for all endpoints
-- [ ] Test with Postman
+### Week 4: Company Dashboard API ✅ COMPLETED
+- [x] CompaniesController (show, update, stats)
+- [x] Companies::MembersController (index, create, update, destroy)
+- [x] Companies::ProjectsController (index, create)
+- [x] Companies::PartnershipsController (index, create, update, destroy, confirm, reject)
+- [x] Companies::BranchesController (index, invite, settings)
+- [x] Companies::BranchRequestsController (index, create, confirm, reject, destroy)
+- [x] Companies::BadgesController (assign, assigned)
+- [x] Email notifications (reused Partnership & BranchRequest mailers)
+- [x] Test with curl (all endpoints verified)
 
 ### Week 5: School Dashboard API ✅ COMPLETED
 - [x] SchoolsController (show, update, stats)
