@@ -267,7 +267,6 @@ class Api::V1::Schools::MembersController < Api::V1::Schools::BaseController
         password: SecureRandom.hex(16),
         has_temporary_email: true,
         claim_token: claim_token,
-        claim_token_expires_at: 30.days.from_now,
         confirmed_at: Time.current  # Auto-confirm temporary email accounts
       )
       
