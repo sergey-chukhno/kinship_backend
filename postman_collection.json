@@ -1436,6 +1436,34 @@
 					"response": []
 				},
 				{
+					"name": "Create Partnership",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"partnership_type\": \"bilateral\",\n  \"name\": \"School-Company Partnership\",\n  \"description\": \"Collaborative partnership for student projects\",\n  \"partner_company_ids\": [1],\n  \"partner_school_ids\": [],\n  \"share_members\": false,\n  \"share_projects\": true,\n  \"has_sponsorship\": false,\n  \"initiator_role\": \"beneficiary\",\n  \"partner_role\": \"sponsor\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/schools/1/partnerships",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "schools", "1", "partnerships"]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Update Partnership",
 					"request": {
 						"method": "PATCH",

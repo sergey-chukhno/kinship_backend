@@ -24,14 +24,84 @@ class Api::V1::Schools::PartnershipsController < Api::V1::Schools::BaseControlle
   end
   
   # POST /api/v1/schools/:school_id/partnerships
-  # Create a new partnership
+  # Create a new partnership (initiate partnership request)
   def create
-    # For Phase 5, we'll keep it simple - just list partnerships
-    # Full partnership creation is complex and will be handled in a dedicated Partnerships API
+    partnership_type = params[:partnership_type] || 'bilateral'
+    partner_ids = Array(params[:partner_school_ids]) + Array(params[:partner_company_ids])
+    
+    if partner_ids.empty?
+      return render json: {
+        error: 'Validation Failed',
+        message: 'At least one partner organization is required'
+      }, status: :unprocessable_entity
+    end
+    
+    ActiveRecord::Base.transaction do
+      # Create partnership
+      @partnership = Partnership.new(
+        initiator: @school,
+        partnership_type: partnership_type,
+        name: params[:name],
+        description: params[:description],
+        share_members: params[:share_members] || false,
+        share_projects: params[:share_projects] || false,
+        has_sponsorship: params[:has_sponsorship] || false,
+        status: :pending
+      )
+      
+      unless @partnership.save
+        return render json: {
+          error: 'Validation Failed',
+          details: @partnership.errors.full_messages
+        }, status: :unprocessable_entity
+      end
+      
+      # Add initiating school as confirmed member
+      PartnershipMember.create!(
+        partnership: @partnership,
+        participant: @school,
+        role_in_partnership: params[:initiator_role] || :partner,
+        member_status: :confirmed,
+        confirmed_at: Time.current
+      )
+      
+      # Add partner schools
+      Array(params[:partner_school_ids]).each do |school_id|
+        partner_school = School.find(school_id)
+        PartnershipMember.create!(
+          partnership: @partnership,
+          participant: partner_school,
+          role_in_partnership: params[:partner_role] || :partner,
+          member_status: :pending
+        )
+      end
+      
+      # Add partner companies
+      Array(params[:partner_company_ids]).each do |company_id|
+        partner_company = Company.find(company_id)
+        PartnershipMember.create!(
+          partnership: @partnership,
+          participant: partner_company,
+          role_in_partnership: params[:partner_role] || :partner,
+          member_status: :pending
+        )
+      end
+      
+      render json: {
+        message: 'Partnership request created successfully',
+        data: serialize_partnership(@partnership)
+      }, status: :created
+    end
+  rescue ActiveRecord::RecordNotFound => e
     render json: {
-      error: 'Not Implemented',
-      message: 'Partnership creation will be available in a future update. Please use the web interface.'
-    }, status: :not_implemented
+      error: 'Not Found',
+      message: 'Partner organization not found'
+    }, status: :not_found
+  rescue ActiveRecord::RecordInvalid => e
+    render json: {
+      error: 'Validation Failed',
+      details: e.record.errors.full_messages
+    }, status: :unprocessable_entity
   end
   
   # PATCH /api/v1/schools/:school_id/partnerships/:id
