@@ -210,9 +210,57 @@ Rails.application.routes.draw do
         post 'claim', to: 'claim#create'
       end
       
+      # School Dashboard API (Phase 5)
+      resources :schools, only: [:show, :update] do
+        member do
+          get :stats
+        end
+        
+        # Members
+        resources :members, controller: 'schools/members', only: [:index, :create, :update, :destroy]
+        
+        # Levels (Classes)
+        resources :levels, controller: 'schools/levels', only: [:index, :create, :update, :destroy] do
+          member do
+            get :students
+          end
+        end
+        
+        # Projects
+        resources :projects, controller: 'schools/projects', only: [:index, :create]
+        
+        # Partnerships
+        resources :partnerships, controller: 'schools/partnerships', only: [:index, :create, :update, :destroy] do
+          member do
+            patch :confirm
+            patch :reject
+          end
+        end
+        
+        # Branches - using member routes for proper nesting
+        member do
+          get 'branches', to: 'schools/branches#index'
+          post 'branches/invite', to: 'schools/branches#invite'
+          patch 'branches/settings', to: 'schools/branches#settings'
+        end
+        
+        # Branch Requests
+        resources :branch_requests, controller: 'schools/branch_requests', only: [:index, :create, :destroy] do
+          member do
+            patch :confirm
+            patch :reject
+          end
+        end
+        
+        # Badges - using member routes for proper nesting
+        member do
+          post 'badges/assign', to: 'schools/badges#assign'
+          get 'badges/assigned', to: 'schools/badges#assigned'
+        end
+      end
+      
       # Existing API endpoints
       resources :companies, only: %i[index]
-      resources :schools, only: %i[index]
     end
     namespace :v2 do
       resources :users, only: %i[index show]

@@ -47,7 +47,7 @@ class Project < ApplicationRecord
 
   validates :title, :description, :start_date, :end_date, :owner, :status, presence: true
   validate :start_date_before_end_date, if: -> { start_date.present? && end_date.present? }
-  validate :school_levels_or_company_presence, if: -> { owner&.teacher? }
+  validate :school_levels_or_company_presence
   validate :partnership_organizations_must_include_project_orgs, if: :partnership_id?
 
   # Partner project scopes
@@ -124,12 +124,13 @@ class Project < ApplicationRecord
   end
 
   def school_levels_or_company_presence
-    return true if project_school_levels.present?
-    return true if project_companies.present?
+    # All projects must have at least school levels OR companies
+    if project_school_levels.present? || project_companies.present?
+      return true
+    end
 
-    errors.add(:project_school_levels, "Vous devez sélectionner au moins un niveau scolaire")
-    errors.add(:school_levels, "Vous devez sélectionner au moins un niveau scolaire")
-    errors.add(:project_companies, "Vous devez sélectionner au moins une entreprise")
+    # If neither is present, add appropriate error
+    errors.add(:base, "Vous devez sélectionner au moins un niveau scolaire ou une entreprise")
   end
 
   def schools
