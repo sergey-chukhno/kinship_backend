@@ -12,10 +12,10 @@ RSpec.describe "CompanyAdminPanel::EditCompanySkills", type: :system do
   before do
     driven_by(:selenium_chrome_headless)
 
-    create(:user_company, user: user_tutor_company_admin, company: company_pending, admin: true)
-    create(:user_company, user: user_tutor_company_admin, company: company_confirmed, admin: true)
-    create(:user_company, user: user_voluntary_company_admin, company: company_pending, admin: true)
-    create(:user_company, user: user_voluntary_company_admin, company: company_confirmed, admin: true)
+    create(:user_company, user: user_tutor_company_admin, company: company_pending, role: :admin)
+    create(:user_company, user: user_tutor_company_admin, company: company_confirmed, role: :admin)
+    create(:user_company, user: user_voluntary_company_admin, company: company_pending, role: :admin)
+    create(:user_company, user: user_voluntary_company_admin, company: company_confirmed, role: :admin)
   end
 
   context "In company admin panel Skills tab, users can :" do

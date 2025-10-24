@@ -710,7 +710,253 @@
 		},
 		{
 			"name": "Teacher Dashboard",
-			"item": [],
+			"item": [
+				{
+					"name": "Teacher Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/stats",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "stats"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Teacher Schools",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/schools",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "schools"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Teacher Classes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/classes",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "classes"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Class",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"class\": {\n    \"name\": \"New Test Class\",\n    \"level\": 6,\n    \"school_id\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/classes",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "classes"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Teacher Students",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/students",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "students"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Student",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student\": {\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"birthday\": \"2010-05-15\",\n    \"class_id\": 1\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/students",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "students"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Teacher Projects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/projects",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "projects"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Project",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"project\": {\n    \"title\": \"New Teacher Project\",\n    \"description\": \"A project created by teacher\",\n    \"class_ids\": [1],\n    \"company_ids\": [1]\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/projects",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "projects"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Project Member",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user_id\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/projects/1/members",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "projects", "1", "members"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Project Members",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/projects/1/members",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "projects", "1", "members"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Teacher Badge Attribution",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/badges/attributed",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "badges", "attributed"]
+						}
+					},
+					"response": []
+				}
+			],
 			"description": "Teacher Dashboard API endpoints (Phase 4)"
 		},
 		{

@@ -12,10 +12,10 @@ RSpec.describe "CompanyAdminPanel::ShowCompanyDetails", type: :system do
   before do
     driven_by(:rack_test)
 
-    create(:user_company, user: user_tutor_company_admin, company: company_pending, admin: true)
-    create(:user_company, user: user_tutor_company_admin, company: company_confirmed, admin: true)
-    create(:user_company, user: user_voluntary_company_admin, company: company_pending, admin: true)
-    create(:user_company, user: user_voluntary_company_admin, company: company_confirmed, admin: true)
+    create(:user_company, user: user_tutor_company_admin, company: company_pending, role: :admin)
+    create(:user_company, user: user_tutor_company_admin, company: company_confirmed, role: :admin)
+    create(:user_company, user: user_voluntary_company_admin, company: company_pending, role: :admin)
+    create(:user_company, user: user_voluntary_company_admin, company: company_confirmed, role: :admin)
   end
 
   context "In company admin panel Details tab, users can :" do

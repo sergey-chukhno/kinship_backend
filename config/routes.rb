@@ -162,7 +162,53 @@ Rails.application.routes.draw do
       end
       
       # Badges (Phase 3)
-      post 'badges/assign', to: 'badges#assign'
+      resources :badges, only: [:index, :assign] do
+        collection do
+          post :assign
+        end
+      end
+      
+      # Teacher Dashboard (Phase 4)
+      namespace :teachers do
+        # Classes
+        resources :classes, only: [:index, :show, :create, :update, :destroy] do
+          member do
+            patch :transfer
+          end
+          
+          # Students in class
+          resources :students, only: [:index, :create, :destroy]
+        end
+        
+        # Projects
+        resources :projects, only: [:index, :show, :create, :update, :destroy] do
+          member do
+            post :add_member
+            delete 'members/:user_id', to: 'projects#remove_member'
+            get :members
+          end
+        end
+        
+        # Badges attributed by teacher
+        namespace :badges do
+          get :attributed
+        end
+        
+        # Teacher-level actions
+        get :schools
+        get :stats
+        get 'independent-status', to: 'teachers#independent_status'
+        
+        # Student management
+        post 'students/:id/regenerate-claim', to: 'students#regenerate_claim'
+        patch 'students/:id/update-email', to: 'students#update_email'
+      end
+      
+      # Account Claiming (Public endpoints)
+      namespace :account do
+        get 'claim/info', to: 'claim#info'
+        post 'claim', to: 'claim#create'
+      end
       
       # Existing API endpoints
       resources :companies, only: %i[index]

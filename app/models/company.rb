@@ -40,7 +40,7 @@ class Company < ApplicationRecord
 
   has_many :user_companies, dependent: :destroy
   has_many :users, through: :user_companies
-  has_many :contracts, dependent: :destroy
+  has_many :contracts, as: :contractable, dependent: :destroy
   has_many :company_skills, dependent: :destroy
   has_many :skills, through: :company_skills
   has_many :company_sub_skills, dependent: :destroy
