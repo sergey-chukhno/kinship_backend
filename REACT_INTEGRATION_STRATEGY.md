@@ -1246,14 +1246,16 @@ end
 - [ ] Write rswag specs for all endpoints
 - [ ] Test with Postman
 
-### Week 5: School Dashboard API
-- [ ] SchoolsController (show, update, stats)
-- [ ] Schools::MembersController (index, update, destroy)
-- [ ] Schools::LevelsController (index, create, update, destroy)
-- [ ] Schools::PartnershipsController (index, update)
-- [ ] Schools::ProjectsController (index)
-- [ ] Write rswag specs
-- [ ] Test with Postman
+### Week 5: School Dashboard API ✅ COMPLETED
+- [x] SchoolsController (show, update, stats)
+- [x] Schools::MembersController (index, create, update, destroy)
+- [x] Schools::LevelsController (index, create, update, destroy, students)
+- [x] Schools::ProjectsController (index, create)
+- [x] Schools::PartnershipsController (index, update, destroy)
+- [x] Schools::BranchesController (index, invite, settings)
+- [x] Schools::BranchRequestsController (index, create, confirm, reject, destroy)
+- [x] Schools::BadgesController (assign, assigned)
+- [x] Test with curl (all endpoints verified)
 
 ### Week 6: User & Teacher Dashboard API ✅ COMPLETED
 - [x] UsersController (me, update, projects, badges, participants)
