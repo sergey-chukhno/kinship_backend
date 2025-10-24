@@ -51,8 +51,11 @@ class Api::V1::Schools::BranchesController < Api::V1::Schools::BaseController
     branch_request = @school.invite_as_branch(child_school)
     
     if branch_request.persisted?
-      # TODO: Send notification email
-      # BranchRequestMailer.invitation(branch_request).deliver_later
+      # Send notification email to child school
+      BranchRequestMailer.branch_request_created(
+        branch_request,
+        child_school
+      ).deliver_later
       
       render json: {
         message: 'Branch invitation sent successfully',

@@ -1492,6 +1492,44 @@
 					"response": []
 				},
 				{
+					"name": "Confirm Partnership",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/schools/1/partnerships/1/confirm",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "schools", "1", "partnerships", "1", "confirm"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reject Partnership",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/schools/1/partnerships/1/reject",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "schools", "1", "partnerships", "1", "reject"]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "List Branches",
 					"request": {
 						"method": "GET",

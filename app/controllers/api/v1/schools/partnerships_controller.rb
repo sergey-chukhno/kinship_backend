@@ -4,7 +4,7 @@ class Api::V1::Schools::PartnershipsController < Api::V1::Schools::BaseControlle
   include Pagy::Backend
   
   before_action :ensure_superadmin
-  before_action :set_partnership, only: [:update, :destroy]
+  before_action :set_partnership, only: [:update, :destroy, :confirm, :reject]
   
   # GET /api/v1/schools/:school_id/partnerships
   # List all partnerships
@@ -65,7 +65,7 @@ class Api::V1::Schools::PartnershipsController < Api::V1::Schools::BaseControlle
         confirmed_at: Time.current
       )
       
-      # Add partner schools
+      # Add partner schools and send emails
       Array(params[:partner_school_ids]).each do |school_id|
         partner_school = School.find(school_id)
         PartnershipMember.create!(
@@ -74,9 +74,15 @@ class Api::V1::Schools::PartnershipsController < Api::V1::Schools::BaseControlle
           role_in_partnership: params[:partner_role] || :partner,
           member_status: :pending
         )
+        
+        # Send email notification
+        PartnershipMailer.partnership_request_created(
+          @partnership,
+          partner_school
+        ).deliver_later
       end
       
-      # Add partner companies
+      # Add partner companies and send emails
       Array(params[:partner_company_ids]).each do |company_id|
         partner_company = Company.find(company_id)
         PartnershipMember.create!(
@@ -85,6 +91,12 @@ class Api::V1::Schools::PartnershipsController < Api::V1::Schools::BaseControlle
           role_in_partnership: params[:partner_role] || :partner,
           member_status: :pending
         )
+        
+        # Send email notification
+        PartnershipMailer.partnership_request_created(
+          @partnership,
+          partner_company
+        ).deliver_later
       end
       
       render json: {
@@ -133,6 +145,81 @@ class Api::V1::Schools::PartnershipsController < Api::V1::Schools::BaseControlle
         details: @partnership.errors.full_messages
       }, status: :unprocessable_entity
     end
+  end
+  
+  # PATCH /api/v1/schools/:school_id/partnerships/:id/confirm
+  # Confirm partnership request (accept invitation)
+  def confirm
+    # Find the school's membership in this partnership
+    partnership_member = @partnership.partnership_members.find_by(
+      participant: @school,
+      member_status: :pending
+    )
+    
+    unless partnership_member
+      return render json: {
+        error: 'Bad Request',
+        message: 'No pending partnership request found for this school'
+      }, status: :bad_request
+    end
+    
+    ActiveRecord::Base.transaction do
+      partnership_member.confirm!
+      
+      # Send confirmation email to initiator
+      PartnershipMailer.partnership_confirmed(
+        @partnership,
+        @school,
+        @partnership.initiator
+      ).deliver_later
+      
+      render json: {
+        message: 'Partnership confirmed successfully',
+        data: serialize_partnership(@partnership.reload)
+      }
+    end
+  rescue => e
+    render json: {
+      error: 'Confirmation Failed',
+      message: e.message
+    }, status: :unprocessable_entity
+  end
+  
+  # PATCH /api/v1/schools/:school_id/partnerships/:id/reject
+  # Reject partnership request (decline invitation)
+  def reject
+    # Find the school's membership in this partnership
+    partnership_member = @partnership.partnership_members.find_by(
+      participant: @school,
+      member_status: :pending
+    )
+    
+    unless partnership_member
+      return render json: {
+        error: 'Bad Request',
+        message: 'No pending partnership request found for this school'
+      }, status: :bad_request
+    end
+    
+    ActiveRecord::Base.transaction do
+      partnership_member.decline!
+      
+      # Send rejection email to initiator
+      PartnershipMailer.partnership_rejected(
+        @partnership,
+        @school,
+        @partnership.initiator
+      ).deliver_later
+      
+      render json: {
+        message: 'Partnership request rejected'
+      }
+    end
+  rescue => e
+    render json: {
+      error: 'Rejection Failed',
+      message: e.message
+    }, status: :unprocessable_entity
   end
   
   private

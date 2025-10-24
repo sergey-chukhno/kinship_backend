@@ -230,7 +230,12 @@ Rails.application.routes.draw do
         resources :projects, controller: 'schools/projects', only: [:index, :create]
         
         # Partnerships
-        resources :partnerships, controller: 'schools/partnerships', only: [:index, :create, :update, :destroy]
+        resources :partnerships, controller: 'schools/partnerships', only: [:index, :create, :update, :destroy] do
+          member do
+            patch :confirm
+            patch :reject
+          end
+        end
         
         # Branches - using member routes for proper nesting
         member do

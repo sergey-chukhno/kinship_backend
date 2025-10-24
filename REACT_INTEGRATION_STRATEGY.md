@@ -1251,10 +1251,12 @@ end
 - [x] Schools::MembersController (index, create, update, destroy)
 - [x] Schools::LevelsController (index, create, update, destroy, students)
 - [x] Schools::ProjectsController (index, create)
-- [x] Schools::PartnershipsController (index, update, destroy)
+- [x] Schools::PartnershipsController (index, create, update, destroy, confirm, reject) ⭐ NEW
 - [x] Schools::BranchesController (index, invite, settings)
 - [x] Schools::BranchRequestsController (index, create, confirm, reject, destroy)
 - [x] Schools::BadgesController (assign, assigned)
+- [x] PartnershipMailer (request, confirm, reject emails) ⭐ NEW
+- [x] BranchRequestMailer (request, confirm, reject emails) ⭐ NEW
 - [x] Test with curl (all endpoints verified)
 
 ### Week 6: User & Teacher Dashboard API ✅ COMPLETED

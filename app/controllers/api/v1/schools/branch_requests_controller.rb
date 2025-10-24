@@ -53,8 +53,11 @@ class Api::V1::Schools::BranchRequestsController < Api::V1::Schools::BaseControl
     branch_request = @school.request_to_become_branch_of(parent_school)
     
     if branch_request.persisted?
-      # TODO: Send notification email to parent school admins
-      # BranchRequestMailer.request(branch_request).deliver_later
+      # Send notification email to parent school admins
+      BranchRequestMailer.branch_request_created(
+        branch_request,
+        parent_school
+      ).deliver_later
       
       render json: {
         message: 'Branch request sent successfully',
@@ -80,6 +83,12 @@ class Api::V1::Schools::BranchRequestsController < Api::V1::Schools::BaseControl
     
     @branch_request.confirm!
     
+    # Send confirmation email to initiator
+    BranchRequestMailer.branch_request_confirmed(
+      @branch_request,
+      @branch_request.initiator
+    ).deliver_later
+    
     render json: {
       message: 'Branch request confirmed successfully',
       data: serialize_branch_request(@branch_request)
@@ -97,6 +106,12 @@ class Api::V1::Schools::BranchRequestsController < Api::V1::Schools::BaseControl
     end
     
     @branch_request.reject!
+    
+    # Send rejection email to initiator
+    BranchRequestMailer.branch_request_rejected(
+      @branch_request,
+      @branch_request.initiator
+    ).deliver_later
     
     render json: {
       message: 'Branch request rejected successfully',
