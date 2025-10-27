@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "kinship-api-v1",
 		"name": "Kinship API v1 - Complete",
-		"description": "Complete API collection for Kinship React Dashboards\n\n**Phase 1: Authentication** ✅\n**Phase 2: Core Serializers** ✅\n**Phase 3: User Dashboard** ✅\n**Phase 4: Teacher Dashboard** ✅\n**Phase 5: School Dashboard** ✅\n\n**How to use:**\n1. Run 'Login' request first\n2. Token will be auto-saved to {{jwt_token}} variable\n3. All other requests use this token automatically\n\n**Authentication Flow:**\n- Login → Get JWT token (24h expiration)\n- Use token for all subsequent requests\n- Refresh token when needed",
+		"description": "Complete API collection for Kinship React Dashboards\n\n**Phase 1: Authentication** ✅\n**Phase 2: Core Serializers** ✅\n**Phase 3: User Dashboard** ✅\n**Phase 4: Teacher Dashboard** ✅\n**Phase 5: School Dashboard** ✅\n**Phase 6: Company Dashboard** ✅\n\n**How to use:**\n1. Run 'Login' request first\n2. Token will be auto-saved to {{jwt_token}} variable\n3. All other requests use this token automatically\n\n**Authentication Flow:**\n- Login → Get JWT token (24h expiration)\n- Use token for all subsequent requests\n- Refresh token when needed",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
@@ -62,7 +62,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"admin@drakkar.io\",\n  \"password\": \"password\"\n}"
+							"raw": "{\n  \"email\": \"admin@kinshipedu.fr\",\n  \"password\": \"password\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/login",
@@ -1784,8 +1784,683 @@
 		},
 		{
 			"name": "Company Dashboard",
-			"item": [],
-			"description": "Company Dashboard API endpoints (Phase 4-5)"
+			"item": [
+				{
+					"name": "Get Company Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Company Profile",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"company\": {\n    \"name\": \"Updated Company Name\",\n    \"city\": \"Paris\",\n    \"zip_code\": \"75001\",\n    \"referent_phone_number\": \"0123456789\",\n    \"description\": \"Updated description\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Company Stats",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/stats",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "stats"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Members",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/members?page=1&per_page=12",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "members"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "12"
+								},
+								{
+									"key": "role",
+									"value": "admin",
+									"disabled": true
+								},
+								{
+									"key": "status",
+									"value": "confirmed",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "John",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite Member (Existing User)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"teacher@ac-nantes.fr\",\n  \"role\": \"referent\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/members",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "members"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite Member (New with Email)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"newuser@ac-nantes.fr\",\n  \"first_name\": \"New\",\n  \"last_name\": \"User\",\n  \"user_role\": \"teacher\",\n  \"role\": \"intervenant\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/members",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "members"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite Member (No Email - Claim Link)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Marie\",\n  \"last_name\": \"Dupont\",\n  \"birthday\": \"1995-05-15\",\n  \"user_role\": \"voluntary\",\n  \"role\": \"member\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/members",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "members"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Member Role",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": \"admin\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/members/2",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "members", "2"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Member",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/members/2",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "members", "2"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Projects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/projects?include_branches=false",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "projects"],
+							"query": [
+								{
+									"key": "include_branches",
+									"value": "false"
+								},
+								{
+									"key": "status",
+									"value": "in_progress",
+									"disabled": true
+								},
+								{
+									"key": "search",
+									"value": "project",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Project",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"project\": {\n    \"title\": \"Company Project\",\n    \"description\": \"A project created from company dashboard\",\n    \"start_date\": \"2025-11-01\",\n    \"end_date\": \"2025-12-31\",\n    \"status\": \"in_progress\",\n    \"private\": false\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/projects",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "projects"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Partnerships",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/partnerships",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "partnerships"],
+							"query": [
+								{
+									"key": "status",
+									"value": "confirmed",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Partnership",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"partnership_type\": \"bilateral\",\n  \"name\": \"Company-School Partnership\",\n  \"description\": \"Collaborative partnership for student internships\",\n  \"partner_company_ids\": [],\n  \"partner_school_ids\": [1],\n  \"share_members\": false,\n  \"share_projects\": true,\n  \"has_sponsorship\": true,\n  \"initiator_role\": \"sponsor\",\n  \"partner_role\": \"beneficiary\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/partnerships",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "partnerships"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Partnership",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"partnership\": {\n    \"share_members\": true,\n    \"share_projects\": true\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/partnerships/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "partnerships", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Partnership",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/partnerships/1/confirm",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "partnerships", "1", "confirm"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reject Partnership",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/partnerships/1/reject",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "partnerships", "1", "reject"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Branches",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/branches",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "branches"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite Branch Company",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"child_company_id\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/branches/invite",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "branches", "invite"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Branch Settings",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"share_members_with_branches\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/branches/settings",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "branches", "settings"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Branch Requests",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/branch_requests",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "branch_requests"],
+							"query": [
+								{
+									"key": "status",
+									"value": "pending",
+									"disabled": true
+								},
+								{
+									"key": "direction",
+									"value": "received",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Branch Request",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"parent_company_id\": 2\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/branch_requests",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "branch_requests"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Branch Request",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/branch_requests/1/confirm",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "branch_requests", "1", "confirm"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reject Branch Request",
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/branch_requests/1/reject",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "branch_requests", "1", "reject"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Cancel Branch Request",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/branch_requests/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "branch_requests", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Assign Badge",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"badge_id\": 1,\n  \"recipient_ids\": [4, 5],\n  \"project_title\": \"Company Project\",\n  \"project_description\": \"Excellence in company activities\",\n  \"comment\": \"Great work!\",\n  \"badge_skill_ids\": []\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/badges/assign",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "badges", "assign"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Assigned Badges",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/1/badges/assigned",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "companies", "1", "badges", "assigned"],
+							"query": [
+								{
+									"key": "sender_id",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "badge_series",
+									"value": "Série TouKouLeur",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "Company Dashboard API endpoints (Phase 6) - Admin/Superadmin only access"
 		}
 	]
 }

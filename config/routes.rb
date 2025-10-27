@@ -259,8 +259,47 @@ Rails.application.routes.draw do
         end
       end
       
-      # Existing API endpoints
-      resources :companies, only: %i[index]
+      # Company Dashboard API (Phase 6)
+      resources :companies, only: [:index, :show, :update] do
+        member do
+          get :stats
+        end
+        
+        # Members
+        resources :members, controller: 'companies/members', only: [:index, :create, :update, :destroy]
+        
+        # Projects
+        resources :projects, controller: 'companies/projects', only: [:index, :create]
+        
+        # Partnerships
+        resources :partnerships, controller: 'companies/partnerships', only: [:index, :create, :update, :destroy] do
+          member do
+            patch :confirm
+            patch :reject
+          end
+        end
+        
+        # Branches - using member routes for proper nesting
+        member do
+          get 'branches', to: 'companies/branches#index'
+          post 'branches/invite', to: 'companies/branches#invite'
+          patch 'branches/settings', to: 'companies/branches#settings'
+        end
+        
+        # Branch Requests
+        resources :branch_requests, controller: 'companies/branch_requests', only: [:index, :create, :destroy] do
+          member do
+            patch :confirm
+            patch :reject
+          end
+        end
+        
+        # Badges - using member routes for proper nesting
+        member do
+          post 'badges/assign', to: 'companies/badges#assign'
+          get 'badges/assigned', to: 'companies/badges#assigned'
+        end
+      end
     end
     namespace :v2 do
       resources :users, only: %i[index show]
