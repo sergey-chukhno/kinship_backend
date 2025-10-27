@@ -62,7 +62,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"admin@drakkar.io\",\n  \"password\": \"password\"\n}"
+							"raw": "{\n  \"email\": \"admin@kinshipedu.fr\",\n  \"password\": \"password\"\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/login",
