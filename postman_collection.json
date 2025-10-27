@@ -1062,7 +1062,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"project\": {\n    \"title\": \"New Teacher Project\",\n    \"description\": \"A project created by teacher\",\n    \"class_ids\": [1],\n    \"company_ids\": [1]\n  }\n}"
+							"raw": "{\n  \"project\": {\n    \"title\": \"New Teacher Project\",\n    \"description\": \"A project created by teacher\",\n    \"start_date\": \"2025-11-01\",\n    \"end_date\": \"2025-12-31\",\n    \"school_level_ids\": [7]\n  }\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/teachers/projects",
