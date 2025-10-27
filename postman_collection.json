@@ -1090,12 +1090,18 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"user_id\": 2\n}"
+							"raw": "{\n  \"user_id\": 21\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/teachers/projects/1/members",
+							"raw": "{{base_url}}/api/v1/teachers/projects/:project_id/add_member",
 							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "teachers", "projects", "1", "members"]
+							"path": ["api", "v1", "teachers", "projects", ":project_id", "add_member"],
+							"variable": [
+								{
+									"key": "project_id",
+									"value": "10"
+								}
+							]
 						}
 					},
 					"response": []
@@ -1112,9 +1118,15 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/teachers/projects/1/members",
+							"raw": "{{base_url}}/api/v1/teachers/projects/:project_id/members",
 							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "teachers", "projects", "1", "members"]
+							"path": ["api", "v1", "teachers", "projects", ":project_id", "members"],
+							"variable": [
+								{
+									"key": "project_id",
+									"value": "10"
+								}
+							]
 						}
 					},
 					"response": []
