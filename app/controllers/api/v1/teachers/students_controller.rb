@@ -35,15 +35,18 @@ class Api::V1::Teachers::StudentsController < Api::V1::Teachers::BaseController
       return render json: { error: 'Forbidden' }, status: :forbidden
     end
     
+    # Default role to 'children' if not provided (backward compatibility)
+    @student_role = params[:student]&.[](:role) || 'children'
+    
     # Validate role
-    unless params[:student][:role].in?(['children', 'tutor', 'voluntary'])
+    unless @student_role.in?(['children', 'tutor', 'voluntary'])
       return render json: {
         error: 'Invalid Role',
         message: 'Student role must be children, tutor, or voluntary'
       }, status: :bad_request
     end
     
-    if params[:student][:email].present?
+    if params[:student]&.[](:email).present?
       create_student_with_email
     else
       create_student_with_temporary_email
@@ -127,24 +130,44 @@ class Api::V1::Teachers::StudentsController < Api::V1::Teachers::BaseController
     params.require(:student).permit(:first_name, :last_name, :email, :birthday, :role, :role_additional_information, :accept_privacy_policy)
   end
   
+  def find_duplicate_by_name_and_birthday
+    return nil unless params[:student][:first_name].present? && 
+                      params[:student][:last_name].present? && 
+                      params[:student][:birthday].present?
+    
+    # Find users with same name and birthday in teacher's classes
+    teacher_class_ids = current_user.assigned_classes.pluck(:id)
+    
+    User.joins(:user_school_levels)
+        .where(
+          first_name: params[:student][:first_name],
+          last_name: params[:student][:last_name],
+          birthday: params[:student][:birthday]
+        )
+        .where(user_school_levels: { school_level_id: teacher_class_ids })
+        .first
+  end
+  
   def create_student_with_email
     # Check if user exists
     existing_user = User.find_by(email: params[:student][:email])
     
     if existing_user
-      # Link existing user to class
+      # Scenario 1: Link existing user to class
       link_student_to_class(existing_user)
       render json: {
         id: existing_user.id,
         full_name: existing_user.full_name,
         email: existing_user.email,
+        role: existing_user.role,
         has_temporary_email: false,
         account_status: 'existing_user_linked',
         message: "Existing user linked to class"
       }, status: :created
     else
-      # Create new user
-      student = User.new(student_params)
+      # Scenario 2: Create new user with email
+      student = User.new(student_params.except(:role))
+      student.role = @student_role
       student.password = SecureRandom.hex(16)
       student.confirmed_at = nil  # Will confirm via email
       student.role_additional_information = "Student created by teacher"
@@ -161,6 +184,7 @@ class Api::V1::Teachers::StudentsController < Api::V1::Teachers::BaseController
           id: student.id,
           full_name: student.full_name,
           email: student.email,
+          role: student.role,
           has_temporary_email: false,
           account_status: 'welcome_email_sent',
           message: "Student added. Welcome email sent to #{student.email}"
@@ -172,14 +196,37 @@ class Api::V1::Teachers::StudentsController < Api::V1::Teachers::BaseController
   end
   
   def create_student_with_temporary_email
+    # Scenario 3: Create with temp email + duplicate detection
+    
+    # Check for duplicates by name and birthday
+    duplicate = find_duplicate_by_name_and_birthday
+    
+    if duplicate
+      duplicate_classes = duplicate.school_levels.where(id: current_user.assigned_classes.pluck(:id))
+      return render json: {
+        error: 'Duplicate Found',
+        message: 'A user with this name and birthday already exists in your classes',
+        existing_user: {
+          id: duplicate.id,
+          full_name: duplicate.full_name,
+          birthday: duplicate.birthday,
+          email: duplicate.email,
+          has_temporary_email: duplicate.has_temporary_email?,
+          classes: duplicate_classes.pluck(:name)
+        },
+        suggestion: 'This might be the same student. To add them to this class, use their email address instead.'
+      }, status: :conflict
+    end
+    
     # Generate temporary email
     temp_email = User.generate_temporary_email(
       params[:student][:first_name],
       params[:student][:last_name]
     )
     
-    student = User.new(student_params.except(:email))
+    student = User.new(student_params.except(:email, :role))
     student.email = temp_email
+    student.role = @student_role
     student.password = SecureRandom.hex(16)
     student.has_temporary_email = true
     student.confirmed_at = Time.current  # Auto-confirm temp accounts
