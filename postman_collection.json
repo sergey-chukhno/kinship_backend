@@ -797,7 +797,7 @@
 					"response": []
 				},
 				{
-					"name": "Teacher Students",
+					"name": "List Class Students",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -808,15 +808,21 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/teachers/students",
+							"raw": "{{base_url}}/api/v1/teachers/classes/:class_id/students",
 							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "teachers", "students"]
+							"path": ["api", "v1", "teachers", "classes", ":class_id", "students"],
+							"variable": [
+								{
+									"key": "class_id",
+									"value": "7"
+								}
+							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "Create Student",
+					"name": "Create Student (No Email - Default Role)",
 					"request": {
 						"method": "POST",
 						"header": [
@@ -833,12 +839,188 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"student\": {\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"birthday\": \"2010-05-15\",\n    \"class_id\": 1\n  }\n}"
+							"raw": "{\n  \"student\": {\n    \"first_name\": \"Jean\",\n    \"last_name\": \"Dupont\",\n    \"birthday\": \"2010-05-15\"\n  }\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/teachers/students",
+							"raw": "{{base_url}}/api/v1/teachers/classes/:class_id/students",
 							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "teachers", "students"]
+							"path": ["api", "v1", "teachers", "classes", ":class_id", "students"],
+							"variable": [
+								{
+									"key": "class_id",
+									"value": "7"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Student (No Email - Specify Role)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student\": {\n    \"first_name\": \"Marie\",\n    \"last_name\": \"Martin\",\n    \"birthday\": \"2011-03-20\",\n    \"role\": \"children\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/classes/:class_id/students",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "classes", ":class_id", "students"],
+							"variable": [
+								{
+									"key": "class_id",
+									"value": "7"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Tutor (No Email)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student\": {\n    \"first_name\": \"Sophie\",\n    \"last_name\": \"Legrand\",\n    \"birthday\": \"1985-08-15\",\n    \"role\": \"tutor\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/classes/:class_id/students",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "classes", ":class_id", "students"],
+							"variable": [
+								{
+									"key": "class_id",
+									"value": "7"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Volunteer (No Email)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student\": {\n    \"first_name\": \"Pierre\",\n    \"last_name\": \"Bernard\",\n    \"birthday\": \"1990-12-05\",\n    \"role\": \"voluntary\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/classes/:class_id/students",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "classes", ":class_id", "students"],
+							"variable": [
+								{
+									"key": "class_id",
+									"value": "7"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Link Existing User by Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student\": {\n    \"email\": \"user@kinshipedu.fr\",\n    \"role\": \"children\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/classes/:class_id/students",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "classes", ":class_id", "students"],
+							"variable": [
+								{
+									"key": "class_id",
+									"value": "7"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create New User with Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{jwt_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"student\": {\n    \"email\": \"newstudent@example.com\",\n    \"first_name\": \"Lucas\",\n    \"last_name\": \"Dubois\",\n    \"birthday\": \"2012-06-10\",\n    \"role\": \"children\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/teachers/classes/:class_id/students",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "teachers", "classes", ":class_id", "students"],
+							"variable": [
+								{
+									"key": "class_id",
+									"value": "7"
+								}
+							]
 						}
 					},
 					"response": []
@@ -880,7 +1062,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"project\": {\n    \"title\": \"New Teacher Project\",\n    \"description\": \"A project created by teacher\",\n    \"class_ids\": [1],\n    \"company_ids\": [1]\n  }\n}"
+							"raw": "{\n  \"project\": {\n    \"title\": \"New Teacher Project\",\n    \"description\": \"A project created by teacher\",\n    \"start_date\": \"2025-11-01\",\n    \"end_date\": \"2025-12-31\",\n    \"school_level_ids\": [7]\n  }\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/teachers/projects",
@@ -908,12 +1090,18 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"user_id\": 2\n}"
+							"raw": "{\n  \"user_id\": 21\n}"
 						},
 						"url": {
-							"raw": "{{base_url}}/api/v1/teachers/projects/1/members",
+							"raw": "{{base_url}}/api/v1/teachers/projects/:project_id/add_member",
 							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "teachers", "projects", "1", "members"]
+							"path": ["api", "v1", "teachers", "projects", ":project_id", "add_member"],
+							"variable": [
+								{
+									"key": "project_id",
+									"value": "10"
+								}
+							]
 						}
 					},
 					"response": []
@@ -930,9 +1118,15 @@
 							}
 						],
 						"url": {
-							"raw": "{{base_url}}/api/v1/teachers/projects/1/members",
+							"raw": "{{base_url}}/api/v1/teachers/projects/:project_id/members",
 							"host": ["{{base_url}}"],
-							"path": ["api", "v1", "teachers", "projects", "1", "members"]
+							"path": ["api", "v1", "teachers", "projects", ":project_id", "members"],
+							"variable": [
+								{
+									"key": "project_id",
+									"value": "10"
+								}
+							]
 						}
 					},
 					"response": []
