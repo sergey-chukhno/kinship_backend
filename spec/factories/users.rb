@@ -5,13 +5,18 @@ FactoryBot.define do
     first_name { Faker::Name.first_name }
     last_name { Faker::Name.last_name }
     email { Faker::Internet.unique.email }
-    password { "password" }
+    password { "Password123!" }
     role { "tutor" }
     role_additional_information { "tutor" }
     accept_privacy_policy { true }
 
     trait :teacher do
-      role { "teacher" }
+      role { "school_teacher" }
+      sequence(:email) { |n| "teacher#{n}@ac-nantes.fr" }
+    end
+
+    trait :school_teacher do
+      role { "school_teacher" }
       sequence(:email) { |n| "teacher#{n}@ac-nantes.fr" }
     end
 

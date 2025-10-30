@@ -19,7 +19,7 @@ class TeacherSchoolLevel < ApplicationRecord
   private
   
   def user_must_be_teacher
-    unless user&.teacher?
+    unless User.is_teacher_role?(user&.role)
       errors.add(:user, "doit être un enseignant")
     end
   end
