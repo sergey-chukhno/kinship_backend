@@ -110,7 +110,8 @@ class User < ApplicationRecord
     PERSONAL_USER_ROLES.include?(role.to_sym)
   end
 
-  validates :first_name, :last_name, :role, :role_additional_information, presence: true
+  validates :first_name, :last_name, :role, presence: true
+  validate :role_additional_information_required_if_other
   validates :email, presence: true, uniqueness: true
   validates :email, format: {with: Devise.email_regexp}, unless: :has_temporary_email?
   validates :contact_email, uniqueness: true, allow_blank: true, format: {with: Devise.email_regexp}
@@ -541,6 +542,14 @@ class User < ApplicationRecord
     
     if avatar.byte_size > 5.megabytes
       errors.add(:avatar, "doit être inférieure à 5 Mo")
+    end
+  end
+
+  def role_additional_information_required_if_other
+    return unless role == "other"
+    
+    if role_additional_information.blank?
+      errors.add(:role_additional_information, "doit être rempli(e) lorsque le rôle est 'autre'")
     end
   end
 

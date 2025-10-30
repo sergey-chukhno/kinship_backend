@@ -123,6 +123,12 @@ class RegistrationService < ApplicationService
     @user = User.new(@user_params)
     @user.skip_password_validation = false
     
+    # Auto-populate role_additional_information if not provided (for backward compatibility)
+    # Only required if role is "other"
+    if @user.role_additional_information.blank? && @user.role != "other"
+      @user.role_additional_information = @user.role.to_s.humanize
+    end
+    
     # Attach avatar if provided (with error handling)
     if @avatar.present?
       begin
