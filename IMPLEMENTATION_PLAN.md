@@ -17,6 +17,36 @@
 
 ---
 
+## File Upload Support ⭐
+
+### Overview
+The registration API supports **optional file uploads**:
+- **Avatar**: Optional for all registration types (Personal User, Teacher, School, Company)
+- **Company Logo**: Optional for Company registration only
+
+### Implementation Details
+- **Request Format**: Registration endpoint accepts both:
+  - `application/json` (without files)
+  - `multipart/form-data` (with files)
+- **File Restrictions**: 
+  - Max file size: 5MB
+  - Allowed types: JPEG, PNG, GIF, WebP, SVG
+- **Error Handling**: 
+  - File upload failures do NOT block registration
+  - Errors are returned as `warnings` array in response
+  - Registration succeeds even if file upload fails
+- **Response**: 
+  - Includes `avatar_url` if avatar uploaded successfully
+  - Includes `company_logo_url` if logo uploaded successfully
+  - Includes `warnings` array if file upload fails
+
+### Postman Support
+- Postman collection uses `formdata` body mode for file uploads
+- File fields show as "Select Files" button in Postman UI
+- JSON structure fully supports multipart/form-data requests
+
+---
+
 ## Implementation Strategy
 
 ### Core Principles
@@ -112,11 +142,107 @@ Kinship API Collection
      "type": "text"
    }
    ```
+   
+   **For Registration Endpoint (multipart/form-data):**
+   ```json
+   {
+     "key": "Content-Type",
+     "value": "multipart/form-data",
+     "type": "text",
+     "disabled": true  // Postman handles this automatically
+   }
+   ```
 
 3. **Request Body Examples:**
    - For registration: Include all 4 types with complete examples
    - Include children_info array example for personal_user
    - Include validation error examples
+   - **For registration with file uploads, use `formdata` body mode** ⭐
+   
+   **Registration Request Body (multipart/form-data):**
+   ```json
+   {
+     "mode": "formdata",
+     "formdata": [
+       {
+         "key": "registration_type",
+         "value": "personal_user",
+         "type": "text"
+       },
+       {
+         "key": "user[email]",
+         "value": "user@example.com",
+         "type": "text"
+       },
+       {
+         "key": "user[password]",
+         "value": "Password123!",
+         "type": "text"
+       },
+       {
+         "key": "user[first_name]",
+         "value": "John",
+         "type": "text"
+       },
+       {
+         "key": "user[last_name]",
+         "value": "Doe",
+         "type": "text"
+       },
+       {
+         "key": "user[birthday]",
+         "value": "1990-01-01",
+         "type": "text"
+       },
+       {
+         "key": "user[role]",
+         "value": "parent",
+         "type": "text"
+       },
+       {
+         "key": "avatar",
+         "type": "file",
+         "src": []  // User selects file in Postman UI
+       }
+     ]
+   }
+   ```
+   
+   **Company Registration with Logo:**
+   ```json
+   {
+     "mode": "formdata",
+     "formdata": [
+       {
+         "key": "registration_type",
+         "value": "company",
+         "type": "text"
+       },
+       {
+         "key": "user[email]",
+         "value": "ceo@example.com",
+         "type": "text"
+       },
+       {
+         "key": "company[name]",
+         "value": "Tech Corp",
+         "type": "text"
+       },
+       {
+         "key": "avatar",
+         "type": "file",
+         "src": []  // User's avatar
+       },
+       {
+         "key": "company_logo",
+         "type": "file",
+         "src": []  // Company logo
+       }
+     ]
+   }
+   ```
+   
+   **Note:** In Postman, file fields will show as "Select Files" button - users click to upload files.
 
 4. **Variables:**
    - Use `{{base_url}}` for base URL
@@ -134,9 +260,12 @@ Kinship API Collection
 - [ ] Set correct HTTP method (GET, POST, PATCH, DELETE)
 - [ ] Add all required headers
 - [ ] Include complete request body example
+- [ ] **For registration endpoints: Use `formdata` body mode for file uploads** ⭐
+- [ ] **Include avatar and company_logo file fields in registration requests** ⭐
 - [ ] Add request variables if needed
 - [ ] Verify JSON structure is valid (no syntax errors)
 - [ ] Test request in Postman (if server is running)
+- [ ] **Verify response includes `avatar_url` and `company_logo_url` when files uploaded** ⭐
 - [ ] Document any special notes or requirements
 
 ### Postman Collection Validation
@@ -295,6 +424,24 @@ Kinship API Collection
     errors.add(:password, "doit contenir au moins 8 caractères") if password.length < 8
     errors.add(:password, "doit contenir au moins une lettre majuscule") unless password.match?(/[A-Z]/)
     errors.add(:password, "doit contenir au moins un caractère spécial") unless password.match?(/[!@#$%^&*(),.?":{}|<>]/)
+  end
+  ```
+
+- [ ] **Add avatar format validation** (in private section, similar to Company logo validation):
+  ```ruby
+  validate :avatar_format
+  
+  def avatar_format
+    return unless avatar.attached?
+    
+    acceptable_types = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"]
+    unless acceptable_types.include?(avatar.content_type)
+      errors.add(:avatar, "doit être une image JPEG, PNG, GIF, WebP ou SVG")
+    end
+    
+    if avatar.byte_size > 5.megabytes
+      errors.add(:avatar, "doit être inférieure à 5 Mo")
+    end
   end
   ```
 
@@ -485,7 +632,7 @@ BREAKING CHANGE: Role enum values changed - existing role checks updated"
 
 **Tasks:**
 - [ ] Create service file inheriting from `ApplicationService`
-- [ ] Implement `initialize` method to capture all params:
+- [ ] Implement `initialize` method to capture all params (including file uploads):
   ```ruby
   def initialize(params)
     @params = params
@@ -498,7 +645,10 @@ BREAKING CHANGE: Role enum values changed - existing role checks updated"
     @join_school_ids = params[:join_school_ids] || []
     @join_company_ids = params[:join_company_ids] || []
     @children_info = params[:children_info] || []
+    @avatar = params[:avatar]              # File upload (optional)
+    @company_logo = params[:company_logo] # File upload (optional, company only)
     @errors = []
+    @file_warnings = []                    # Track file upload warnings
   end
   ```
 
@@ -547,8 +697,36 @@ BREAKING CHANGE: Role enum values changed - existing role checks updated"
 - [ ] Implement `create_user!` method:
   - Create User with params
   - Set `skip_password_validation = false`
+  - **Attach avatar if provided** (handle errors gracefully, add to warnings if fails)
   - Update availability if provided
   - Add skills/sub-skills if provided
+  
+  **Avatar attachment code:**
+  ```ruby
+  def create_user!
+    @user = User.new(@user_params)
+    @user.skip_password_validation = false
+    
+    # Attach avatar if provided (with error handling)
+    if @avatar.present?
+      begin
+        @user.avatar.attach(@avatar)
+        unless @user.valid?
+          # If avatar validation fails, remove it and add warning
+          avatar_errors = @user.errors.where(:avatar).map(&:full_message)
+          @user.avatar.purge if @user.avatar.attached?
+          @file_warnings << "Avatar upload failed: #{avatar_errors.join(', ')}"
+          @user.errors.delete(:avatar)
+        end
+      rescue => e
+        @file_warnings << "Avatar upload failed: #{e.message}"
+      end
+    end
+    
+    @user.save!
+    # ... rest of method
+  end
+  ```
 
 - [ ] Implement `handle_personal_user_registration!`:
   - Join schools (pending)
@@ -565,18 +743,61 @@ BREAKING CHANGE: Role enum values changed - existing role checks updated"
 
 - [ ] Implement `handle_company_registration!`:
   - Create Company (confirmed)
+  - **Attach company logo if provided** (handle errors gracefully, add to warnings if fails)
   - Create UserCompany (superadmin, pending)
   - Create BranchRequest if specified
+  
+  **Company logo attachment code:**
+  ```ruby
+  def handle_company_registration!
+    @company = Company.new(@company_params)
+    @company.status = :confirmed
+    
+    # Attach logo if provided (with error handling)
+    if @company_logo.present?
+      begin
+        @company.logo.attach(@company_logo)
+        unless @company.valid?
+          # If logo validation fails, remove it and add warning
+          logo_errors = @company.errors.where(:logo).map(&:full_message)
+          @company.logo.purge if @company.logo.attached?
+          @file_warnings << "Company logo upload failed: #{logo_errors.join(', ')}"
+          @company.errors.delete(:logo)
+        end
+      rescue => e
+        @file_warnings << "Company logo upload failed: #{e.message}"
+      end
+    end
+    
+    @company.save!
+    # ... rest of method
+  end
+  ```
 
 - [ ] Implement helper methods:
   - `send_confirmation_email!`
   - `notify_school_admins`
   - `notify_company_admins`
-  - `success_result`
+  - `success_result` (must include `file_warnings` in response)
   - `error_result`
+  
+  **Updated success_result:**
+  ```ruby
+  def success_result
+    {
+      success: true,
+      user: @user,
+      company: @company,
+      school: @school,
+      file_warnings: @file_warnings
+    }
+  end
+  ```
 
 **Critical Notes:**
 - All database operations wrapped in transaction
+- **File uploads handled OUTSIDE transaction** (ActiveStorage attachment)
+- **File upload failures don't rollback registration** - added to warnings instead
 - Proper error handling and rollback
 - Email confirmation sent AFTER all records created
 - Children info creation in personal_user handler
@@ -659,17 +880,35 @@ git commit -m "feat: Implement RegistrationService for unified registration
 ```ruby
 # POST /api/v1/auth/register
 # Unified registration endpoint for all 4 user types
+# Accepts multipart/form-data for file uploads (avatar, company_logo)
 def register
   skip_before_action :authenticate_api_user!, only: [:register]
     
     result = RegistrationService.new(registration_params).call
     
     if result[:success]
-      render json: {
+      response_data = {
         message: "Registration successful! Please check your email to confirm your account.",
         email: result[:user].email,
         requires_confirmation: true
-      }, status: :ok
+      }
+      
+      # Include avatar_url if avatar was uploaded
+      if result[:user].avatar.attached?
+        response_data[:avatar_url] = result[:user].avatar_url
+      end
+      
+      # Include company_logo_url if company logo was uploaded (company registration only)
+      if result[:company]&.logo&.attached?
+        response_data[:company_logo_url] = result[:company].logo_url
+      end
+      
+      # Include file upload warnings if any
+      if result[:file_warnings].present?
+        response_data[:warnings] = result[:file_warnings]
+      end
+      
+      render json: response_data, status: :created
     else
       render json: {
         error: "Validation failed",
@@ -687,13 +926,15 @@ def register
   end
   ```
 
-- [ ] Add `registration_params` private method:
+- [ ] Add `registration_params` private method (handles multipart/form-data):
   ```ruby
   private
   
   def registration_params
     params.permit(
       :registration_type,
+      :avatar,           # File upload for user avatar (optional)
+      :company_logo,     # File upload for company logo (optional, company registration only)
       user: [
         :email, :password, :password_confirmation, :first_name, :last_name,
         :birthday, :role, :job, :take_trainee, :propose_workshop, :show_my_skills
@@ -713,13 +954,22 @@ def register
     )
   end
   ```
+  
+  **Note:** File uploads (`avatar`, `company_logo`) are handled at the top level of params, not nested under `user` or `company`. Rails handles multipart/form-data parameters this way.
 
 - [ ] Update `skip_before_action` at top of class (add `:register`)
 
 **Critical Notes:**
 - Registration endpoint must be public (no auth required)
+- **Accepts both `application/json` AND `multipart/form-data`** ⭐
+  - JSON: For registration without file uploads
+  - Multipart/form-data: For registration with avatar/company_logo uploads
+- **File uploads are optional** - registration succeeds even if file upload fails
+- **File upload errors are returned as warnings**, not errors (registration succeeds)
 - Proper error handling and logging
 - Strong parameters properly configured
+- **Response includes `avatar_url` and `company_logo_url` if files uploaded successfully** ⭐
+- **Response includes `warnings` array if file upload fails** ⭐
 
 **Estimated Time:** 1 hour
 
@@ -881,14 +1131,17 @@ def register
 git add .
 git commit -m "feat: Add registration and parent children API endpoints
 
-- Add POST /api/v1/auth/register endpoint
+- Add POST /api/v1/auth/register endpoint (supports multipart/form-data for file uploads)
+- Support optional avatar upload for all registration types
+- Support optional company_logo upload for company registration
+- File upload errors handled gracefully (warnings, not errors)
 - Create ParentChildrenController (CRUD for children info)
 - Create SkillsController (public endpoints)
 - Add list_for_joining to SchoolsController and CompaniesController
 - Create Auth::ConfirmationsController (JSON responses)
 - Add all required routes
 - Add comprehensive request specs for all endpoints
-- Update Postman collection with all new endpoints ⭐"
+- Update Postman collection with all new endpoints (including file upload examples) ⭐"
 ```
 
 **Estimated Time:** 30 minutes
@@ -962,7 +1215,7 @@ git commit -m "feat: Add registration and parent children API endpoints
 
 #### Step 4.5: Test Registration End-to-End
 **Tasks:**
-- [ ] Test personal_user registration with curl:
+- [ ] Test personal_user registration with curl (without file):
   ```bash
   curl -X POST http://localhost:3000/api/v1/auth/register \
     -H "Content-Type: application/json" \
@@ -987,10 +1240,45 @@ git commit -m "feat: Add registration and parent children API endpoints
     }'
   ```
 
-- [ ] Test teacher registration
-- [ ] Test school registration
-- [ ] Test company registration
+- [ ] Test personal_user registration with avatar upload:
+  ```bash
+  curl -X POST http://localhost:3000/api/v1/auth/register \
+    -F "registration_type=personal_user" \
+    -F "user[email]=test@example.com" \
+    -F "user[password]=Password123!" \
+    -F "user[password_confirmation]=Password123!" \
+    -F "user[first_name]=Test" \
+    -F "user[last_name]=User" \
+    -F "user[birthday]=1990-01-01" \
+    -F "user[role]=parent" \
+    -F "avatar=@/path/to/avatar.jpg"
+  ```
+
+- [ ] Test company registration with avatar and logo:
+  ```bash
+  curl -X POST http://localhost:3000/api/v1/auth/register \
+    -F "registration_type=company" \
+    -F "user[email]=ceo@example.com" \
+    -F "user[password]=Password123!" \
+    -F "user[first_name]=Sophie" \
+    -F "user[last_name]=Bernard" \
+    -F "user[birthday]=1980-01-01" \
+    -F "user[role]=company_director" \
+    -F "company[name]=Tech Corp" \
+    -F "company[description]=A tech company" \
+    -F "company[city]=Paris" \
+    -F "company[zip_code]=75001" \
+    -F "avatar=@/path/to/avatar.jpg" \
+    -F "company_logo=@/path/to/logo.png"
+  ```
+
+- [ ] Test teacher registration (with avatar, academic email required)
+- [ ] Test school registration (with avatar, academic email required)
+- [ ] Test company registration without files
+- [ ] Test file upload validation errors (file too large, wrong format)
 - [ ] Test all validation errors
+- [ ] Verify response includes `avatar_url` and `company_logo_url` when files uploaded
+- [ ] Verify response includes `warnings` array if file upload fails but registration succeeds
 
 **Estimated Time:** 2 hours
 
