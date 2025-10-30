@@ -173,12 +173,15 @@ class RegistrationService < ApplicationService
       school = School.find_by(id: school_id)
       next unless school
       
-      UserSchool.create!(
+      user_school = UserSchool.create!(
         user: @user,
         school: school,
         role: :member,
         status: :pending
       )
+      
+      # Override callback - ensure status is pending for registration
+      user_school.update_column(:status, :pending) if user_school.confirmed?
       
       # Notify school admins (async)
       notify_school_admins(school)
@@ -217,6 +220,7 @@ class RegistrationService < ApplicationService
 
   def handle_teacher_registration!
     # Join schools as member (pending)
+    # Note: Teachers automatically get pending status from callback
     @join_school_ids.each do |school_id|
       school = School.find_by(id: school_id)
       next unless school
@@ -242,15 +246,21 @@ class RegistrationService < ApplicationService
     @school.save!
     
     # Create UserSchool as superadmin (pending)
-    UserSchool.create!(
+    user_school = UserSchool.create!(
       user: @user,
       school: @school,
       role: :superadmin,
       status: :pending
     )
+    
+    # Override callback - ensure status is pending for registration
+    user_school.update_column(:status, :pending) if user_school.confirmed?
   end
 
   def handle_company_registration!
+    # Extract branch_request_to_company_id before creating Company (it's not a Company attribute)
+    branch_request_to_id = @company_params.delete(:branch_request_to_company_id)
+    
     @company = Company.new(@company_params)
     @company.status = :confirmed
     
@@ -281,8 +291,8 @@ class RegistrationService < ApplicationService
     )
     
     # Create BranchRequest if specified
-    if @company_params[:branch_request_to_company_id].present?
-      main_company = Company.find_by(id: @company_params[:branch_request_to_company_id])
+    if branch_request_to_id.present?
+      main_company = Company.find_by(id: branch_request_to_id)
       if main_company
         branch_request = BranchRequest.create!(
           parent: main_company,
