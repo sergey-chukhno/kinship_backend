@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "kinship-api-v1",
 		"name": "Kinship API v1 - Complete",
-		"description": "Complete API collection for Kinship React Dashboards\n\n**Phase 1: Authentication** ✅\n**Phase 2: Core Serializers** ✅\n**Phase 3: User Dashboard** ✅\n**Phase 4: Teacher Dashboard** ✅\n**Phase 5: School Dashboard** ✅\n**Phase 6: Company Dashboard** ✅\n\n**How to use:**\n1. Run 'Login' request first\n2. Token will be auto-saved to {{jwt_token}} variable\n3. All other requests use this token automatically\n\n**Authentication Flow:**\n- Login → Get JWT token (24h expiration)\n- Use token for all subsequent requests\n- Refresh token when needed",
+		"description": "Complete API collection for Kinship React Dashboards\n\n**Phase 1: Authentication** ✅\n**Phase 2: Core Serializers** ✅\n**Phase 3: User Dashboard** ✅\n**Phase 4: Teacher Dashboard** ✅\n**Phase 5: School Dashboard** ✅\n**Phase 6: Company Dashboard** ✅\n**Registration API** ✅\n\n**How to use:**\n1. Register new user via POST /api/v1/auth/register\n2. Confirm email via GET /api/v1/auth/confirmation\n3. Run 'Login' request\n4. Token will be auto-saved to {{jwt_token}} variable\n5. All other requests use this token automatically\n\n**Authentication Flow:**\n- Register → Email confirmation → Login → Get JWT token (24h expiration)\n- Use token for all subsequent requests\n- Refresh token when needed\n\n**Registration Types:**\n- Personal User (with optional children_info)\n- Teacher (requires academic email)\n- School (creates school organization)\n- Company (creates company organization)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {

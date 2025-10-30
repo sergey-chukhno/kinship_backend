@@ -95,18 +95,22 @@ class User < ApplicationRecord
 
   # Role class methods
   def self.is_teacher_role?(role)
+    return false if role.blank?
     TEACHER_ROLES.include?(role.to_sym)
   end
 
   def self.is_school_admin_role?(role)
+    return false if role.blank?
     SCHOOL_ADMIN_ROLES.include?(role.to_sym)
   end
 
   def self.is_company_admin_role?(role)
+    return false if role.blank?
     COMPANY_ADMIN_ROLES.include?(role.to_sym)
   end
 
   def self.is_personal_user_role?(role)
+    return false if role.blank?
     PERSONAL_USER_ROLES.include?(role.to_sym)
   end
 
@@ -491,6 +495,7 @@ class User < ApplicationRecord
   private
 
   def requires_academic_email?
+    return false if role.blank?
     User.is_teacher_role?(role) || User.is_school_admin_role?(role)
   end
 
