@@ -32,7 +32,7 @@ class UserSerializer < ActiveModel::Serializer
   def available_contexts
     {
       user_dashboard: has_personal_dashboard?,
-      teacher_dashboard: object.teacher?,
+      teacher_dashboard: User.is_teacher_role?(object.role),
       independent_teacher: serialize_independent_teacher,
       schools: serialize_schools,
       companies: serialize_companies

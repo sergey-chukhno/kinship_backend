@@ -83,7 +83,7 @@ class IndependentTeacher < ApplicationRecord
   private
   
   def user_must_be_teacher
-    return if user&.teacher?
+    return if User.is_teacher_role?(user&.role)
     errors.add(:user, "Independent teacher status is only available for users with role 'teacher'")
   end
   

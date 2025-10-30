@@ -4,7 +4,7 @@ class Api::V1::Teachers::BaseController < Api::V1::BaseController
   private
   
   def verify_teacher_role!
-    unless current_user.teacher?
+    unless User.is_teacher_role?(current_user.role)
       render json: { 
         error: 'Forbidden',
         message: 'Teacher dashboard access requires teacher role'

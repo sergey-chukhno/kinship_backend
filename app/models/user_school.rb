@@ -57,14 +57,14 @@ class UserSchool < ApplicationRecord
   end
 
   def set_status
-    return update(status: :confirmed) unless user.teacher?
+    return update(status: :confirmed) unless User.is_teacher_role?(user.role)
 
     update(status: :pending)
   end
   
   # Callback: Remove teacher from school-owned classes when leaving (Change #8)
   def unassign_teacher_from_school_classes
-    return unless user.teacher?
+    return unless User.is_teacher_role?(user.role)
     
     # Remove teacher from ALL classes belonging to this school
     # This includes:

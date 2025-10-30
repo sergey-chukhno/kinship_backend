@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_10_22_112539) do
+ActiveRecord::Schema[7.1].define(version: 2025_10_30_104451) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -238,6 +238,24 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_22_112539) do
     t.string "user_email"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "parent_child_infos", force: :cascade do |t|
+    t.bigint "parent_user_id", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.date "birthday"
+    t.bigint "school_id"
+    t.string "school_name"
+    t.bigint "class_id"
+    t.string "class_name"
+    t.bigint "linked_user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["first_name", "last_name", "birthday"], name: "index_parent_child_infos_on_name_and_birthday"
+    t.index ["linked_user_id"], name: "index_parent_child_infos_on_linked_user_id"
+    t.index ["parent_user_id"], name: "index_parent_child_infos_on_parent_user_id"
+    t.index ["school_id"], name: "index_parent_child_infos_on_school_id"
   end
 
   create_table "partnership_members", force: :cascade do |t|
@@ -569,6 +587,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_10_22_112539) do
   add_foreign_key "independent_teachers", "users"
   add_foreign_key "keywords", "projects"
   add_foreign_key "links", "projects"
+  add_foreign_key "parent_child_infos", "school_levels", column: "class_id"
+  add_foreign_key "parent_child_infos", "schools"
+  add_foreign_key "parent_child_infos", "users", column: "linked_user_id"
+  add_foreign_key "parent_child_infos", "users", column: "parent_user_id"
   add_foreign_key "partnership_members", "partnerships"
   add_foreign_key "project_companies", "companies"
   add_foreign_key "project_companies", "projects"
