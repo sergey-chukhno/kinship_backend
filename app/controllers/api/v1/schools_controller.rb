@@ -1,8 +1,9 @@
 # Main Schools API controller
 # Handles school profile and dashboard stats
 class Api::V1::SchoolsController < Api::V1::Schools::BaseController
-  skip_before_action :set_school, only: []
-  skip_before_action :ensure_school_member, only: []
+  skip_before_action :set_school, only: [:list_for_joining]
+  skip_before_action :ensure_school_member, only: [:list_for_joining]
+  skip_before_action :authenticate_api_user!, only: [:list_for_joining]
   
   # GET /api/v1/schools/:id
   # View school profile
@@ -87,6 +88,17 @@ class Api::V1::SchoolsController < Api::V1::Schools::BaseController
     render json: stats_data
   end
   
+  # GET /api/v1/schools/list_for_joining
+  # List all confirmed schools for registration (public endpoint)
+  # @return [JSON] Array of school objects
+  def list_for_joining
+    @schools = School.where(status: :confirmed).order(:name)
+    
+    render json: {
+      data: @schools.map { |school| serialize_school_for_joining(school) }
+    }
+  end
+  
   private
   
   def school_params
@@ -124,6 +136,18 @@ class Api::V1::SchoolsController < Api::V1::Schools::BaseController
       },
       created_at: school.created_at,
       updated_at: school.updated_at
+    }
+  end
+  
+  def serialize_school_for_joining(school)
+    {
+      id: school.id,
+      name: school.name,
+      city: school.city,
+      zip_code: school.zip_code,
+      school_type: school.school_type,
+      logo_url: school.logo.attached? ? 
+        Rails.application.routes.url_helpers.rails_blob_url(school.logo, only_path: false) : nil
     }
   end
 end
