@@ -107,7 +107,7 @@ class Contract < ApplicationRecord
   def validate_independent_teacher_contract
     return unless contractable
     
-    unless contractable.user&.teacher?
+    unless User.is_teacher_role?(contractable.user&.role)
       errors.add(:contractable, "Le contrat d'enseignant indépendant nécessite un utilisateur avec le rôle 'enseignant'")
     end
     

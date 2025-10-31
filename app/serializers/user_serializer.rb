@@ -32,7 +32,7 @@ class UserSerializer < ActiveModel::Serializer
   def available_contexts
     {
       user_dashboard: has_personal_dashboard?,
-      teacher_dashboard: object.teacher?,
+      teacher_dashboard: User.is_teacher_role?(object.role),
       independent_teacher: serialize_independent_teacher,
       schools: serialize_schools,
       companies: serialize_companies
@@ -42,10 +42,9 @@ class UserSerializer < ActiveModel::Serializer
   private
   
   # Check if user has personal dashboard access
-  # All users have personal dashboard unless explicitly organization-only
+  # Only personal user roles should have personal dashboard
   def has_personal_dashboard?
-    # Future: could add `organization_only` flag to User model
-    true
+    User.is_personal_user_role?(object.role)
   end
   
   # Serialize user's schools with roles and permissions

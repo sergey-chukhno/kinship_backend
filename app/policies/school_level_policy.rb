@@ -2,7 +2,7 @@ class SchoolLevelPolicy < ApplicationPolicy
   class Scope < Scope
     def resolve
       # Users see classes they're assigned to OR classes from their schools
-      teacher_classes = user.teacher? ? SchoolLevel.for_teacher(user) : SchoolLevel.none
+      teacher_classes = User.is_teacher_role?(user.role) ? SchoolLevel.for_teacher(user) : SchoolLevel.none
       school_classes = SchoolLevel.joins(:school).merge(user.schools.where(user_schools: {status: :confirmed}))
       
       teacher_classes.or(school_classes).distinct
@@ -61,7 +61,7 @@ class SchoolLevelPolicy < ApplicationPolicy
   def create?
     # Teachers can create independent classes
     # School admins can create school classes
-    user.teacher? || school_can_manage?
+    User.is_teacher_role?(user.role) || school_can_manage?
   end
   
   def update?

@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "kinship-api-v1",
 		"name": "Kinship API v1 - Complete",
-		"description": "Complete API collection for Kinship React Dashboards\n\n**Phase 1: Authentication** ✅\n**Phase 2: Core Serializers** ✅\n**Phase 3: User Dashboard** ✅\n**Phase 4: Teacher Dashboard** ✅\n**Phase 5: School Dashboard** ✅\n**Phase 6: Company Dashboard** ✅\n\n**How to use:**\n1. Run 'Login' request first\n2. Token will be auto-saved to {{jwt_token}} variable\n3. All other requests use this token automatically\n\n**Authentication Flow:**\n- Login → Get JWT token (24h expiration)\n- Use token for all subsequent requests\n- Refresh token when needed",
+		"description": "Complete API collection for Kinship React Dashboards\n\n**Phase 1: Authentication** ✅\n**Phase 2: Core Serializers** ✅\n**Phase 3: User Dashboard** ✅\n**Phase 4: Teacher Dashboard** ✅\n**Phase 5: School Dashboard** ✅\n**Phase 6: Company Dashboard** ✅\n**Registration API** ✅\n\n**How to use:**\n1. Register new user via POST /api/v1/auth/register\n2. Confirm email via GET /api/v1/auth/confirmation\n3. Run 'Login' request\n4. Token will be auto-saved to {{jwt_token}} variable\n5. All other requests use this token automatically\n\n**Authentication Flow:**\n- Register → Email confirmation → Login → Get JWT token (24h expiration)\n- Use token for all subsequent requests\n- Refresh token when needed\n\n**Registration Types:**\n- Personal User (with optional children_info)\n- Teacher (requires academic email)\n- School (creates school organization)\n- Company (creates company organization)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"auth": {
@@ -80,6 +80,355 @@
 					"response": []
 				},
 				{
+					"name": "Register - Personal User",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"registration_type\": \"personal_user\",\n  \"user\": {\n    \"email\": \"parent@example.com\",\n    \"password\": \"Password123!\",\n    \"password_confirmation\": \"Password123!\",\n    \"first_name\": \"John\",\n    \"last_name\": \"Doe\",\n    \"birthday\": \"1990-01-01\",\n    \"role\": \"parent\",\n    \"accept_privacy_policy\": true\n  },\n  \"children_info\": [\n    {\n      \"first_name\": \"Alice\",\n      \"last_name\": \"Doe\",\n      \"birthday\": \"2010-05-15\"\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register - Personal User (with Avatar)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "registration_type",
+									"value": "personal_user",
+									"type": "text"
+								},
+								{
+									"key": "user[email]",
+									"value": "parent@example.com",
+									"type": "text"
+								},
+								{
+									"key": "user[password]",
+									"value": "Password123!",
+									"type": "text"
+								},
+								{
+									"key": "user[password_confirmation]",
+									"value": "Password123!",
+									"type": "text"
+								},
+								{
+									"key": "user[first_name]",
+									"value": "John",
+									"type": "text"
+								},
+								{
+									"key": "user[last_name]",
+									"value": "Doe",
+									"type": "text"
+								},
+								{
+									"key": "user[birthday]",
+									"value": "1990-01-01",
+									"type": "text"
+								},
+								{
+									"key": "user[role]",
+									"value": "parent",
+									"type": "text"
+								},
+								{
+									"key": "user[accept_privacy_policy]",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register - Teacher",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"registration_type\": \"teacher\",\n  \"user\": {\n    \"email\": \"teacher@ac-nantes.fr\",\n    \"password\": \"Password123!\",\n    \"password_confirmation\": \"Password123!\",\n    \"first_name\": \"Jane\",\n    \"last_name\": \"Smith\",\n    \"birthday\": \"1985-03-20\",\n    \"role\": \"school_teacher\",\n    \"accept_privacy_policy\": true\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register - School",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"registration_type\": \"school\",\n  \"user\": {\n    \"email\": \"director@ac-nantes.fr\",\n    \"password\": \"Password123!\",\n    \"password_confirmation\": \"Password123!\",\n    \"first_name\": \"Marie\",\n    \"last_name\": \"Dupont\",\n    \"birthday\": \"1975-06-15\",\n    \"role\": \"school_director\",\n    \"accept_privacy_policy\": true\n  },\n  \"school\": {\n    \"name\": \"Test School\",\n    \"zip_code\": \"44000\",\n    \"city\": \"Nantes\",\n    \"school_type\": \"lycee\",\n    \"referent_phone_number\": \"0123456789\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register - Company",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"registration_type\": \"company\",\n  \"user\": {\n    \"email\": \"ceo@example.com\",\n    \"password\": \"Password123!\",\n    \"password_confirmation\": \"Password123!\",\n    \"first_name\": \"Sophie\",\n    \"last_name\": \"Bernard\",\n    \"birthday\": \"1980-01-01\",\n    \"role\": \"company_director\",\n    \"accept_privacy_policy\": true\n  },\n  \"company\": {\n    \"name\": \"Test Company\",\n    \"description\": \"A test company\",\n    \"zip_code\": \"75001\",\n    \"city\": \"Paris\",\n    \"company_type_id\": 1,\n    \"referent_phone_number\": \"0123456789\"\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register - Company (with Logo)",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "registration_type",
+									"value": "company",
+									"type": "text"
+								},
+								{
+									"key": "user[email]",
+									"value": "ceo@example.com",
+									"type": "text"
+								},
+								{
+									"key": "user[password]",
+									"value": "Password123!",
+									"type": "text"
+								},
+								{
+									"key": "user[password_confirmation]",
+									"value": "Password123!",
+									"type": "text"
+								},
+								{
+									"key": "user[first_name]",
+									"value": "Sophie",
+									"type": "text"
+								},
+								{
+									"key": "user[last_name]",
+									"value": "Bernard",
+									"type": "text"
+								},
+								{
+									"key": "user[birthday]",
+									"value": "1980-01-01",
+									"type": "text"
+								},
+								{
+									"key": "user[role]",
+									"value": "company_director",
+									"type": "text"
+								},
+								{
+									"key": "user[accept_privacy_policy]",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "company[name]",
+									"value": "Test Company",
+									"type": "text"
+								},
+								{
+									"key": "company[description]",
+									"value": "A test company",
+									"type": "text"
+								},
+								{
+									"key": "company[zip_code]",
+									"value": "75001",
+									"type": "text"
+								},
+								{
+									"key": "company[city]",
+									"value": "Paris",
+									"type": "text"
+								},
+								{
+									"key": "company[company_type_id]",
+									"value": "1",
+									"type": "text"
+								},
+								{
+									"key": "company[referent_phone_number]",
+									"value": "0123456789",
+									"type": "text"
+								},
+								{
+									"key": "avatar",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "company_logo",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Confirm Email",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/confirmation?confirmation_token=YOUR_TOKEN_HERE",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"confirmation"
+							],
+							"query": [
+								{
+									"key": "confirmation_token",
+									"value": "YOUR_TOKEN_HERE",
+									"description": "Token from confirmation email"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Get Current User",
 					"request": {
 						"method": "GET",
@@ -148,6 +497,116 @@
 								"v1",
 								"auth",
 								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Registration Resources",
+			"description": "Public endpoints for registration (no authentication required)",
+			"item": [
+				{
+					"name": "Skills",
+					"item": [
+						{
+							"name": "List All Skills",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/skills",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"skills"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Sub-Skills for Skill",
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/skills/:id/sub_skills",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"skills",
+										":id",
+										"sub_skills"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "1",
+											"description": "Skill ID"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "List Schools for Joining",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/schools/list_for_joining",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"schools",
+								"list_for_joining"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Companies for Joining",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/v1/companies/list_for_joining",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"companies",
+								"list_for_joining"
 							]
 						}
 					},
@@ -237,6 +696,148 @@
 										"users",
 										"me",
 										"avatar"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Parent Children",
+					"item": [
+						{
+							"name": "List Children Info",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/parent_children",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"parent_children"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add Child Info",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"parent_child_info\": {\n    \"first_name\": \"Alice\",\n    \"last_name\": \"Doe\",\n    \"birthday\": \"2010-05-15\",\n    \"school_name\": \"Elementary School\",\n    \"class_name\": \"Grade 5\"\n  }\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/parent_children",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"parent_children"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Child Info",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/parent_children/:id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"parent_children",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "1",
+											"description": "Parent Child Info ID"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update Child Info",
+							"request": {
+								"method": "PATCH",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"parent_child_info\": {\n    \"first_name\": \"Alice\",\n    \"last_name\": \"Updated\",\n    \"birthday\": \"2010-05-15\"\n  }\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/api/v1/parent_children/:id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"parent_children",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "1",
+											"description": "Parent Child Info ID"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Delete Child Info",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/api/v1/parent_children/:id",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"parent_children",
+										":id"
+									],
+									"variable": [
+										{
+											"key": "id",
+											"value": "1",
+											"description": "Parent Child Info ID"
+										}
 									]
 								}
 							},

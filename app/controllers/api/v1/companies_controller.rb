@@ -1,8 +1,9 @@
 # Main Companies API controller
 # Handles company profile and dashboard stats
 class Api::V1::CompaniesController < Api::V1::Companies::BaseController
-  skip_before_action :set_company, only: []
-  skip_before_action :ensure_admin_or_superadmin, only: []
+  skip_before_action :set_company, only: [:list_for_joining]
+  skip_before_action :ensure_admin_or_superadmin, only: [:list_for_joining]
+  skip_before_action :authenticate_api_user!, only: [:list_for_joining]
   
   # GET /api/v1/companies/:id
   # View company profile
@@ -86,6 +87,17 @@ class Api::V1::CompaniesController < Api::V1::Companies::BaseController
     render json: stats_data
   end
   
+  # GET /api/v1/companies/list_for_joining
+  # List all confirmed companies for registration (public endpoint)
+  # @return [JSON] Array of company objects
+  def list_for_joining
+    @companies = Company.where(status: :confirmed).order(:name)
+    
+    render json: {
+      data: @companies.map { |company| serialize_company_for_joining(company) }
+    }
+  end
+  
   private
   
   def company_params
@@ -128,6 +140,18 @@ class Api::V1::CompaniesController < Api::V1::Companies::BaseController
       },
       created_at: company.created_at,
       updated_at: company.updated_at
+    }
+  end
+  
+  def serialize_company_for_joining(company)
+    {
+      id: company.id,
+      name: company.name,
+      city: company.city,
+      zip_code: company.zip_code,
+      company_type: company.company_type&.name,
+      logo_url: company.logo.attached? ? 
+        Rails.application.routes.url_helpers.rails_blob_url(company.logo, only_path: false) : nil
     }
   end
 end

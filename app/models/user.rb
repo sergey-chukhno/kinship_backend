@@ -50,6 +50,8 @@ class User < ApplicationRecord
   has_many :badges_sent, class_name: "UserBadge", foreign_key: :sender_id
   has_many :badges_received, -> { where(status: :approved) }, class_name: "UserBadge", foreign_key: :receiver_id
 
+  has_many :parent_child_infos, foreign_key: :parent_user_id, dependent: :destroy
+
   has_one_attached :avatar
 
   accepts_nested_attributes_for :user_skills, allow_destroy: true
@@ -58,13 +60,70 @@ class User < ApplicationRecord
   accepts_nested_attributes_for :user_schools, allow_destroy: true
   accepts_nested_attributes_for :user_school_levels, allow_destroy: true
   accepts_nested_attributes_for :user_company, allow_destroy: true
-  enum :role, {teacher: 0, tutor: 1, voluntary: 2, children: 3}, default: :voluntary
+  
+  # New informative role enum (16 roles)
+  # Using prefix: true to avoid conflict with belongs_to :parent association
+  enum :role, {
+    # Personal User Roles
+    parent: 0,
+    grand_parent: 1,
+    children: 2,
+    voluntary: 3,
+    tutor: 4,
+    employee: 5,
+    # Teacher Roles
+    school_teacher: 6,
+    college_lycee_professor: 7,
+    teaching_staff: 8,
+    # School Admin Roles
+    school_director: 9,
+    principal: 10,
+    education_director: 11,
+    # Company Admin Roles
+    association_president: 12,
+    company_director: 13,
+    organization_head: 14,
+    # Other
+    other: 15
+  }, default: :voluntary, prefix: true
 
-  validates :first_name, :last_name, :role, :role_additional_information, presence: true
+  # Role group constants
+  PERSONAL_USER_ROLES = [:parent, :grand_parent, :children, :voluntary, :tutor, :employee, :other].freeze
+  TEACHER_ROLES = [:school_teacher, :college_lycee_professor, :teaching_staff, :other].freeze
+  SCHOOL_ADMIN_ROLES = [:school_director, :principal, :education_director, :other].freeze
+  COMPANY_ADMIN_ROLES = [:association_president, :company_director, :organization_head, :other].freeze
+
+  # Role class methods
+  def self.is_teacher_role?(role)
+    return false if role.blank?
+    TEACHER_ROLES.include?(role.to_sym)
+  end
+
+  def self.is_school_admin_role?(role)
+    return false if role.blank?
+    SCHOOL_ADMIN_ROLES.include?(role.to_sym)
+  end
+
+  def self.is_company_admin_role?(role)
+    return false if role.blank?
+    COMPANY_ADMIN_ROLES.include?(role.to_sym)
+  end
+
+  def self.is_personal_user_role?(role)
+    return false if role.blank?
+    PERSONAL_USER_ROLES.include?(role.to_sym)
+  end
+
+  validates :first_name, :last_name, :role, presence: true
+  validate :role_additional_information_required_if_other
   validates :email, presence: true, uniqueness: true
   validates :email, format: {with: Devise.email_regexp}, unless: :has_temporary_email?
   validates :contact_email, uniqueness: true, allow_blank: true, format: {with: Devise.email_regexp}
-  validate :academic_email?, if: -> { role == "teacher" && email.present? && !has_temporary_email? }
+  validate :academic_email?, if: -> { requires_academic_email? && email.present? && !has_temporary_email? }
+  validate :non_academic_email_for_personal_user
+  validate :password_complexity
+  validate :minimum_age
+  validate :avatar_format
   validate :check_for_circular_reference, if: -> { parent_id.present? }
   validate :privacy_policy_accepted?, if: -> { accept_privacy_policy == false }
 
@@ -90,7 +149,7 @@ class User < ApplicationRecord
       .or(User.teachers.where(schools: {id: current_user.schools}))
   }
   scope :voluntary, -> { where(role: "voluntary") }
-  scope :teachers, -> { where(role: "teacher") }
+  scope :teachers, -> { where(role: TEACHER_ROLES.map(&:to_s)) }
   scope :tutors, -> { where(role: "tutor") }
   scope :children, -> { where.not(parent_id: nil) }
   scope :by_school, lambda { |school_id|
@@ -435,12 +494,68 @@ class User < ApplicationRecord
 
   private
 
-  def academic_email?
-    if email.match?(/@(ac-aix-marseille|ac-amiens|ac-besancon|ac-bordeaux|ac-caen|ac-clermont|ac-creteil|ac-corse|ac-dijon|ac-grenoble|ac-guadeloupe|ac-guyane|ac-lille|ac-limoges|ac-lyon|ac-martinique|ac-mayotte|ac-montpellier|ac-nancy-metz|ac-nantes|ac-nice|ac-orleans-tours|ac-paris|ac-poitiers|ac-reims|ac-rennes|ac-reunion|ac-rouen|ac-strasbourg|ac-toulouse|ac-versailles)\.fr$/) || email.match?(/@education\.mc$/) || email.match?(/@lfmadrid\.org$/)
-      return
-    end
+  def requires_academic_email?
+    return false if role.blank?
+    User.is_teacher_role?(role) || User.is_school_admin_role?(role)
+  end
 
+  def academic_email?
+    return if is_academic_email?(email)
     errors.add(:email, "L'email doit être votre mail académique")
+  end
+
+  def is_academic_email?(email_address)
+    email_address.match?(/@(ac-aix-marseille|ac-amiens|ac-besancon|ac-bordeaux|ac-caen|ac-clermont|ac-creteil|ac-corse|ac-dijon|ac-grenoble|ac-guadeloupe|ac-guyane|ac-lille|ac-limoges|ac-lyon|ac-martinique|ac-mayotte|ac-montpellier|ac-nancy-metz|ac-nantes|ac-nice|ac-orleans-tours|ac-paris|ac-poitiers|ac-reims|ac-rennes|ac-reunion|ac-rouen|ac-strasbourg|ac-toulouse|ac-versailles)\.fr$/) || 
+    email_address.match?(/@education\.mc$/) || 
+    email_address.match?(/@lfmadrid\.org$/)
+  end
+
+  def non_academic_email_for_personal_user
+    return unless User.is_personal_user_role?(role)
+    return unless email.present?
+    return if has_temporary_email?
+    
+    if is_academic_email?(email)
+      errors.add(:email, "Les utilisateurs personnels ne peuvent pas utiliser d'email académique. Veuillez utiliser votre email personnel.")
+    end
+  end
+
+  def password_complexity
+    return if password.blank? || skip_password_validation
+    
+    errors.add(:password, "doit contenir au moins 8 caractères") if password.length < 8
+    errors.add(:password, "doit contenir au moins une lettre majuscule") unless password.match?(/[A-Z]/)
+    errors.add(:password, "doit contenir au moins un caractère spécial") unless password.match?(/[!@#$%^&*(),.?":{}|<>]/)
+  end
+
+  def minimum_age
+    return unless birthday.present?
+    
+    age = ((Time.zone.now - birthday.to_time) / 1.year.seconds).floor
+    if age < 13
+      errors.add(:birthday, "vous devez avoir au moins 13 ans pour vous inscrire")
+    end
+  end
+
+  def avatar_format
+    return unless avatar.attached?
+    
+    acceptable_types = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"]
+    unless acceptable_types.include?(avatar.content_type)
+      errors.add(:avatar, "doit être une image JPEG, PNG, GIF, WebP ou SVG")
+    end
+    
+    if avatar.byte_size > 5.megabytes
+      errors.add(:avatar, "doit être inférieure à 5 Mo")
+    end
+  end
+
+  def role_additional_information_required_if_other
+    return unless role == "other"
+    
+    if role_additional_information.blank?
+      errors.add(:role_additional_information, "doit être rempli(e) lorsque le rôle est 'autre'")
+    end
   end
 
   def set_admin_if_super_admin
@@ -461,7 +576,7 @@ class User < ApplicationRecord
   
   # Auto-create IndependentTeacher for new teachers (Change #9)
   def create_independent_teacher_if_teacher
-    return unless teacher?
+    return unless User.is_teacher_role?(role)
     
     IndependentTeacher.create!(
       user: self,

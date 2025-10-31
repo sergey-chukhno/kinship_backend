@@ -135,9 +135,11 @@ Rails.application.routes.draw do
     namespace :v1 do
       # Authentication endpoints (Phase 1)
       post 'auth/login', to: 'auth#login'
+      post 'auth/register', to: 'auth#register'
       delete 'auth/logout', to: 'auth#logout'
       post 'auth/refresh', to: 'auth#refresh'
       get 'auth/me', to: 'auth#me'
+      get 'auth/confirmation', to: 'auth/confirmations#show'
       
       # User Dashboard endpoints (Phase 3)
       patch 'users/me', to: 'users#update'
@@ -209,6 +211,16 @@ Rails.application.routes.draw do
         get 'claim/info', to: 'claim#info'
         post 'claim', to: 'claim#create'
       end
+      
+      # Public endpoints for registration
+      resources :skills, only: [:index] do
+        get :sub_skills, on: :member
+      end
+      get 'schools/list_for_joining', to: 'schools#list_for_joining'
+      get 'companies/list_for_joining', to: 'companies#list_for_joining'
+      
+      # Parent children management
+      resources :parent_children, only: [:index, :create, :show, :update, :destroy]
       
       # School Dashboard API (Phase 5)
       resources :schools, only: [:show, :update] do
